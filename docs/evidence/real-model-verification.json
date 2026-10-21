@@ -1,0 +1,13 @@
+{
+  "run_id": "5214ea63741c47a0875a35dd4cfa3376",
+  "model": "claude-sonnet-5",
+  "protocol_tests_passed": 232,
+  "real_cases_passed": 23,
+  "real_cases_failed": 1,
+  "persisted_langfuse_scores": 44,
+  "failed_case_ids": [
+    "M24"
+  ],
+  "secret_scan_passed": true,
+  "code_hash_matches_report": true
+}

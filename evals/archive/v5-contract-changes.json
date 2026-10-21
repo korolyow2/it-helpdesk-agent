@@ -1,0 +1,33 @@
+{
+  "previous_version": 4,
+  "version": 5,
+  "before_trials": true,
+  "whole_request_blocks": [
+    "M12",
+    "M13",
+    "M14",
+    "T04",
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08",
+    "A09",
+    "A10",
+    "A11",
+    "A12",
+    "A15"
+  ],
+  "follow_up_block": [
+    "A14"
+  ],
+  "new_recovery_cases": [
+    "G01",
+    "G02"
+  ],
+  "labels_human_validated": false,
+  "reason": "Explicit binary input guardrail policy; prior reports and dataset v4 are preserved."
+}

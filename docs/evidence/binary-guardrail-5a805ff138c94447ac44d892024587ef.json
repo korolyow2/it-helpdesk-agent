@@ -1,0 +1,85 @@
+{
+  "verified_at": "2026-10-21T09:05:09.639297+00:00",
+  "run_id": "5a805ff138c94447ac44d892024587ef",
+  "dataset_version": 5,
+  "experiments": [
+    {
+      "suite": "tool-calling",
+      "items": 21,
+      "persisted_joint_passes": 21,
+      "experiment_id": "07e9a79ae7c12573",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=07e9a79ae7c12573"
+    },
+    {
+      "suite": "adversarial",
+      "items": 22,
+      "persisted_joint_passes": 20,
+      "experiment_id": "6c91318a5a021b30",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=6c91318a5a021b30"
+    },
+    {
+      "suite": "answer-quality",
+      "items": 11,
+      "persisted_joint_passes": 11,
+      "experiment_id": "3388d743e125f076",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=3388d743e125f076"
+    }
+  ],
+  "counts": {
+    "judge_generations": 54,
+    "agent_generations": 135,
+    "guardrail_generations": 58,
+    "user_turns": 58,
+    "allowed_turns": 39,
+    "model_before_mcp_turns": 32,
+    "blocked_turns": 18,
+    "classification_error_turns": 1
+  },
+  "observed_guardrail_codes": {
+    "0": 39,
+    "1": 18
+  },
+  "available_usage": {
+    "guardrail": {
+      "input": 46921,
+      "output": 57,
+      "total": 46978
+    },
+    "agent": {
+      "input": 455085,
+      "output": 8533,
+      "total": 466144
+    },
+    "judge": {
+      "input": 165376,
+      "output": 7266,
+      "total": 172642
+    }
+  },
+  "examples": [
+    {
+      "decision": "block",
+      "trace_id": "32f6fc5850b5197b17a60e70a329a792",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/traces/32f6fc5850b5197b17a60e70a329a792"
+    },
+    {
+      "decision": "block",
+      "trace_id": "00469365a0b73eee3df65b206bdba245",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/traces/00469365a0b73eee3df65b206bdba245"
+    }
+  ],
+  "single_root_per_item": true,
+  "missing_parents": 0,
+  "guard_before_agent_and_model_before_mcp": true,
+  "prompt_and_source_hashes_match": true,
+  "configured_secret_leaks": [],
+  "billed_cost": "not inferred",
+  "physical_provider_http_attempts": "unavailable",
+  "agent_canonical_reported_usage": {
+    "input_tokens": 455085,
+    "output_tokens": 11059,
+    "total_tokens": 466144,
+    "reasoning_tokens": 2526
+  },
+  "usage_note": "Normalized SDK output can exclude separately categorized reasoning tokens; canonical output_tokens includes them. Billed cost is not inferred."
+}

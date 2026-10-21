@@ -1,0 +1,71 @@
+{
+  "verified_at": "2026-10-20T18:53:49.920917+00:00",
+  "source_run_id": "98ea95fc617942b39385662e9d34bf61",
+  "dataset_version": 4,
+  "actual_agent_trials": 52,
+  "persisted_scores": [
+    {
+      "suite": "tool-calling",
+      "experiment_id": "22665f46af2dd333",
+      "items": 21,
+      "persisted_joint_passes": 20,
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=22665f46af2dd333"
+    },
+    {
+      "suite": "adversarial",
+      "experiment_id": "13211e2e7f367373",
+      "items": 20,
+      "persisted_joint_passes": 19,
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=13211e2e7f367373"
+    },
+    {
+      "suite": "answer-quality",
+      "experiment_id": "cf5f8ed4862c3e89",
+      "items": 11,
+      "persisted_joint_passes": 10,
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=cf5f8ed4862c3e89"
+    }
+  ],
+  "counts": {
+    "judge_generations": 52,
+    "model_generations": 156,
+    "user_turns": 54,
+    "turns_with_model_before_mcp": 33,
+    "turns_without_mcp": 21
+  },
+  "chronology_examples": [
+    {
+      "trace_id": "78ba5c122208411d71fdce2dffa7d32d",
+      "first_model_end": "2026-10-20T18:49:25.913000Z",
+      "first_mcp_start": "2026-10-20T18:49:25.931000Z",
+      "first_mcp_name": "mcp.discovery"
+    },
+    {
+      "trace_id": "5dbc87d6305ae5737e6fc146825b80c2",
+      "first_model_end": "2026-10-20T18:49:15.651000Z",
+      "first_mcp_start": "2026-10-20T18:49:15.672000Z",
+      "first_mcp_name": "mcp.discovery"
+    },
+    {
+      "trace_id": "6ae71e024cfaec842f7e7e92d708cd52",
+      "first_model_end": "2026-10-20T18:49:05.292000Z",
+      "first_mcp_start": "2026-10-20T18:49:05.310000Z",
+      "first_mcp_name": "mcp.discovery"
+    }
+  ],
+  "all_agent_prompts_match_run": true,
+  "current_prompt_and_application_match_run": true,
+  "configured_secret_leaks": [],
+  "available_agent_usage": {
+    "input_tokens": 463910,
+    "output_tokens": 13926,
+    "total_tokens": 477836
+  },
+  "available_judge_usage": {
+    "input": 112862,
+    "output": 7923,
+    "total": 120785
+  },
+  "physical_provider_http_attempts": "unavailable",
+  "billed_cost": "not inferred"
+}

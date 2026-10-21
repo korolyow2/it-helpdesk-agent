@@ -1,0 +1,57 @@
+{
+  "verified_at": "2026-10-20T15:14:16.425929+00:00",
+  "source_run_id": "66a0c01bf05d4b41aad172b93f2e047e",
+  "rejudge_run_id": "303da98f4d524430b29d2bd8589ba0e6",
+  "rejudge_report": "evals/results/regrade-303da98f4d524430b29d2bd8589ba0e6.json",
+  "dataset_counts": {
+    "helpdesk/tool-calling/v3": 21,
+    "helpdesk/answer-quality/v3": 8,
+    "helpdesk/adversarial/v3": 20,
+    "helpdesk/judge-calibration/v2": 9
+  },
+  "actual_agent_trials": 49,
+  "rejudged_items": 49,
+  "new_agent_calls_during_rejudge": 0,
+  "new_judge_calls": 49,
+  "persisted_joint_scores": [
+    {
+      "experiment_id": "606327a6db7301de",
+      "items": 21,
+      "passes": 21,
+      "score_target": "experiment_item_observation"
+    },
+    {
+      "experiment_id": "be63b21810ff4252",
+      "items": 20,
+      "passes": 18,
+      "score_target": "experiment_item_observation"
+    },
+    {
+      "experiment_id": "e18e5de4dbeacc19",
+      "items": 8,
+      "passes": 7,
+      "score_target": "experiment_item_observation"
+    }
+  ],
+  "ticket_traces_with_model_first": 31,
+  "logical_agent_generations": 114,
+  "available_agent_usage": {
+    "input_tokens": 285658,
+    "output_tokens": 11218,
+    "total_tokens": 296876
+  },
+  "judge_generations": 49,
+  "available_judge_usage": {
+    "input": 105372,
+    "output": 7323,
+    "total": 112695
+  },
+  "provider_refusal_generations": 1,
+  "all_observed_agent_prompts_match_current": true,
+  "configured_secret_leaks": [],
+  "current_rubric_matches_rejudge": true,
+  "physical_provider_http_attempts": "unavailable",
+  "billed_cost": "not inferred",
+  "final_artifact_secret_scan_files": 98,
+  "final_artifact_secret_leaks": []
+}

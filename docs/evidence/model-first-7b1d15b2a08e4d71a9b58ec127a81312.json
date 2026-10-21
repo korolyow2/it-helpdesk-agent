@@ -1,0 +1,63 @@
+{
+  "verified_at": "2026-10-20T18:32:58.733375+00:00",
+  "source_run_id": "7b1d15b2a08e4d71a9b58ec127a81312",
+  "dataset_version": 4,
+  "actual_agent_trials": 7,
+  "persisted_scores": [
+    {
+      "suite": "tool-calling",
+      "experiment_id": "c4e5df89ca2c68d8",
+      "items": 2,
+      "persisted_joint_passes": 2,
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=c4e5df89ca2c68d8"
+    },
+    {
+      "suite": "answer-quality",
+      "experiment_id": "8d12097f33f95000",
+      "items": 5,
+      "persisted_joint_passes": 5,
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=8d12097f33f95000"
+    }
+  ],
+  "counts": {
+    "judge_generations": 7,
+    "model_generations": 14,
+    "user_turns": 7,
+    "turns_with_model_before_mcp": 3,
+    "turns_without_mcp": 4
+  },
+  "chronology_examples": [
+    {
+      "trace_id": "4fbde44f4af0c6b1d4e6a508598f3f4d",
+      "first_model_end": "2026-10-20T18:30:43.357000Z",
+      "first_mcp_start": "2026-10-20T18:30:43.371000Z",
+      "first_mcp_name": "mcp.discovery"
+    },
+    {
+      "trace_id": "baf47fb1e64493ee4a9702d9fa0443ef",
+      "first_model_end": "2026-10-20T18:30:36.357000Z",
+      "first_mcp_start": "2026-10-20T18:30:36.368000Z",
+      "first_mcp_name": "mcp.discovery"
+    },
+    {
+      "trace_id": "e62836087785617abbe2f7166011d7a5",
+      "first_model_end": "2026-10-20T18:30:53.934000Z",
+      "first_mcp_start": "2026-10-20T18:30:53.948000Z",
+      "first_mcp_name": "mcp.discovery"
+    }
+  ],
+  "all_agent_prompts_match_run": true,
+  "configured_secret_leaks": [],
+  "available_agent_usage": {
+    "input_tokens": 34758,
+    "output_tokens": 1386,
+    "total_tokens": 36144
+  },
+  "available_judge_usage": {
+    "input": 13242,
+    "output": 1133,
+    "total": 14375
+  },
+  "physical_provider_http_attempts": "unavailable",
+  "billed_cost": "not inferred"
+}

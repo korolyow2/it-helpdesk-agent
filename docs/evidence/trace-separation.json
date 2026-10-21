@@ -1,0 +1,45 @@
+{
+  "verified_at": "2026-10-20T19:46:37.386899+00:00",
+  "run_id": "3f11f01d91b54eb29f7e66d949386488",
+  "trace_id": "d8de6f20982b01a83c8ac75aff4d269c",
+  "observations": 2728,
+  "environments": {
+    "protocol-tests": 2728
+  },
+  "logical_roots": [
+    {
+      "name": "eval.protocol_run",
+      "id": "37565897bb645f8f"
+    }
+  ],
+  "missing_parents": [],
+  "names": {
+    "eval.protocol_case": 20,
+    "protocol.test": 251,
+    "backend.http_attempt": 537,
+    "mock.http": 446,
+    "mcp.list_tickets": 53,
+    "backend.request": 492,
+    "mcp.discovery": 225,
+    "backend.retry_wait": 45,
+    "mcp.get_ticket": 35,
+    "mcp.search_tickets": 14,
+    "write.transaction": 14,
+    "mcp.create_ticket": 7,
+    "mcp.add_comment": 6,
+    "mcp.unknown": 1,
+    "tool.execute": 135,
+    "model.generate": 191,
+    "context.prepare": 191,
+    "helpdesk.request": 62,
+    "judge.answer": 2,
+    "eval.protocol_run": 1
+  },
+  "test_counts": {
+    "passed": 251
+  },
+  "real_model_calls": 0,
+  "paid_model_quality_evaluation": false,
+  "protocol_trace_url": "http://127.0.0.1:3000/project/helpdesk-assignment/traces/d8de6f20982b01a83c8ac75aff4d269c",
+  "historical_agent_trace_url": "http://127.0.0.1:3000/project/helpdesk-assignment/traces/78ba5c122208411d71fdce2dffa7d32d"
+}

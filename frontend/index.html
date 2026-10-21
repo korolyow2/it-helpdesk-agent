@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>IT Helpdesk</title>
+    <link rel="stylesheet" href="/assets/styles.css">
+    <script type="module" src="/assets/vendor/deep-chat-2.5.1.bundle.js"></script>
+    <script type="module" src="/assets/app.js"></script>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div><p class="eyebrow">LOCAL SUPPORT ASSISTANT</p><h1>IT Helpdesk</h1></div>
+        <p>Find related tickets and check their status.</p>
+      </header>
+      <form id="connection">
+        <label>User ID<input id="user" required placeholder="Your configured user ID" autocomplete="off"></label>
+        <label>User access token<input id="token" type="password" required autocomplete="off" placeholder="Your Helpdesk token"></label>
+        <label>Session ID<input id="session" required pattern="[A-Za-z0-9][A-Za-z0-9_.:\-]{0,127}" autocomplete="off"></label>
+        <button type="submit">Connect</button>
+        <button id="new-session" type="button">New session</button>
+      </form>
+      <p id="status" role="status" aria-live="polite">Enter your Helpdesk credentials to start. Credentials stay in this page's memory.</p>
+      <section class="workspace">
+        <div id="chat-container"><deep-chat id="chat" aria-label="Helpdesk conversation"></deep-chat></div>
+        <aside>
+          <h2>Tool activity</h2>
+          <p>Names and outcomes appear after a completed reply.</p>
+          <ol id="tools"><li>No completed request yet.</li></ol>
+          <p class="notice">Ticket changes are not available in this version.</p>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

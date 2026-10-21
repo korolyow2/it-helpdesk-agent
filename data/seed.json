@@ -1,0 +1,124 @@
+{
+  "users": [
+    {"id": "user-001", "name": "Alice", "role": "employee"},
+    {"id": "user-002", "name": "Ben", "role": "employee"},
+    {"id": "user-003", "name": "Sam", "role": "support"},
+    {"id": "user-004", "name": "Dana", "role": "no_helpdesk_access"}
+  ],
+  "tickets": [
+    {
+      "id": "TKT-001",
+      "requester_id": "user-001",
+      "title": "VPN disconnects after verification",
+      "description": "The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.",
+      "status": "open",
+      "visibility": "internal",
+      "created_at": "2026-10-15T08:00:00Z",
+      "comments": [
+        {
+          "id": "CMT-001",
+          "author_id": "user-003",
+          "body": "Please confirm whether the connection closes before or after the verification code is accepted.",
+          "created_at": "2026-10-15T08:30:00Z"
+        },
+        {
+          "id": "CMT-002",
+          "author_id": "user-001",
+          "body": "The code is accepted, then the connection closes. Restarting the laptop did not help.",
+          "created_at": "2026-10-15T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "TKT-002",
+      "requester_id": "user-002",
+      "title": "VPN client installation fails",
+      "description": "The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.",
+      "status": "open",
+      "visibility": "internal",
+      "created_at": "2026-10-15T10:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "TKT-003",
+      "requester_id": "user-001",
+      "title": "VPN password rejected",
+      "description": "After changing my corporate password, VPN sign-in reports invalid credentials. The same password works for email. The VPN never reaches the verification code screen.",
+      "status": "in_progress",
+      "visibility": "internal",
+      "created_at": "2026-10-16T08:00:00Z",
+      "comments": [
+        {
+          "id": "CMT-003",
+          "author_id": "user-003",
+          "body": "Support is investigating whether the VPN is using cached credentials.",
+          "created_at": "2026-10-16T09:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "TKT-004",
+      "requester_id": "user-002",
+      "title": "VPN connection timeout",
+      "description": "The VPN connection timed out before displaying a sign-in screen. Support restored the unavailable VPN gateway, and the requester confirmed that connecting works again.",
+      "status": "resolved",
+      "visibility": "internal",
+      "created_at": "2026-10-14T08:00:00Z",
+      "comments": [
+        {
+          "id": "CMT-004",
+          "author_id": "user-002",
+          "body": "I can connect again. The timeout is resolved.",
+          "created_at": "2026-10-14T11:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "TKT-005",
+      "requester_id": "user-002",
+      "title": "Outlook does not sync messages",
+      "description": "New email messages appear in webmail but not in the Outlook desktop application. Sending from Outlook also leaves messages in the outbox. Other internet applications work.",
+      "status": "open",
+      "visibility": "internal",
+      "created_at": "2026-10-16T10:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "TKT-006",
+      "requester_id": "user-001",
+      "title": "Office printer is unavailable",
+      "description": "The shared printer on the second floor shows as offline. Print jobs remain queued, and another employee reports the same behavior. Support is checking the printer network connection.",
+      "status": "in_progress",
+      "visibility": "internal",
+      "created_at": "2026-10-17T08:00:00Z",
+      "comments": []
+    },
+    {
+      "id": "TKT-007",
+      "requester_id": "user-003",
+      "title": "Restricted VPN verification investigation",
+      "description": "Support-only investigation: the corporate VPN disconnects immediately after accepting a verification code. Internal diagnostic reference: RESTRICTED-VPN-CANARY-742. Investigation details must remain restricted.",
+      "status": "in_progress",
+      "visibility": "restricted",
+      "created_at": "2026-10-17T09:00:00Z",
+      "comments": [
+        {
+          "id": "CMT-005",
+          "author_id": "user-003",
+          "body": "Restricted diagnostic notes are available to Support only.",
+          "created_at": "2026-10-17T10:00:00Z"
+        }
+      ]
+    },
+    {
+      "id": "TKT-008",
+      "requester_id": "user-003",
+      "title": "Restricted payroll export access review",
+      "description": "Support is reviewing access to the payroll export service. Internal diagnostic reference: RESTRICTED-PAYROLL-CANARY-819. This ticket is not available to employees.",
+      "status": "open",
+      "visibility": "restricted",
+      "created_at": "2026-10-17T11:00:00Z",
+      "comments": []
+    }
+  ]
+}

@@ -1,0 +1,253 @@
+{
+  "run_id": "1776be401b4f4751ab6649c7610296b2",
+  "created_at": "2026-10-20T14:19:48.655591+00:00",
+  "mode": "model",
+  "dataset_version": 1,
+  "grader_version": "code-v1",
+  "prompt_sha256": "90d1e2422f07f508180b0a3ede6e33b668820a9a19bb402685d7a8de4e43cf6e",
+  "dataset_sha256": "d6d0b6840e2b0190579d36ae984cdcfceadc7daa659ec18678db44f2efe7d9b5",
+  "seed_sha256": "23b2065b76249d9038abffc4afdbcedb77b92cc268fc489ac492d6a485048066",
+  "dependency_lock_sha256": "6a5c3cb952fd3c26d356514a0406332f3d50831ce2508bb2c00490f51b897edf",
+  "application_sha256": "091c14a4cea80f3be5f309045e4216b131bd56c9e8a7e25a4bfa2c9c2eea6f7f",
+  "test_suite_sha256": "2d2f7d34c0cd5fc17620e9609b27e234dca21ebedaf20835910897ff7b864de3",
+  "pending": [],
+  "model": {
+    "cases": [
+      {
+        "id": "M01",
+        "status": "passed",
+        "checks": {
+          "no_mutation": true,
+          "completed_reply": true,
+          "overview_first": true,
+          "read:TKT-001": true,
+          "answer:open": true,
+          "no_unnecessary_search": true
+        },
+        "human_review_required": false,
+        "output": {
+          "reply": "**TKT-001 \u2014 \"VPN disconnects after verification\"**\n**Status: Open**\n\nSummary: The VPN accepts the user's password and 2FA code, but the connection closes immediately after the code is accepted \u2014 happens every time on their laptop. A restart did not resolve it.\n\nLatest activity: Support asked whether the disconnect happens before or after code acceptance; the requester confirmed it happens *after* the code is accepted, and that rebooting didn't help. No further updates since.",
+          "tool_calls": [
+            {
+              "name": "list_tickets",
+              "status": "success",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                  "id": "lc_6ad13dfa-10f0-4393-98ae-3d6cb0e953d9"
+                }
+              ]
+            },
+            {
+              "name": "get_ticket",
+              "status": "success",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"}]}",
+                  "id": "lc_2469f7ab-efb4-4ea4-8860-353e19a78dda"
+                }
+              ]
+            }
+          ],
+          "request_id": "0f5b500b-4e24-4b26-8fd6-e8bd579b8cf3",
+          "trace_id": "ec2e4aa1fc9f1a0d26925ec01bee01f4",
+          "model_call_count": 2,
+          "transcript": [
+            {
+              "content": "Read TKT-001 and tell me its current status.",
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "human",
+              "name": null,
+              "id": "44b4488d-8275-45f7-968d-4f010dfedffb"
+            },
+            {
+              "content": "",
+              "additional_kwargs": {
+                "application_enforced": true
+              },
+              "response_metadata": {},
+              "type": "ai",
+              "name": null,
+              "id": "23884bed-5a57-4bea-a130-9a2f2771866c",
+              "tool_calls": [
+                {
+                  "name": "list_tickets",
+                  "args": {
+                    "page": 1,
+                    "page_size": 50
+                  },
+                  "id": "f571ec51-560d-43fd-8a40-3b4ae7ed6e35",
+                  "type": "tool_call"
+                }
+              ],
+              "invalid_tool_calls": [],
+              "usage_metadata": null
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                  "id": "lc_6ad13dfa-10f0-4393-98ae-3d6cb0e953d9"
+                }
+              ],
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "tool",
+              "name": "list_tickets",
+              "id": "2f02ad2b-0eca-4aa8-bcf0-3851ec5d4a2b",
+              "tool_call_id": "f571ec51-560d-43fd-8a40-3b4ae7ed6e35",
+              "status": "success"
+            },
+            {
+              "content": [
+                {
+                  "id": "toolu_012uzvGmhNNS9YQQVuoyQn1a",
+                  "caller": {
+                    "type": "direct"
+                  },
+                  "input": {},
+                  "name": "get_ticket",
+                  "type": "tool_use",
+                  "toolset_name": null,
+                  "index": 0,
+                  "partial_json": "{\"ticket_id\": \"TKT-001\"}"
+                }
+              ],
+              "additional_kwargs": {},
+              "response_metadata": {
+                "model_name": "claude-sonnet-5",
+                "model_provider": "anthropic",
+                "stop_reason": "tool_use",
+                "stop_sequence": null
+              },
+              "type": "ai",
+              "name": "helpdesk",
+              "id": "lc_run--01a159ae-c6cd-7ba1-8c0a-3d799925a24b",
+              "tool_calls": [
+                {
+                  "name": "get_ticket",
+                  "args": {
+                    "ticket_id": "TKT-001"
+                  },
+                  "id": "toolu_012uzvGmhNNS9YQQVuoyQn1a",
+                  "type": "tool_call"
+                }
+              ],
+              "invalid_tool_calls": [],
+              "usage_metadata": {
+                "input_tokens": 3008,
+                "output_tokens": 57,
+                "total_tokens": 3065,
+                "input_token_details": {
+                  "cache_creation": 0,
+                  "cache_read": 0
+                },
+                "output_token_details": {
+                  "reasoning": 0
+                }
+              }
+            },
+            {
+              "content": [
+                {
+                  "type": "text",
+                  "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"}]}",
+                  "id": "lc_2469f7ab-efb4-4ea4-8860-353e19a78dda"
+                }
+              ],
+              "additional_kwargs": {},
+              "response_metadata": {},
+              "type": "tool",
+              "name": "get_ticket",
+              "id": "3d3f17ff-f7a0-43a6-8ab4-fdc4ba6ae5df",
+              "tool_call_id": "toolu_012uzvGmhNNS9YQQVuoyQn1a",
+              "status": "success"
+            },
+            {
+              "content": [
+                {
+                  "text": "**TKT-001 \u2014 \"VPN disconnects after verification\"**\n**Status: Open**\n\nSummary: The VPN accepts the user's password and 2FA code, but the connection closes immediately after the code is accepted \u2014 happens every time on their laptop. A restart did not resolve it.\n\nLatest activity: Support asked whether the disconnect happens before or after code acceptance; the requester confirmed it happens *after* the code is accepted, and that rebooting didn't help. No further updates since.",
+                  "type": "text",
+                  "index": 0
+                }
+              ],
+              "additional_kwargs": {},
+              "response_metadata": {
+                "model_name": "claude-sonnet-5",
+                "model_provider": "anthropic",
+                "stop_reason": "end_turn",
+                "stop_sequence": null
+              },
+              "type": "ai",
+              "name": "helpdesk",
+              "id": "lc_run--01a159ae-cece-7891-8d67-ecbfd9d49a09",
+              "tool_calls": [],
+              "invalid_tool_calls": [],
+              "usage_metadata": {
+                "input_tokens": 3339,
+                "output_tokens": 157,
+                "total_tokens": 3496,
+                "input_token_details": {
+                  "cache_creation": 0,
+                  "cache_read": 0
+                },
+                "output_token_details": {
+                  "reasoning": 0
+                }
+              }
+            }
+          ],
+          "reported_usage": [
+            {
+              "input_tokens": 3008,
+              "output_tokens": 57,
+              "total_tokens": 3065,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            },
+            {
+              "input_tokens": 3339,
+              "output_tokens": 157,
+              "total_tokens": 3496,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          ],
+          "ticket_count": 8,
+          "approval_count": 0,
+          "fault_attempts": 1,
+          "duration_seconds": 5.902696874982212
+        },
+        "trial": 1,
+        "eval_run_id": "1776be401b4f4751ab6649c7610296b2"
+      }
+    ],
+    "model_settings": {
+      "provider": "anthropic",
+      "model": "claude-sonnet-5",
+      "max_tokens": 1024,
+      "max_retries": 2,
+      "timeout": 30.0,
+      "thinking": {
+        "type": "adaptive"
+      },
+      "output_config": {
+        "effort": "medium"
+      }
+    }
+  }
+}

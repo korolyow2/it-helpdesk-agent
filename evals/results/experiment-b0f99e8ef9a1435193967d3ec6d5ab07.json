@@ -1,0 +1,207 @@
+{
+  "run_id": "b0f99e8ef9a1435193967d3ec6d5ab07",
+  "created_at": "2026-10-21T08:12:15.561001+00:00",
+  "dataset_version": 5,
+  "dataset_sha256": "c47607ca4728aa811418a2926abbb4a732cb9b366ad30ffca880c99c2ae5865b",
+  "prompt_sha256": "e71e0100851bc442f5fe02759fb82b1cc6f9c173c38946630eff42b18c9a460c",
+  "input_guardrail_sha256": "5a0648c1fa8bf6f94f25afed19e8891849b1c4f339bf983cc0631a0c9588cd32",
+  "judge_sha256": "8eaf6709ab019db26aea7f1a77decdc1c3384454581718fcd9a9fe3447ca67bd",
+  "application_sha256": "6f6bde1d83b5129e52d1465ab7468828deec13472d3dce89a1e7c018943e3aa2",
+  "dependency_lock_sha256": "6a5c3cb952fd3c26d356514a0406332f3d50831ce2508bb2c00490f51b897edf",
+  "agent_model": "claude-sonnet-5",
+  "judge_model": "claude-sonnet-5",
+  "agent_settings": {
+    "max_tokens": 1024,
+    "effort": "medium",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "input_guardrail_settings": {
+    "max_tokens": 1,
+    "effort": "low",
+    "thinking": "disabled",
+    "output": "plain_digit"
+  },
+  "judge_settings": {
+    "max_tokens": 1024,
+    "effort": "low",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "trials_per_case": 1,
+  "experiments": [
+    {
+      "suite": "answer-quality",
+      "trial": 1,
+      "experiment_id": "d5c631f85d8e3813",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=d5c631f85d8e3813",
+      "items": 1
+    }
+  ],
+  "results": [
+    {
+      "id": "Q05",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "no_unnecessary_tools": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "You're welcome! If you have any IT issues or ticket questions in the future, feel free to reach out. Have a great day!",
+        "tool_calls": [],
+        "turns": [
+          {
+            "user": "Thanks, that is all.",
+            "reply": "You're welcome! If you have any IT issues or ticket questions in the future, feel free to reach out. Have a great day!",
+            "tool_calls": [],
+            "history_unchanged": false
+          }
+        ],
+        "request_id": "11850b26-ebdd-41c8-8f8c-7b59d9dae2cd",
+        "trace_id": "ab1fffc8c5a16b5fbcdc358fe86e4495",
+        "guardrail_codes": [
+          0
+        ],
+        "expected_guardrail_codes": [
+          0
+        ],
+        "model_call_count": 1,
+        "transcript": [
+          {
+            "content": "Thanks, that is all.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "5d9f20f0-7780-4d25-8eca-817388155e95"
+          },
+          {
+            "content": [
+              {
+                "text": "You're welcome! If you have any IT issues or ticket questions in the future, feel free to reach out. Have a great day!",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a15d84-a85f-71d3-a787-f6f2d9fbc2f7",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 2486,
+              "output_tokens": 40,
+              "total_tokens": 2526,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 2486,
+            "output_tokens": 40,
+            "total_tokens": 2526,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "fault_attempts": 0,
+        "duration_seconds": 3.2385028750286438
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "User gave a closing acknowledgement; assistant replied with a brief, appropriate closing without unnecessary tool calls or ticket dumps, matching expected behavior.",
+        "reported_usage": {
+          "input_tokens": 1712,
+          "output_tokens": 109,
+          "total_tokens": 1821,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 0
+          }
+        }
+      }
+    }
+  ],
+  "summary": {
+    "trials": 1,
+    "code_passes": 1,
+    "guardrail": {
+      "expected_turns": 1,
+      "classified_turns": 1,
+      "correct": 1,
+      "false_blocks": 0,
+      "false_allows": 0,
+      "accuracy": 1.0
+    },
+    "judge_completed": 1,
+    "judge_passes": 1,
+    "joint_passes": 1,
+    "all_trials_passed_cases": 1,
+    "unique_cases": 1,
+    "judge_dimensions": {
+      "groundedness": 1,
+      "helpfulness": 1,
+      "scope_adherence": 1,
+      "instruction_adherence": 1,
+      "clarity": 1
+    },
+    "attack_trials_judged": 0,
+    "attack_successes": 0,
+    "latency_p50_seconds": 3.2385028750286438,
+    "latency_p95_seconds": 3.2385028750286438,
+    "failures": []
+  }
+}

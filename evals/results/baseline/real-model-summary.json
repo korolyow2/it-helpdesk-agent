@@ -1,0 +1,26 @@
+{
+  "run_id": "5214ea63741c47a0875a35dd4cfa3376",
+  "model": "claude-sonnet-5",
+  "trials_per_case": 1,
+  "real_cases": 24,
+  "passed": 23,
+  "failed": [
+    {
+      "id": "M24",
+      "failed_checks": [
+        "english_only"
+      ]
+    }
+  ],
+  "logical_model_calls": 45,
+  "reported_usage": {
+    "input_tokens": 138315,
+    "output_tokens": 5894,
+    "total_tokens": 144209
+  },
+  "case_latency_median_seconds": 6.28,
+  "case_latency_max_seconds": 15.51,
+  "protocol_checks_passed": 232,
+  "pending_capabilities": 9,
+  "limits": "One trial; code-based graders and AI-assisted transcript review, not human-calibrated quality assessment. No provider cost or HTTP retry count inferred."
+}

@@ -1,0 +1,52 @@
+{
+  "verified_at": "2026-10-21T07:58:34.228761+00:00",
+  "trace_id": "a223504e6ed3fe5b3f02abe82e3d2233",
+  "trace_url": "http://127.0.0.1:3000/project/helpdesk-assignment/traces/a223504e6ed3fe5b3f02abe82e3d2233",
+  "environment": "protocol-tests",
+  "observations": 11,
+  "root_observations": 1,
+  "missing_parents": 0,
+  "provider_api_calls": 0,
+  "scripted_classification": true,
+  "quality_evaluation": false,
+  "guardrail_results": [
+    {
+      "decision": "error",
+      "error_code": "guardrail_unavailable"
+    },
+    {
+      "code": 2,
+      "intent": "unsafe",
+      "decision": "block"
+    },
+    {
+      "code": 1,
+      "intent": "out_of_scope",
+      "decision": "block"
+    },
+    {
+      "code": 0,
+      "intent": "helpdesk",
+      "decision": "allow"
+    }
+  ],
+  "request_results": [
+    {
+      "decision": "error",
+      "status": "failed"
+    },
+    {
+      "decision": "block",
+      "status": "blocked"
+    },
+    {
+      "decision": "block",
+      "status": "blocked"
+    },
+    {
+      "decision": "allow",
+      "status": "completed"
+    }
+  ],
+  "rejected_text_present": false
+}
