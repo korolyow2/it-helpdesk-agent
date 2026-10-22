@@ -1,0 +1,165 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="2830" viewBox="0 0 1800 2830" role="img" aria-labelledby="title desc">
+<title id="title">IT Helpdesk agent request flow</title>
+<desc id="desc">User input at the top, input classification, a model-led ReAct loop, verified user approval, and user output plus separate SQLite stores at the bottom. Blocked messages do not enter persistent history.</desc>
+<defs>
+  <filter id="shadow" x="-10%" y="-15%" width="120%" height="140%"><feDropShadow dx="0" dy="5" stdDeviation="7" flood-color="#172554" flood-opacity="0.07"/></filter>
+
+<marker id="arrow-main" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#64748B"/></marker>
+<marker id="arrow-purple" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#7C3AED"/></marker>
+<marker id="arrow-teal" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#0F766E"/></marker>
+<marker id="arrow-amber" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#B45309"/></marker>
+<marker id="arrow-red" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#C44E63"/></marker>
+<marker id="arrow-muted" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="10" markerHeight="10" orient="auto-start-reverse" markerUnits="userSpaceOnUse"><path d="M 1 1 L 10 6 L 1 11 Z" fill="#94A3B8"/></marker>
+</defs>
+<style>text{font-family:Arial,Helvetica,sans-serif;font-kerning:normal} .label{font-size:20px;font-weight:600;fill:#475569}.caption{font-size:21px;fill:#64748B}</style>
+<rect width="1800" height="2830" fill="#F8FAFC"/>
+<rect x="34" y="34" width="1732" height="2758" rx="32" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>
+
+<text x="92" y="102" font-size="48" fill="#0F172A" font-weight="700" text-anchor="start" >IT Helpdesk agent</text>
+<text x="94" y="143" font-size="24" fill="#64748B" font-weight="400" text-anchor="start" >From user input to a verified answer and durable state</text>
+<rect x="1420" y="71" width="284" height="44" rx="22" fill="#EEF2FF"/>
+<text x="1562" y="100" font-size="17" fill="#4338CA" font-weight="700" text-anchor="middle" >LOCAL IMPLEMENTATION</text>
+<rect x="575" y="910" width="1140" height="978" rx="30" fill="#F5F3FF" stroke="#DDD6FE" stroke-width="2"/>
+<text x="612" y="950" font-size="18" fill="#6D28D9" font-weight="700" text-anchor="start" >MODEL-LED TOOL FLOW</text>
+<path d="M 900 280 L 900 330" fill="none" stroke="#64748B" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-main)"/>
+<path d="M 900 430 L 900 490" fill="none" stroke="#64748B" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-main)"/>
+<path d="M 900 620 L 900 700" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<text x="1002" y="665" font-size="19" fill="#0F766E" font-weight="600" text-anchor="middle" >0 · Helpdesk</text>
+<path d="M 620 555 L 480 555" fill="none" stroke="#C44E63" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-red)"/>
+<text x="550" y="537" font-size="19" fill="#B53D56" font-weight="600" text-anchor="middle" >1 · Block</text>
+<path d="M 120 555 L 87.0 555.0 Q 75 555 75.0 567.0 L 75.0 2588.0 Q 75 2600 87.0 2600.0 L 120 2600" fill="none" stroke="#C44E63" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-red)"/>
+<path d="M 900 860 L 900 1000" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-purple)"/>
+<text x="970" y="898" font-size="19" fill="#6D28D9" font-weight="600" text-anchor="middle" >New turn</text>
+<path d="M 1465 971 L 1465 1010" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-amber)"/>
+<path d="M 1465 1850 L 1465 1960" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 8" marker-end="url(#arrow-amber)"/>
+<text x="1570" y="1906" font-size="19" fill="#92400E" font-weight="600" text-anchor="middle" >Next message</text>
+<path d="M 1465 2170 L 1465 2197" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-amber)"/>
+<path d="M 1250 2100 L 1228 2100" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1228" cy="2100" r="5" fill="#B45309"/>
+<path d="M 1180 1065 L 1250 1065" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<path d="M 1465 1165 L 1465 1240" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<path d="M 1465 1380 L 1465 1460" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<path d="M 1250 1510 L 1224.0 1510.0 Q 1212 1510 1212.0 1498.0 L 1212.0 1157.0 Q 1212 1145 1200.0 1145.0 L 1180 1145" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<text x="1200" y="1340" font-size="19" fill="#0F766E" font-weight="600" text-anchor="middle" transform="rotate(-90 1200 1340)">Read result / tool error</text>
+<path d="M 620 1100 L 552.0 1100.0 Q 540 1100 540.0 1112.0 L 540.0 2293.0 Q 540 2305 552.0 2305.0 L 620 2305" fill="none" stroke="#7C3AED" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-purple)"/>
+<text x="525" y="1570" font-size="19" fill="#6D28D9" font-weight="600" text-anchor="middle" transform="rotate(-90 525 1570)">Final answer or clarification</text>
+<path d="M 1465 1620 L 1465 1680" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-amber)"/>
+<text x="1546" y="1660" font-size="19" fill="#92400E" font-weight="600" text-anchor="middle" >Proposal</text>
+<path d="M 1250 1785 L 1228 1785" fill="none" stroke="#B45309" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="1228" cy="1785" r="5" fill="#B45309"/>
+<path d="M 1250 1570 L 1239.0 1570.0 Q 1228 1570 1228.0 1581.0 L 1228.0 2278.0 Q 1228 2290 1216.0 2290.0 L 1180 2290" fill="none" stroke="#0F766E" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-teal)"/>
+<text x="1215" y="1935" font-size="19" fill="#0F766E" font-weight="600" text-anchor="middle" transform="rotate(-90 1215 1935)">Proposal / action result / decline</text>
+<path d="M 760 2390 L 760.0 2438.0 Q 760 2450 748.0 2450.0 L 357.0 2450.0 Q 345 2450 345.0 2462.0 L 345 2520" fill="none" stroke="#64748B" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" marker-end="url(#arrow-main)"/>
+<path d="M 940 2390 L 940 2520" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 8" marker-end="url(#arrow-muted)"/>
+<text x="1090" y="2460" font-size="19" fill="#64748B" font-weight="600" text-anchor="middle" >Persisted during execution</text>
+<path d="M 1680 1530 L 1720.0 1530.0 Q 1732 1530 1732.0 1542.0 L 1732.0 2438.0 Q 1732 2450 1720.0 2450.0 L 1477.0 2450.0 Q 1465 2450 1465.0 2462.0 L 1465 2520" fill="none" stroke="#94A3B8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="9 8" marker-end="url(#arrow-muted)"/>
+<text x="1750" y="1820" font-size="19" fill="#64748B" font-weight="600" text-anchor="middle" transform="rotate(-90 1750 1820)">Read / stage / approved commit</text>
+<rect x="620" y="180" width="560" height="100" rx="22" fill="#172554" stroke="#172554" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="223" font-size="32" fill="#FFFFFF" font-weight="700" text-anchor="start" >USER INPUT</text>
+<text x="648" y="259" font-size="23" fill="#DBEAFE" font-weight="400" text-anchor="start" >Message + session + access token</text>
+<rect x="620" y="330" width="560" height="100" rx="22" fill="#EFF6FF" stroke="#BFDBFE" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="373" font-size="30" fill="#1E3A8A" font-weight="700" text-anchor="start" >Authenticate request</text>
+<text x="648" y="409" font-size="22" fill="#475569" font-weight="400" text-anchor="start" >Verify the token; bind user and session</text>
+<rect x="620" y="490" width="560" height="130" rx="22" fill="#F3E8FF" stroke="#D8B4FE" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="533" font-size="32" fill="#6B21A8" font-weight="700" text-anchor="start" >Input guardrail</text>
+<text x="648" y="569" font-size="22" fill="#6B21A8" font-weight="400" text-anchor="start" >0 = Helpdesk   ·   1 = block</text>
+<text x="648" y="598" font-size="22" fill="#6B21A8" font-weight="400" text-anchor="start" >Classification only; no history writes</text>
+<rect x="120" y="500" width="360" height="110" rx="22" fill="#FFF1F2" stroke="#FECDD3" stroke-width="2" filter="url(#shadow)"/>
+<text x="148" y="543" font-size="30" fill="#9F1239" font-weight="700" text-anchor="start" >Static reply</text>
+<text x="148" y="579" font-size="21" fill="#9F1239" font-weight="400" text-anchor="start" >No history or fact update</text>
+<rect x="620" y="700" width="560" height="160" rx="22" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="743" font-size="31" fill="#065F46" font-weight="700" text-anchor="start" >Accepted request</text>
+<text x="648" y="779" font-size="22" fill="#355A50" font-weight="400" text-anchor="start" >Load scoped history + current OS fact</text>
+<text x="648" y="808" font-size="22" fill="#355A50" font-weight="400" text-anchor="start" >Learn explicit OS fact; bound context</text>
+<text x="648" y="837" font-size="22" fill="#355A50" font-weight="400" text-anchor="start" >Pending proposal: go to User approval</text>
+<rect x="120" y="700" width="360" height="174" rx="20" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+<text x="146" y="744" font-size="21" fill="#334155" font-weight="700" text-anchor="start" >Already waiting for approval?</text>
+<text x="146" y="781" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Continue at User approval.</text>
+<text x="146" y="812" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Skip the agent model call.</text>
+<circle cx="1465" cy="948" r="23" fill="#FFFBEB" stroke="#D97706" stroke-width="2.5"/>
+<text x="1465" y="956" font-size="24" fill="#92400E" font-weight="700" text-anchor="middle" >A</text>
+<text x="1465" y="903" font-size="19" fill="#92400E" font-weight="600" text-anchor="middle" >A · verified resume</text>
+<rect x="620" y="1000" width="560" height="190" rx="22" fill="#6D28D9" stroke="#6D28D9" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="1043" font-size="32" fill="#FFFFFF" font-weight="700" text-anchor="start" >LLM ORCHESTRATOR</text>
+<text x="648" y="1079" font-size="22" fill="#EDE9FE" font-weight="400" text-anchor="start" >Claude Sonnet 5.5 · create_agent</text>
+<text x="648" y="1108" font-size="22" fill="#EDE9FE" font-weight="400" text-anchor="start" >Answer, clarify, or select a tool</text>
+<text x="648" y="1137" font-size="22" fill="#EDE9FE" font-weight="400" text-anchor="start" >Discovery first; then ticket overview</text>
+<rect x="1250" y="1010" width="430" height="155" rx="22" fill="#F0FDFA" stroke="#99F6E4" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="1053" font-size="29" fill="#115E59" font-weight="700" text-anchor="start" >Validate tool call</text>
+<text x="1278" y="1089" font-size="21" fill="#37605C" font-weight="400" text-anchor="start" >Live schema + capability checks</text>
+<text x="1278" y="1118" font-size="21" fill="#37605C" font-weight="400" text-anchor="start" >One correction; call limits</text>
+<text x="1278" y="1147" font-size="21" fill="#37605C" font-weight="400" text-anchor="start" >Or a verified tool resume</text>
+<rect x="1250" y="1240" width="430" height="140" rx="22" fill="#F0FDFA" stroke="#99F6E4" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="1283" font-size="29" fill="#115E59" font-weight="700" text-anchor="start" >Authenticated MCP</text>
+<text x="1278" y="1319" font-size="22" fill="#37605C" font-weight="400" text-anchor="start" >list / search / get</text>
+<text x="1278" y="1348" font-size="22" fill="#37605C" font-weight="400" text-anchor="start" >create_ticket / add_comment</text>
+<rect x="1250" y="1460" width="430" height="160" rx="22" fill="#ECFEFF" stroke="#A5F3FC" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="1503" font-size="31" fill="#155E75" font-weight="700" text-anchor="start" >Ticket API</text>
+<text x="1278" y="1539" font-size="21" fill="#3A606E" font-weight="400" text-anchor="start" >Recheck user access + approval</text>
+<text x="1278" y="1568" font-size="21" fill="#3A606E" font-weight="400" text-anchor="start" >Read or stage a proposal</text>
+<text x="1278" y="1597" font-size="21" fill="#3A606E" font-weight="400" text-anchor="start" >Execute only an approved action</text>
+<rect x="1250" y="1680" width="430" height="170" rx="22" fill="#FFFBEB" stroke="#FCD34D" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="1723" font-size="30" fill="#92400E" font-weight="700" text-anchor="start" >Proposal + pause</text>
+<text x="1278" y="1759" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Save exact action; interrupt()</text>
+<text x="1278" y="1788" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >No ticket mutation</text>
+<text x="1278" y="1817" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Next message: approve or decline</text>
+<rect x="1250" y="1960" width="430" height="210" rx="22" fill="#FFFBEB" stroke="#FCD34D" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="2003" font-size="32" fill="#92400E" font-weight="700" text-anchor="start" >User approval</text>
+<text x="1278" y="2039" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Review the exact proposed change</text>
+<text x="1278" y="2068" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Send Approve or Decline</text>
+<text x="1278" y="2097" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Verify user, session + exact action</text>
+<text x="1278" y="2126" font-size="21" fill="#785529" font-weight="400" text-anchor="start" >Decline: no write; approve: resume A</text>
+<circle cx="1465" cy="2220" r="23" fill="#FFFBEB" stroke="#D97706" stroke-width="2.5"/>
+<text x="1465" y="2228" font-size="24" fill="#92400E" font-weight="700" text-anchor="middle" >A</text>
+<text x="1465" y="2267" font-size="19" fill="#92400E" font-weight="600" text-anchor="middle" >A · resume the approved tool</text>
+<text x="1465" y="2300" font-size="21" fill="#64748B" font-weight="400" text-anchor="middle" >No new agent model call</text>
+<rect x="620" y="2260" width="560" height="130" rx="22" fill="#F0FDF4" stroke="#BBF7D0" stroke-width="2" filter="url(#shadow)"/>
+<text x="648" y="2303" font-size="31" fill="#166534" font-weight="700" text-anchor="start" >Validate response</text>
+<text x="648" y="2339" font-size="22" fill="#3D6650" font-weight="400" text-anchor="start" >Grounded answer or application receipt</text>
+<text x="648" y="2368" font-size="22" fill="#3D6650" font-weight="400" text-anchor="start" >Final text only; answer-only SSE</text>
+<rect x="120" y="1190" width="360" height="156" rx="20" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1.5"/>
+<text x="146" y="1231" font-size="21" fill="#334155" font-weight="700" text-anchor="start" >A new message starts at the top</text>
+<text x="146" y="1265" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Approval is authenticated and</text>
+<text x="146" y="1295" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >screened again in the same session.</text>
+<rect x="120" y="1430" width="360" height="344" rx="20" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+<text x="146" y="1474" font-size="25" fill="#334155" font-weight="700" text-anchor="start" >Color key</text>
+<rect x="146" y="1493" width="17" height="17" rx="5" fill="#1E3A8A"/>
+<text x="176" y="1510" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >User and authentication</text>
+<rect x="146" y="1535" width="17" height="17" rx="5" fill="#7C3AED"/>
+<text x="176" y="1552" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >Classification and LLM</text>
+<rect x="146" y="1577" width="17" height="17" rx="5" fill="#0F766E"/>
+<text x="176" y="1594" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >Tools and access checks</text>
+<rect x="146" y="1619" width="17" height="17" rx="5" fill="#D97706"/>
+<text x="176" y="1636" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >User approval</text>
+<rect x="146" y="1661" width="17" height="17" rx="5" fill="#16A34A"/>
+<text x="176" y="1678" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >Validated user response</text>
+<rect x="146" y="1703" width="17" height="17" rx="5" fill="#94A3B8"/>
+<text x="176" y="1720" font-size="20" fill="#475569" font-weight="400" text-anchor="start" >Persistent storage</text>
+<rect x="650" y="1305" width="530" height="455" rx="20" fill="#FFFFFF" fill-opacity="0.8" stroke="#E2DDF4" stroke-width="1.5"/>
+<text x="678" y="1349" font-size="27" fill="#5B21B6" font-weight="700" text-anchor="start" >Middleware safeguards</text>
+<text x="678" y="1379" font-size="19" fill="#7C6D9B" font-weight="400" text-anchor="start" >Applied around model and tool calls</text>
+<text x="678" y="1428" font-size="20" fill="#5B21B6" font-weight="700" text-anchor="start" >Context</text>
+<text x="678" y="1457" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Approx. 8k tokens; preserve tool pairs.</text>
+<text x="678" y="1501" font-size="20" fill="#5B21B6" font-weight="700" text-anchor="start" >Execution</text>
+<text x="678" y="1530" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >60s deadline; 6 model calls + 6 tools.</text>
+<text x="678" y="1574" font-size="20" fill="#5B21B6" font-weight="700" text-anchor="start" >Tool failures</text>
+<text x="678" y="1603" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Invalid arguments: one correction.</text>
+<text x="678" y="1630" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Other failures disable further tools.</text>
+<text x="678" y="1682" font-size="20" fill="#5B21B6" font-weight="700" text-anchor="start" >Tracing</text>
+<text x="678" y="1711" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Shared request ID; no raw thinking.</text>
+<rect x="120" y="2520" width="450" height="160" rx="22" fill="#DCFCE7" stroke="#86EFAC" stroke-width="2" filter="url(#shadow)"/>
+<text x="148" y="2563" font-size="32" fill="#166534" font-weight="700" text-anchor="start" >USER OUTPUT</text>
+<text x="148" y="2599" font-size="22" fill="#355D45" font-weight="400" text-anchor="start" >Answer, proposal, or action result</text>
+<text x="148" y="2628" font-size="22" fill="#355D45" font-weight="400" text-anchor="start" >Clear error or unknown outcome</text>
+<rect x="650" y="2520" width="530" height="160" rx="22" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+<text x="678" y="2563" font-size="31" fill="#334155" font-weight="700" text-anchor="start" >AGENT SQLITE</text>
+<text x="678" y="2599" font-size="22" fill="#475569" font-weight="400" text-anchor="start" >Accepted history + checkpoints</text>
+<text x="678" y="2628" font-size="22" fill="#475569" font-weight="400" text-anchor="start" >Review bindings + 30-day OS fact</text>
+<text x="678" y="2657" font-size="22" fill="#475569" font-weight="400" text-anchor="start" >Includes accepted review decisions</text>
+<rect x="1250" y="2520" width="430" height="160" rx="22" fill="#F1F5F9" stroke="#CBD5E1" stroke-width="2" filter="url(#shadow)"/>
+<text x="1278" y="2563" font-size="30" fill="#334155" font-weight="700" text-anchor="start" >TICKET SQLITE</text>
+<text x="1278" y="2599" font-size="21" fill="#475569" font-weight="400" text-anchor="start" >Tickets + comments + approvals</text>
+<text x="1278" y="2628" font-size="21" fill="#475569" font-weight="400" text-anchor="start" >Durable idempotency results</text>
+<text x="94" y="2741" font-size="20" fill="#64748B" font-weight="400" text-anchor="start" >Logical flow of the current local application. Storage writes occur during execution, not after delivery.</text>
+<text x="94" y="2772" font-size="19" fill="#64748B" font-weight="400" text-anchor="start" >Blocked input is excluded from history. Unknown write outcomes stay explicit. Langfuse traces the request across services.</text>
+</svg>

@@ -3,7 +3,7 @@
 ## Purpose
 
 Build a small local agentic system based on
-`docs/assignment/AgentCore_Platform_Engineer_-_Assignment (1).docx`.
+`AgentCore_Platform_Engineer_-_Assignment (1).docx`.
 These rules apply to AI assistants working in this project. Direct user
 instructions take priority. Update this file when agreements change.
 
@@ -222,7 +222,8 @@ instructions take priority. Update this file when agreements change.
 - Keep Python application code in `backend/src/helpdesk/`, backend tests in
   `backend/tests/`, and browser assets in `frontend/`. Keep schema and fixtures
   in `data/`, generated local databases in ignored `data/runtime/`, and supporting
-  documents in `docs/`. Maintain one root `pyproject.toml` and `uv.lock`.
+  documents at the repository root and diagrams in `diagrams/`. Maintain one
+  root `pyproject.toml` and `uv.lock`.
 - Separate orchestration, MCP tools, the mock, state storage, and HTTP/UI only
   as much as needed to understand and verify their boundaries.
 - Keep guardrail logic in `backend/src/helpdesk/agent/guardrails/` and its model

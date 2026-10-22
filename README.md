@@ -1,336 +1,616 @@
 # IT Helpdesk agent
 
-A local Helpdesk assistant that searches tickets, proposes a new ticket or a
-comment, pauses for explicit user approval, and executes the exact approved
-change at most once. It uses Claude Sonnet 5.5, LangChain `create_agent` backed
-by LangGraph, an authenticated Python FastMCP server, a FastAPI mock, SQLite,
-a plain HTML/JavaScript UI, and local Langfuse. The offline judge is Opus 5.5.
+A local assistant that finds support tickets and prepares ticket updates.
+It shows the exact proposed ticket or comment, waits for a later user approval,
+and saves the approved change once.
 
-The conversational write path, cross-session device preference, browser review,
-runtime mock faults and application containers are implemented. See the
-[completion report](docs/COMPLETION.md) and [review fixes](docs/REVIEW_FIXES.md)
-for measured verification and limits,
-and the [assignment status](docs/ASSIGNMENT_STATUS.md) for remaining submission work.
-AWS deployment is not required; `AGENTCORE.md` remains a separate deliverable.
+## Quick setup instructions
 
-## Quick start with containers
+### Start the application
 
-Install Docker with Compose, copy `.env.example` to `.env`, and replace the
-credential placeholders. Supply a valid `ANTHROPIC_API_KEY`. Keep mock tokens,
-MCP tokens and the mock service key distinct. The four user IDs in the example
-match the seeded users. Provider calls use the paid Anthropic API.
+You need Docker with Compose and an Anthropic API key. Model calls use the paid
+Anthropic API. No AWS account is required. Tracing is off by default.
 
 ```sh
 cp .env.example .env
-# Edit .env locally; never put credentials in chat or version control.
+```
+
+Edit `.env` locally and replace the placeholders:
+
+| Setting | Value |
+| --- | --- |
+| `ANTHROPIC_API_KEY` | Your Anthropic API key |
+| `MCP_USER_TOKENS` | Random tokens mapped to the four existing demo user IDs |
+| `MOCK_USER_TOKENS` | A different set of random tokens for those same users |
+| `MOCK_SERVICE_KEY` | A separate random service key |
+
+Keep the example's JSON format: each token maps to a user ID. Keep credentials
+out of Git and use different values for MCP, mock, and service credentials.
+
+```sh
 docker compose --env-file .env up --build -d --wait
 ```
 
-Open [the chat](http://127.0.0.1:8000/), enter a seeded user ID and that user's
-MCP bearer token, then Connect. The provider key never goes in the browser.
-The mock initializes its eight seeded tickets only on first startup. Named
-volumes preserve tickets, pending approvals, checkpoints and facts across restart.
+Open `http://127.0.0.1:8000/`. Enter a configured user ID, such as `user-001`,
+and the token mapped to it in `MCP_USER_TOKENS`, then click **Connect**.
+The Anthropic key stays on the server.
+
+Try finding tickets about an IT problem, then request a new ticket or comment.
+Review the proposal and choose **Approve** or **Decline**. The mock starts with
+four users and eight tickets, including tickets that some users cannot access.
 
 ```sh
+# Check health, restart without clearing data, or stop the application.
 docker compose --env-file .env ps
 docker compose --env-file .env restart mock chat
 docker compose --env-file .env down
 ```
 
-`down` preserves data; `down -v` deletes the application's named volumes. Do not
-use volume deletion as a normal restart. Only loopback ports 8000 (chat), 8001
-(mock/operator API), and 8002 (MCP) are published. All three services run as a
-non-root user from one locked image. The Docker context excludes credentials,
-runtime data, Git history, reports and tests.
+Named volumes preserve tickets, history, facts, and pending approvals.
+**`docker compose down -v` deletes the application's stored data.**
 
-Langfuse has its own Compose file and database infrastructure:
+### Add local Langfuse
+
+You also need Python with uv to generate local Langfuse credentials:
 
 ```sh
 uv run python scripts/init_langfuse.py
 docker compose --env-file .env.langfuse -f compose.langfuse.yaml up -d
-# Load both files when application tracing is enabled.
 docker compose --env-file .env --env-file .env.langfuse up -d --wait
 ```
 
-The application containers reach local Langfuse through `host.docker.internal`;
-`LANGFUSE_CONTAINER_URL` can select the local `langfuse-web` network endpoint.
-The host alias works with Docker Desktop. On native Linux a loopback-only host
-listener may require explicitly connecting the containers to the local Langfuse
-network. There is no cloud tracing fallback.
+Open `http://127.0.0.1:3000/` and use the login saved in `.env.langfuse`.
+Wait for the UI to open before running model evaluations. The script preserves
+an existing credentials file. Application containers use
+`host.docker.internal` to reach Langfuse on Docker Desktop. On native Linux,
+a loopback-only listener may require connecting the containers to the Langfuse
+network and setting a reachable `LANGFUSE_CONTAINER_URL`. There is no cloud fallback.
 
-## Run without containers
+<details>
+<summary>Run the Python services without containers</summary>
 
-Use Python 3.11+ and uv. Run from the checkout root:
-
-```sh
-uv sync --locked
-uv run python -m helpdesk.mock.init_db
-```
-
-For an existing database use `--upgrade` instead of reseeding. Load `.env` in
-each terminal, then start the three services:
+Use Python 3.11 or newer and uv. The container and CI use Python 3.13.
+Run `uv sync --locked` from the repository root. Load `.env` in each terminal:
 
 ```sh
 set -a
 . ./.env
 set +a
+```
+
+Initialize the mock once. For an existing database, use `--upgrade` instead of
+reseeding. Pass the same database path used by the service:
+
+```sh
+uv run python -m helpdesk.mock.init_db --database "$MOCK_DATABASE"
+```
+
+Start each service in its own configured terminal:
+
+```sh
+# Terminal 1
 uv run uvicorn helpdesk.mock.api:from_env --factory --host 127.0.0.1 --port 8001
-# In a second configured terminal:
+
+# Terminal 2
 uv run uvicorn helpdesk.mcp.server:from_env --factory --host 127.0.0.1 --port 8002
-# In a third configured terminal:
+
+# Terminal 3
 uv run uvicorn helpdesk.api:from_env --factory --host 127.0.0.1 --port 8000
 ```
 
-The CLI supports the same session/approval flow:
+The developer CLI uses the same user/session and approval flow. It trusts local
+configuration; the HTTP interface verifies the caller's bearer credential.
 
 ```sh
-uv run python -m helpdesk.agent.service --user user-001 --session demo --message "Read TKT-001"
-uv run python -m helpdesk.agent.service --user user-001 --session demo --message "approve"
+uv run python -m helpdesk.agent.service \
+  --user user-001 --session demo --message "Find tickets about VPN issues"
 ```
 
-The second command is meaningful only after a proposal exists. This CLI is a
-trusted developer interface; HTTP separately verifies the bearer credential
-against the supplied user ID. `MODEL_PROVIDER` and `MODEL_NAME` select the model
-through LangChain configuration. Only Anthropic is installed and evaluated;
-another provider requires its integration and credentials.
+</details>
 
-## Architecture and trust boundaries
+## Architecture overview
 
-```mermaid
-flowchart LR
-    UI[HTML and JavaScript] --> API[Authenticated chat API]
-    API --> Guard[Tool-free input classifier]
-    Guard -->|allow| Agent[create_agent ReAct graph]
-    Guard -->|block| Static[Fixed response without history]
-    Agent -->|model-selected calls| MCP[Authenticated FastMCP]
-    MCP --> Mock[FastAPI mock]
-    Mock --> Tickets[(Tickets and approvals SQLite)]
-    Agent --> Pause[Durable LangGraph interrupt]
-    UI -->|later approve or decline| API
-    API -->|application-only decision| Mock
-    API -->|resume original call| Pause
-    API --> State[(Checkpoints, bindings and facts SQLite)]
-```
+One Dockerfile builds the application image. `compose.yaml` starts three
+containers from it:
 
-The outer LangGraph routes `guardrail -> agent | blocked` without a checkpointer.
-Only accepted agent turns enter durable conversation history. The classifier
-returns plain `0` or `1`, has no tools and stores nothing. Blocked requests use
-one application-owned English reply; neither their text, intent nor static
-reply enters the model history. Classification failure is a technical error.
-PII detection is not implemented.
+| Service | Local port | Responsibility |
+| --- | --- | --- |
+| Chat | `8000` | Browser page, authenticated chat API, and agent |
+| MCP | `8002` | Python FastMCP tools exposed at `/mcp` |
+| Mock | `8001` | FastAPI ticket service, permissions, and approval records |
 
-For a new retrieval turn the model runs before any MCP connection. It chooses
-`discover_tools`, then `list_tickets`; a successful current-turn overview unlocks
-search, details and proposal tools. Vague issues require clarification first.
-The model never supplies identity, roles, credentials or session authority.
-An interrupted call was already selected by the model: approval resumes that
-call rather than asking another model to authorize it. Schema restoration and
-live permission checks run again on resume.
+The agent reaches ticket data through MCP and the mock HTTP API. The chat
+application has a separate control path for reading approval state and recording
+human decisions. That control path is never offered to the model as a tool.
 
-The agent's ticket reads, proposal staging and mutations go exclusively through
-MCP. The application uses a separate bounded HTTP client only for approval
-lookup and human decisions. Those endpoints are never model-callable tools.
-The HTTP app needs its mock credentials for that control path.
+SQLite stores agent checkpoints, review bindings, and user facts separately
+from the mock's tickets and approvals. Langfuse has its own Compose project and
+storage services: PostgreSQL, ClickHouse, Redis, and MinIO, plus web and worker.
+It can stay running while the application is rebuilt.
+
+![IT Helpdesk agent request flow](diagrams/agent-flow.png)
+
+`POST /chat` and `POST /chat/stream` accept `user_id`, `session_id`, `message`,
+and an optional `approval_id`. Authenticated endpoints also restore the current
+proposal, show completed tool summaries, and inspect or delete the user's fact.
+
+## Agent design
+
+### Frameworks and models
+
+The project considered a manual LangGraph workflow, `create_react_agent`, and
+a supervisor. It uses LangChain `create_agent`, backed by LangGraph, for the
+ReAct loop. A small outer LangGraph routes input screening to that agent or a
+fixed reply. One agent covers the task; no supervisor or handoff is needed.
+
+The model choice followed the project requirements and observed integration
+behavior. There was no comparative benchmark across model providers.
+
+| Role | Selected model and settings |
+| --- | --- |
+| Main agent | Sonnet 5.5 through Anthropic; adaptive thinking, medium effort, 1,024 output tokens |
+| Input classifier | Sonnet 5.5; low effort, tool-free `between_tools`, one output token |
+| Offline answer judge | Opus 5.5; adaptive thinking, medium effort, 2,048 output tokens |
+
+Development started with Sonnet 5 and later moved to Sonnet 5.5. Only classifier
+and judge refusals can trigger one fallback to Opus 4.8. Invalid output and
+transport failures do not switch models. The main agent has no automatic fallback.
+
+`MODEL_PROVIDER` and `MODEL_NAME` are configurable. Only the Anthropic integration
+is installed and evaluated; another provider needs its package and verification.
+
+### Tool selection
+
+On a fresh turn, the model runs before any MCP connection. It can answer or ask
+a focused clarification without tools. When ticket access is needed, it selects
+the local `discover_tools` utility. A successful `list_tickets` overview then
+unlocks search, detail, and proposal tools. Capabilities are rebuilt each turn.
+
+<a id="approval-and-recovery"></a>
+
+### State and user approval
+
+1. The model selects a write tool using the user's issue details.
+2. MCP stages the exact proposal without changing a ticket. The application
+   saves its user/session binding and pauses with LangGraph `interrupt`.
+3. The page shows the proposed change. The next message must explicitly approve
+   or decline it, through a button or text such as `approve` or `decline`.
+4. Application code checks the owner, session, action, and arguments, records
+   the decision, and resumes with `Command(resume=...)`.
+5. The backend saves the approved change and its reusable result in one
+   transaction. Repeated approval returns that result. Decline performs no write.
+
+The model cannot grant approval or supply its ID. Code injects the stored ID
+only after verification. Changed actions need a new proposal. An approved
+outcome can be reconciled, but the decision cannot be changed to decline.
+
+State survives restarts. If the process stops between staging and saving the
+pause, recovery replays only the original saved proposal node. It does not
+make a new agent model call or execute an approved write. The restored proposal
+must be shown before accepting another decision.
+
+A timeout after dispatch can leave the outcome unknown. Recovery uses the same
+durable action ID; the application never invents success or a rollback.
+The guarantee is one saved mutation per approved action, even if requests repeat.
+
+### Memory and retention
+
+| Data | What is kept, where, and for how long |
+| --- | --- |
+| Conversation | SQLite checkpoints, scoped by authenticated user and session; no automatic expiry |
+| Review bindings | Agent SQLite records plus backend approval records; survive restart with no automatic expiry |
+| Cross-session fact | One `operating_system` value, Windows, macOS, or Linux, in agent SQLite; 30-day expiry |
+
+Only accepted, explicit first-person English OS statements are extracted.
+The latest assertion replaces the previous fact and restarts its expiry.
+Reading does not extend retention. Questions, hypothetical statements, quotes
+about others, and role claims are excluded. Facts never grant permissions.
+
+`GET /memory` shows the authenticated user's fact; `DELETE /memory` removes it.
+Expired facts are removed on access. Deletion does not erase old conversations
+or traces. Reusing another user's session name does not reveal their history.
+
+Model input has an approximate 8,000-token budget. Old turns are omitted as
+whole groups without deleting stored history. Current tool-call/result pairs
+and provider signatures stay together. Old ticket evidence stays hidden until
+a fresh overview confirms access. There is no automatic summarization or scratchpad.
+
+## Tool design
+
+Tool names describe concrete Helpdesk actions. Their English descriptions explain
+when to use them, required arguments, pagination, proposal behavior, and failures.
+Runtime descriptions use general rules without fixture IDs or expected eval answers.
 
 | Tool | Purpose |
 | --- | --- |
-| `list_tickets` | Permission-filtered paginated IDs, titles and statuses |
-| `search_tickets` | Paginated literal keyword/ID search; OR matching without embeddings |
-| `get_ticket` | Authorized status, description and comments |
-| `create_ticket` | Propose a new internal ticket; execute only an exact approved ID |
-| `add_comment` | Read the target first, then propose or execute its approved comment |
+| `list_tickets` | Paginated IDs, titles, and statuses for accessible tickets |
+| `search_tickets` | Paginated exact-ID or literal keyword search |
+| `get_ticket` | Authorized ticket status, description, and comments |
+| `create_ticket` | Stage a new internal ticket; execute only the exact approved action |
+| `add_comment` | Stage a comment after reading its target; execute after approval |
 
-MCP schemas retain their backend approval contract. The model-facing write
-schemas hide `approval_id`; application code injects it after review. Unknown
-arguments are rejected. One changed-argument correction of the same tool is
-allowed after `invalid_arguments`; repeated invalid arguments or other terminal
-errors disable further tool use. Parallel writes are rejected. Tool data is
-untrusted evidence and cannot override instructions or grant approval.
+Keyword search uses OR matching, with no embeddings or automatic synonyms.
+Authorization is applied before counting and pagination. An inaccessible ticket
+is indistinguishable from a missing one in the normal response.
 
-## Approval and recovery
+### Authentication and permissions
 
-1. The model selects a proposal using user-supplied issue details.
-2. MCP saves the exact action in the mock without changing a ticket. The agent
-   stores a user/session/call binding, and the tool node calls `interrupt`.
-3. The reply and review panel show the exact proposal. The graph stops.
-4. In a later message use `approve`, `I approve`, `decline`, or `I decline`, or
-   click a review button. A button includes the displayed approval ID. Ambiguous
-   acknowledgements and changes to the proposal do not authorize a write.
-5. Application code verifies ownership and exact arguments, records the decision
-   through the backend, and resumes using `Command(resume=...)` on the same thread.
-6. Only the approved action receives its stored ID. Mutation and replayable
-   result commit atomically in the mock. Decline invokes no execution call.
+The caller uses a user-specific MCP bearer token. FastMCP verifies it and checks
+current Helpdesk membership. To call the mock, MCP uses both:
 
-Review state survives both mock and chat restarts. If staging succeeded but the
-process failed before its local binding or native pause, review lookup resumes
-only the original checkpointed proposal node. The backend deduplicates its exact
-action. No new model runs and no approved mutation executes during that lookup.
-The restored proposal must be shown before a subsequent decision is accepted.
-Temporary recovery errors leave the original checkpoint retryable. Repeated approval cannot
-create a new action or duplicate a mutation. The backend rechecks current access
-on decisions, execution and completed-action replay. An already approved
-decision cannot be changed to decline; the UI permits only reconciliation then.
-For a different action, decline while pending and request a fresh proposal.
+- `X-Mock-Service-Key` for service authentication.
+- A separate mock bearer credential mapped to the verified user.
 
-Completion and write-failure receipts are application-owned and derived from
-validated results. They do not add an extra model call or resend pre-approval
-ticket context after a possible role change. An uncertain result never becomes
-an invented success or rollback. A later explicit approve reconciles only the
-same durable ID; the review endpoint can also confirm a previously unknown
-committed result. The guarantee is one durable mutation per approved action,
-not exactly-once network delivery.
+MCP does not forward its incoming token or accept a model-supplied user identity.
+The application supplies trusted session context through `X-Session-Id`.
+The backend independently checks current rights on reads, decisions, and writes.
+Users without Helpdesk access receive no ticket tools.
 
-## Memory and retention
+### Errors and recovery
 
-Conversation checkpoints are scoped by a hash of the authenticated user ID and
-session ID. Reusing another user's session name does not grant its history.
-History and approval bindings remain until an operator removes the local data;
-there is no automatic history/approval TTL or automatic summarization.
+MCP tool failures set `isError: true` and return a small JSON payload to the agent:
 
-Across sessions, retain only one device preference: `operating_system`, with
-values Windows, macOS or Linux. The application recognizes explicit first-person
-English statements such as `I use Windows 11` or `My laptop runs Linux` after
-input screening. It does not run an extraction LLM or save arbitrary facts.
-Questions, quoted third-party claims, hypothetical statements and role claims
-are excluded. This intentionally narrow extractor is not universal language or
-PII understanding.
-
-The last explicit assertion overwrites that user's fact and starts a 30-day TTL.
-Reading does not refresh it. Expired facts are filtered and removed on access.
-The fact is added transiently to the same user's model context in a new session;
-it never grants permissions. Authenticated `GET /memory` inspects it and
-`DELETE /memory` removes it. Deletion affects extracted facts, not existing chat
-history or prior traces.
-
-Model context has an approximate 8000-token input budget. Old turns drop as
-whole groups without deleting SQLite history; current tool-call/result pairs
-and provider signatures remain together. Old ticket evidence is hidden until a
-fresh overview confirms access, including IDs in nested creation receipts and
-comment results. No scratchpad or additional memory agent exists.
-
-## Runtime failures and bounds
-
-Only an operator with `X-Mock-Service-Key` can configure the running mock. The
-browser token and the model's tools cannot change fault settings. After loading
-`.env`, for example:
-
-```sh
-curl -X PUT http://127.0.0.1:8001/admin/failures \
-  -H "X-Mock-Service-Key: $MOCK_SERVICE_KEY" -H "Content-Type: application/json" \
-  -d '{"mode":"rate_limit","target":"read","remaining":2,"retry_after_seconds":0.2}'
+```json
+{
+  "is_error": true,
+  "code": "access_denied",
+  "message": "This user does not have Helpdesk access.",
+  "is_retryable": false
+}
 ```
 
-Modes are `off`, `rate_limit`, `server_error`, `slow`, and `committed_timeout`.
-`target` selects `any`, `read`, or `write`. A finite `remaining` counter makes
-recovery reproducible. `slow` uses `delay_seconds`; `committed_timeout` commits
-an approved write, then replaces its response with an unknown-outcome timeout.
-It does not affect proposal staging. `GET /admin/failures` inspects the counter;
-PUT `{"mode":"off"}` disables it. Configuration resets on mock restart.
+Rate limits may add `retry_after_seconds`; write failures may add `outcome`,
+with `not_applied` or `unknown`. Request IDs and attempt counts stay in diagnostics.
+Discovery failures use a JSON-RPC error; invalid MCP credentials are rejected by
+HTTP authentication before a tool executes.
 
-Authorization runs before fault injection. The backend client makes at most
-three suitable attempts with exponential backoff and honors Retry-After within
-a ten-second operation deadline. The MCP client allows twelve seconds so the
-backend's deadline response can arrive. Typed MCP timeouts become safe tool
-errors, without private RPC text. Writes retry only using their durable ID.
-The main agent has six model calls/six tools per request and a 60-second deadline.
-Provider calls have a 30-second timeout and two SDK retries.
+Arguments are checked against the discovered schema. After `invalid_arguments`,
+the model can correct that same tool's arguments once. Repeated invalid arguments
+or another terminal error stop tool execution for the turn. `is_retryable` describes
+transport recovery; it does not give the model permission to retry indefinitely.
 
-Sonnet 5.5 uses adaptive thinking, medium effort and 1024 output tokens; sampling
-parameters are omitted. The one-token guardrail uses low effort and tool-free
-`between_tools`. Only guardrail/judge refusals allow one Opus 4.8 reserve; invalid
-outputs and transport errors never switch models. The judge uses Opus 5.5 with
-2048 output tokens. See the [Sonnet migration guide](https://platform.claude.com/docs/en/models/sonnet-5-5/migration-guide).
+Backend calls allow at most three suitable attempts within 10 seconds, with
+backoff and bounded `Retry-After`. MCP allows 12 seconds for that typed result
+to arrive. Requests have a 60-second deadline and limits of six agent model calls
+and six tool calls. Provider calls use a 30-second timeout and two SDK retries.
+Writes are retried only through the durable action-ID path.
 
-## HTTP and frontend
+## Quality
 
-`POST /chat` accepts user ID, session ID, message and an optional approval ID.
-`POST /chat/stream` emits only answer `text_delta`, `done`, or terminal `error`
-events. Thinking and structured tool payloads never go into that stream.
-Model text is buffered until the final message is validated: an earlier text
-block can still be followed by a tool call. Only fragments belonging to the
-final answer are then sent; their concatenation exactly equals `done.reply`.
-This delays the first visible fragment until generation completes. It does not
-provide live provider-token delivery. No extra generation is added, and native
-proposal/approval receipts remain application-owned.
-A failed or partial stream is not retried automatically or marked complete.
+### Cases and metrics
 
-The page uses pinned, locally vendored Deep Chat with plain JavaScript. It sends
-only the newest message and keeps credentials in page memory. Completed tool
-names/outcomes use a separate user-bound request summary; proposal data uses
-`GET /chat/sessions/{session_id}/approval`. Reconnecting the same session restores
-its proposal. Review values render as text, and decisions bind the exact ID.
-Tool outcomes distinguish pending, completed, declined and error.
+Correctness tests use synthetic model responses with the real graph, MCP, mock,
+and databases. They check permissions, pagination, argument correction, approval,
+decline, restart recovery, duplicate prevention, uncertain writes, and user isolation.
+They do not measure the model's tool-selection ability.
 
-## Verification and local Langfuse
+Real-model datasets are separate:
+
+| Dataset | Cases | Coverage |
+| --- | ---: | --- |
+| Earlier read-only regression set | 54 | 21 tool-selection, 11 answer-quality, and 22 adversarial/control cases |
+| Completion set | 17 | 11 tool/workflow, two answer/memory, and four adversarial/control cases |
+
+The earlier set reflects the read-only contract at that development stage.
+Use the completion set for the implemented approval and write workflow.
+
+The adversarial cases include authority spoofing, instruction injection, encoded
+requests, multilingual overrides, gradual diversion, and legitimate IT controls.
+Completion cases include ticket creation, comments, decline, restart, duplicate
+approval, failed or uncertain writes, runtime faults, and cross-session memory.
+
+Code graders inspect actual tool calls and database changes. The offline Opus
+judge scores groundedness, helpfulness, scope adherence, instruction adherence,
+and clarity. It has no application tools and cannot authorize a write.
+
+Metrics include code pass, judge availability and pass, joint pass, guardrail
+false blocks/false allows/unavailable decisions, model/tool counts, available
+usage, and latency p50/p95. Judge usage is recorded separately. Missing results
+are failures or unavailable measurements, never invented scores.
+
+### Latest recorded results
+
+| Check | Result | Scope and date |
+| --- | --- | --- |
+| Python correctness tests | 338 passed | Latest recorded source checks, 2026-10-22 |
+| Protocol requirements | 33/33 passed | Mapped requirements and regressions, 2026-10-22 |
+| JavaScript tests | 11/11 passed | Stream handling and approval binding, 2026-10-22 |
+| Real-model completion | 17/17 code, judge, and joint pass | Earlier source revision, 2026-10-21 |
+| Completion input screening | 30/30 correct, no false blocks or false allows | Same historical run |
+| Completion agent latency | p50 9.20s; p95 16.92s | Same historical run; local experiment, not a production benchmark |
+
+**Paid model evaluations were not rerun after the review and SQLite fixes.**
+Their scores are historical evidence, not a measurement of current model quality.
+The completion report has one trial per case, so it does not establish reliability
+across repeated runs.
+Reports, failed trials, and source/prompt/dataset hashes remain in `evals/results/`.
+Native datasets and experiment scores are also recorded in local Langfuse.
+
+Run correctness checks with Python/uv and Node.js 22:
 
 ```sh
-uv run python -m helpdesk.evals --mode protocol
+uv sync --locked
+HELPDESK_TRACING_ENABLED=false uv run python -m helpdesk.evals --mode protocol
 node --test frontend/tests/*.test.mjs
+```
+
+After configuring Anthropic and local Langfuse, run the paid completion eval:
+
+```sh
 uv run --env-file .env --env-file .env.langfuse python -m helpdesk.evaluation \
   --dataset evals/completion-datasets.json
 ```
 
-The protocol command runs correctness tests and maps P01–P20/F01–F09 to actual
-results, including four review regression groups R01–R04. Native completion
-experiments on the pre-review revision covered 17 cases: creation, comments,
-decline, restart, duplicate approval, uncertain and failed writes, runtime rate
-limits/timeouts, memory isolation and scope/injection controls. A separate Opus
-judge assesses groundedness, helpfulness, scope adherence, instruction adherence
-and clarity. Code checks enforce actual database effects and review behavior.
-Those paid provider experiments were not rerun after the review fixes.
-Historical datasets and failures remain unchanged; the new dataset has its own
-`helpdesk-completion` namespace. AI-assisted labels, inspected regressions and
-same-family judging are limitations, not independent human ground truth.
+### Guardrails and limits of the evidence
 
-Every chat request has a correlated trace with screening, model settings and
-available usage, MCP calls/results, authorization, approval, retry attempts,
-latency and errors. Native model experiments use `sdk-experiment`; correctness
-checks use `protocol-tests`; application requests use `development`. Logical
-auxiliary spans do not duplicate per-generation usage. We mask configured
-credentials, omit raw thinking and exception text, and do not invent unavailable
-provider HTTP attempt counts or billed cost. Use the failed tool/approval phase
-and its backend attempts to debug a run. See [observability](docs/OBSERVABILITY.md)
-and [measured results](evals/results/latest.md).
+The input guardrail also uses Claude Sonnet 5.5, the same model as the main
+agent. It runs as a separate, tool-free classification call before the agent
+receives the message, with low effort and a one-token output limit. It returns
+only `0` for Helpdesk or `1` for blocked requests.
 
-## Continuous integration
+Blocked input receives a fixed reply and adds no text, intent, response,
+or placeholder to history or facts. Invalid or unavailable classification returns
+a technical error. A later valid message remains usable.
 
-[GitHub Actions](.github/workflows/ci.yml) runs Python/protocol checks,
-JavaScript tests and a Docker image build on pull requests, pushes to `main`,
-and manual dispatch. It uses locked dependencies, no provider/Langfuse secrets,
-and preserves failure logs and reports as seven-day artifacts. Paid model
-evaluations remain separate. See [CI setup and limits](docs/CI.md).
-The workflow starts running after it is pushed to GitHub; branch protection
-must be configured separately if checks should block merging.
+Schema validation, backend authorization, approval checks, execution budgets,
+and treating ticket content as untrusted remain independent code controls.
 
-## Tradeoffs and remaining work
+Labels and judge anchors were AI-assisted. Inspected cases are regression data,
+not unseen evidence. A same-family judge can share model errors, and a finite
+attack set cannot establish general injection resistance. Independent human
+labels, external security testing, load tests, and multi-worker validation are
+still missing. Most eval traffic uses in-process HTTP; container smoke tests
+separately exercised actual services and provider calls.
 
-Python, FastAPI/Pydantic and the small SQLite mock keep boundaries inspectable.
-`create_agent` supplies the ReAct loop; a supervisor or another specialist agent
-would add no required capability. The separate MCP/HTTP mock boundary makes
-permissions and failure handling testable. One worker per service and serialized
-chat requests are deliberate local-assignment limits. Do not claim multi-worker
-coordination, production OAuth, synonym/semantic search or broad prompt-injection
-resistance from this implementation.
+### Try controlled failures
 
-PII detection/redaction is explicitly deferred. User/tool content can reach the
-external provider, SQLite history and traces. Credential masking and safe errors
-are not general PII protection. Follow-up work should handle relevant PII before
-model calls, storage, trace export and fact extraction.
+Only an operator with the mock service key can enable faults. Load `.env` into
+your shell, then make the next two eligible reads return a rate limit:
 
-Still required for submission: the AWS AgentCore design and diagram, the
-candidate's own reviewed design/AI-use conclusions, and final submission evidence.
-AI assistance contributed implementation, tests, research and documentation;
-recorded checks and preserved failures describe verification, not the candidate's
-personal experience. No AWS deployment was performed. Broader fact extraction,
-history cleanup, independent human eval labels and production auth are future
-improvements rather than implemented features.
+```sh
+set -a
+. ./.env
+set +a
+curl -X PUT http://127.0.0.1:8001/admin/failures \
+  -H "X-Mock-Service-Key: $MOCK_SERVICE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"mode":"rate_limit","target":"read","remaining":2,"retry_after_seconds":0.2}'
+```
 
-## Layout
+Modes are `off`, `rate_limit`, `server_error`, `slow`, and `committed_timeout`.
+Use `target` to select `read`, `write`, or `any`; `remaining` bounds the faults.
+`slow` uses `delay_seconds`. `committed_timeout` saves an approved write and then
+reports an unknown outcome; it does not affect staging. GET `/admin/failures`
+shows settings; PUT `{"mode":"off"}` disables them. Restart resets the switch.
+Authorization is checked before faults. Browser users and tools cannot set them.
 
-Python code is under `backend/src/helpdesk/` with separate `agent/`, `mcp/` and
-`mock/` boundaries. Tests are in `backend/tests/`; browser assets and stream/review
-tests are in `frontend/`. Schemas and fixtures are in `data/`; ignored local
-files are in `data/runtime/`. One root `pyproject.toml` and `uv.lock` define the
-Python project. Docs, original assignment and evidence are in `docs/`; eval
-catalogs and immutable run reports are in `evals/`. The vendored component's
-license is retained in `frontend/vendor/deep-chat.LICENSE`.
+## Observability
+
+Each request has a correlation ID across guardrail, model, MCP, backend, and
+approval activity. Traces include model settings, available token usage, tool
+arguments/results, latency, retries, errors, approval decisions, and write outcomes.
+
+| Langfuse environment | Traffic |
+| --- | --- |
+| `development` | Normal application requests, rooted at `helpdesk.request` |
+| `protocol-tests` | Deterministic correctness checks |
+| `sdk-experiment` | Real-model experiments and judge runs |
+
+To investigate a bad run:
+
+1. Find its request trace and check whether screening blocked, failed, or allowed it.
+2. Inspect the model's actual calls and the tools available at that point.
+3. Check MCP validation, backend permissions, and bounded retry attempts.
+4. For a write, compare the saved proposal, later decision, and backend outcome.
+   An unknown outcome must be reconciled with the same action ID.
+5. Compare the validated answer with successful tool evidence. Treat a partial
+   stream as incomplete even if some text reached the page.
+
+Credentials are masked. Raw thinking, exception text, and blocked message text
+are excluded. Parent spans do not duplicate generation usage. Unavailable physical
+SDK retry counts and billed cost are not invented.
+
+**PII detection and redaction are not implemented.** User and ticket content can
+reach Anthropic, SQLite, and traces. Credential masking is not general PII protection.
+History and trace cleanup also need an explicit retention policy.
+
+## Key technical decisions and why
+
+| Decision | Reason and tradeoff |
+| --- | --- |
+| SQLite instead of adding a database service | Simple local setup and atomic approval/result storage; concurrency remains limited |
+| Separate MCP and mock HTTP services | Makes the agent boundary and user permissions testable; adds service calls |
+| Local discovery and an overview before details | Makes current access visible before ticket work; adds a tool round trip |
+| Approval enforced in code | A model suggestion cannot authorize a mutation; requires durable pause and recovery state |
+| Buffered final-answer SSE | Prevents intermediate tool narration from leaking into chat; first visible text waits for generation to finish |
+| Narrow OS fact extractor | Meets cross-session memory needs without storing arbitrary facts; only limited English statements are recognized |
+
+The application uses one worker per service and serializes chat requests.
+Those are local scope choices, not a claim of production scalability. Search
+remains lexical. The input classifier reduces unwanted requests but is not a
+complete security boundary. AWS remains a design-only exercise.
+
+## Engineering standards
+
+### AI solution architecture
+
+The design applies selected principles from Anthropic's *Building effective
+agents*, *Writing effective tools for agents*, and *Demystifying evals for AI
+agents*. These are engineering recommendations, not a certification or a formal
+compliance standard. The following is how we applied them to this assignment.
+
+| Principle | Application in this project |
+| --- | --- |
+| Start with the simplest useful design | One Helpdesk agent, five domain tools, SQLite, and a thin browser page. No supervisor or multi-agent handoffs. |
+| Separate predictable workflow from model judgment | Code handles screening routes, identity, approval, and persistence. The model chooses lookups, asks clarifying questions, and proposes changes. |
+| Design the agent-tool interface carefully | Action-based names, explicit schemas, selection guidance, paginated results, and concise errors help the model choose and use tools. |
+| Bound autonomous execution | Request deadlines and model/tool budgets stop runaway loops. Ticket mutations pause for explicit user approval. |
+| Verify outcomes as well as responses | Code graders inspect tool arguments and database changes. A separate judge assesses answer quality; traces explain failures. |
+
+We adapted these principles to the assignment. We chose a framework for durable
+state and interruption, and checked its behavior through integration tests.
+Independent human grading and repeated trials on unseen cases remain gaps in
+our evaluation process.
+
+### Service boundaries and contracts
+
+The application follows practical microservice design principles at a small
+scale: separation of responsibilities, explicit contracts, and ownership of data.
+Chat owns conversation orchestration, MCP owns the model-facing tool interface,
+and the mock owns ticket rules and mutations. Agent state and ticket data live
+in separate databases. The agent cannot query the ticket database directly.
+
+Pydantic request/response models and MCP schemas define the boundaries. Each
+boundary validates untrusted input and returns explicit errors. Service
+credentials authenticate MCP to the mock; separate user credentials determine
+whose rights apply. The backend remains responsible for ticket authorization,
+including when an approved operation is retried.
+
+The services run in separate containers with health checks and environment-based
+configuration. This is a small service-oriented application in one repository
+with one shared image and release cycle. Independent releases, a service mesh,
+a message broker, and distributed transactions would add complexity without
+serving the local assignment.
+
+### Function design and code organization
+
+We use single-responsibility functions and modules where they clarify a real
+boundary. Agent orchestration, guardrails, MCP transport, ticket rules, storage,
+and HTTP handling have separate locations. We avoid introducing abstraction
+layers solely for possible future features.
+
+Python names use descriptive `snake_case` for functions and variables and
+`PascalCase` for classes. Docstrings follow NumPy style: a concise summary, with
+`Parameters`, `Returns`, `Raises`, or `Notes` when useful. Comments explain
+constraints and reasons. Single blank lines separate logical steps, and long
+calls are wrapped for readability. Project text is in English, and prompts live
+in dedicated modules instead of being mixed into orchestration logic.
+
+Type annotations and boundary models make contracts easier to inspect, although
+annotations are not yet complete or enforced by a static type-checking gate.
+SQL values use bound parameters. Blocking application-storage calls are moved
+off the asynchronous event loop so they cannot prevent checkpoint commits.
+
+Application code lives in `backend/src/helpdesk/`, tests in `backend/tests/`,
+browser code in `frontend/`, and schemas/fixtures in `data/`. Runtime databases
+are ignored under `data/runtime/`. One `pyproject.toml` and `uv.lock` define the
+Python environment.
+
+### Reliability, transactions, and idempotency
+
+External calls have explicit timeouts, bounded retries, and an overall request
+deadline. Transient failures use backoff and bounded `Retry-After`; validation
+and permission failures do not become retry loops. The model gets one chance
+to correct invalid tool arguments, separately from transport retries.
+
+Approval is a persisted state transition bound to a user, session, action, and
+exact arguments. A prompt instruction cannot replace that check. The backend
+commits the ticket mutation and its saved result in the same transaction under
+a durable action ID. Replaying that approved action returns the stored result
+instead of creating another ticket or comment.
+
+This provides at-most-once mutation per approved action. It does not promise
+exactly-once network delivery or collapse two separately approved actions.
+A timeout can mean the write committed but its response was lost. Recovery
+keeps the outcome unknown until the same action ID resolves it, and does not
+start a new write to guess what happened.
+
+Checkpoints and pending approvals survive restarts. Tests exercise decline,
+duplicate approval, interruption during staging, lost write responses, and
+SQLite writer contention. Coordination is validated for the local single-worker
+setup; horizontal scaling needs different storage and concurrency verification.
+
+### Security and observability
+
+Least privilege applies at both service and user boundaries. Verified
+credentials establish identity; user messages, remembered facts, and trace
+metadata never grant access. Authorization runs before pagination and again
+before mutations. Ticket content is untrusted, and approval endpoints are not
+available to the model.
+
+Secrets stay in environment configuration and are masked in traces. Containers
+run as a non-root user and publish loopback ports. The browser keeps credentials
+in page memory. Request correlation connects model, tool, backend, and approval
+activity, while operational errors remain distinct from expected refusals.
+These controls do not replace PII handling, production login, or a retention
+policy, which are still incomplete.
+
+### Verification and reproducible delivery
+
+GitHub Actions runs Python/protocol checks, JavaScript tests, and a Docker build
+on pull requests, pushes to `main`, and manual runs. It uses locked dependencies,
+pinned action commits, read-only repository permissions, and no provider secrets.
+Logs and reports remain as seven-day artifacts. Paid evaluations run separately;
+branch protection needs separate configuration. Vendored browser code retains
+its license.
+
+Review fixes cover revoked ticket data returning through history, intermediate
+SSE narration, a crash after proposal staging, and lost write-reconciliation
+responses. A later CI failure exposed synchronous SQLite calls blocking an
+asynchronous checkpoint commit. Those calls now run outside the event loop,
+with a regression for actual writer contention. Original failed reports remain.
+
+There is no configured lint or static type-checking gate, automatic history
+cleanup, production OAuth, deployment validation, or multi-worker guarantee.
+The Docker CI job builds the image; it does not prove successful runtime behavior.
+
+## How AI tools were used
+
+An AI coding assistant helped research APIs, compare approaches, draft code and
+prompts, build fixtures and evals, investigate failures, and prepare documentation
+and diagrams. Separate AI research tasks explored ticket search, project layout,
+and provider logging. An Astra code review identified four defects that were
+corrected with regression tests.
+
+The user directed the scenario, stack, model choices, tool behavior, approval
+flow, guardrail policy, memory scope, and scope reductions. AI-generated output
+was revised through those discussions and checked through the recorded tests
+and experiments. AI-generated eval labels and AI review are not independent
+human verification.
+
+## What would change with more time
+
+- Run the paid suites on the final source revision and add fresh, independently
+  reviewed cases that were not used while tuning prompts.
+- Add PII handling before model calls, storage, tracing, and memory extraction,
+  plus explicit history/trace retention and deletion rules.
+- Replace demo tokens with verified login and delegated access. Keep ticket
+  authorization and approval enforcement in backend code.
+- Test PostgreSQL-backed checkpoints and coordination before running multiple workers.
+- Improve search when a larger dataset justifies synonyms or hybrid retrieval.
+- Add lint/type checks, load tests, and broader failure and security testing.
+- Validate the proposed AWS design in an actual account, including recovery,
+  identity propagation, networking, quotas, and cost.
+
+## Candidate perspective
+
+My priority was to build a small Helpdesk assistant whose actions I could inspect
+and explain. I wanted to participate in the design decisions, so we worked
+through the stack, tool contracts, permissions, approval flow, memory, and
+observability step by step. I repeatedly narrowed the scope to what the
+assignment needed rather than building a general platform.
+
+I wanted the model to orchestrate the task: understand the request, clarify
+missing details, and choose tools. At the same time, I wanted access through
+the agent to match the user's existing rights. That led to an explicit split
+between model judgment and application control over identity and writes.
+A proposed change only becomes an authorized operation after the user's next
+message approves its exact contents.
+
+I chose Python, a framework-backed ReAct agent, SQLite, and a simple frontend
+to keep the implementation manageable. I would keep the explicit approval
+boundary and durable idempotency even in a larger version. I would reconsider
+the single-worker storage design and lexical search when actual concurrency
+and retrieval requirements justified it.
+
+I also wanted failures to be visible. Restricted tickets, controllable backend
+faults, adversarial inputs, and traces made it possible to examine behavior
+beyond a successful demo. Passing a finite test set is useful evidence, but I
+would not treat it as proof that the agent is secure or production-ready. My
+next validation priority would be a fresh model run on the final revision,
+with independently reviewed cases and repeated trials.
+
+AI assistance was substantial and is described above. This perspective was
+also drafted with AI from the decisions I made during development. The recorded
+tests support specific implementation claims; they do not replace my ability
+to explain the code, its tradeoffs, and its remaining limitations.
