@@ -1,10 +1,12 @@
 """Exercise real graph pauses and MCP writes with explicit application decisions."""
 
 from contextlib import closing
+import asyncio
 import json
 import sqlite3
 from types import SimpleNamespace
 
+import aiosqlite
 import httpx2 as httpx
 from langchain_core.messages import AIMessage, ToolMessage
 from mcp import MCPError
@@ -12,7 +14,7 @@ from mcp.types import REQUEST_TIMEOUT
 import pytest
 
 from agent_helpers import ScriptedModel, call, service
-from helpdesk.agent.approvals import ApprovalBridge
+from helpdesk.agent.approvals import ApprovalBridge, WriteReview
 from helpdesk.errors import PublicError
 from helpdesk.mcp.mock_client import MockClient
 
@@ -364,3 +366,39 @@ async def test_failed_review_recovery_keeps_original_checkpoint_retryable(
         assert counts(database) == before
     with closing(sqlite3.connect(database)) as connection:
         assert connection.execute("SELECT COUNT(*) FROM approvals WHERE session_id='session'").fetchone()[0] == 1
+
+
+async def test_proposal_binding_allows_async_checkpoint_writer_to_commit(
+    running, tmp_path, approval_bridge, monkeypatch,
+):
+    """A busy state write must release the event loop so another writer can commit."""
+    original = WriteReview.awrap_tool_call
+    release_task = None
+    async with service(running, tmp_path, proposed_model("create_ticket"), approval_bridge=approval_bridge) as agent:
+        async with aiosqlite.connect(agent.storage.database) as checkpoint_writer:
+            async def hold_after_staging(review, request, handler):
+                """Reproduce a checkpoint transaction open when a proposal is staged."""
+                async def staged(call_request):
+                    """Hold the writer until an event-loop coroutine can commit it."""
+                    nonlocal release_task
+                    result = await handler(call_request)
+                    await checkpoint_writer.execute("BEGIN IMMEDIATE")
+
+                    async def commit_checkpoint():
+                        """Release the SQLite writer promptly if the loop remains runnable."""
+                        await asyncio.sleep(0.01)
+                        await checkpoint_writer.commit()
+
+                    release_task = asyncio.create_task(commit_checkpoint())
+                    return result
+
+                return await original(review, request, staged)
+
+            monkeypatch.setattr(WriteReview, "awrap_tool_call", hold_after_staging)
+            try:
+                proposed = await agent.run("user-001", "session", "Please create the described ticket.")
+                assert proposed["approval"]["status"] == "pending"
+                assert release_task is not None and release_task.done()
+            finally:
+                if release_task is not None:
+                    await release_task

@@ -319,3 +319,9 @@ instructions take priority. Update this file when agreements change.
 - Share typed transport handling between normal execution and reconciliation,
   and durably mark unknown before approved dispatch. Decided actions must never
   execute during review GET recovery.
+
+- Application-state SQLite methods are synchronous: async service/middleware
+  and HTTP callers must offload them with asyncio.to_thread. A synchronous busy
+  wait on the event loop can prevent the async checkpoint writer from committing.
+  Retain the deterministic writer-contention regression; do not hide it with
+  test retries or longer CI timeouts.

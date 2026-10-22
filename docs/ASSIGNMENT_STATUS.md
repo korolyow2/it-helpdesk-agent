@@ -19,7 +19,7 @@ The AWS design and candidate-reviewed submission narrative remain separate work.
 | Session history and isolation | User/session-hashed SQLite checkpointing | No automatic history TTL/cleanup |
 | Useful cross-session fact | Explicit operating-system preference, user-scoped, last assertion wins, 30-day TTL, inspect/delete API | Narrow English extractor; deletion does not erase previous chat/traces |
 | Runtime failures and bounds | Operator-only finite 429/503/slow/committed-timeout switch; retries/backoff/deadlines | Single-worker fault counter resets on restart |
-| One-command evaluations | 337 passing Python tests; 33 protocol mappings; new frozen 17-case actual-model completion suite and Opus judge | AI-assisted labels, same-family judge, independent human review pending |
+| One-command evaluations | 338 passing Python tests; 33 protocol mappings; new frozen 17-case actual-model completion suite and Opus judge | AI-assisted labels, same-family judge, independent human review pending |
 | Traces and available usage | Correlated guardrail/model/MCP/mock/approval spans; read-back of all 17 native joint scores | No claim of unavailable HTTP retry counts, billed cost or complete per-dimension export |
 | Thin page and review buttons | Exact proposal panel, restore on reconnect, bound approve/decline, separate tool summaries | Visual polish not prioritized |
 | One optional feature | User-facing answer streaming | No handoff/cancellation feature added |

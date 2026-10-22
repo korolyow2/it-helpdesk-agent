@@ -1,5 +1,6 @@
 """Bridge explicit application decisions to backend approvals and graph pauses."""
 
+import asyncio
 import hashlib
 import json
 from contextvars import ContextVar
@@ -99,7 +100,7 @@ class WriteReview(AgentMiddleware):
             return tool_error(call, "execution_limit_exceeded")
 
         key = hashlib.sha256(json.dumps([latest.id, call["id"]]).encode()).hexdigest()
-        action = self.storage.action(self.user_id, self.session_id, call_key=key)
+        action = await asyncio.to_thread(self.storage.action, self.user_id, self.session_id, call_key=key)
         if action is None:
             response = await handler(request)
             if response.status == "error":
@@ -112,24 +113,28 @@ class WriteReview(AgentMiddleware):
             proposal = json.loads(response.text)
             if proposal.get("status") != "pending" or proposal.get("operation") != call["name"]:
                 raise PublicError("invalid_backend_response")
-            action = self.storage.save_action(self.user_id, self.session_id, key, proposal)
+            action = await asyncio.to_thread(self.storage.save_action, self.user_id, self.session_id, key, proposal)
         proposal = action["proposal"]
 
         # The tool node replays after resume. Its durable binding prevents restaging.
         choice = interrupt({"kind": "ticket_write", "proposal": proposal})
-        action = self.storage.action(self.user_id, self.session_id, call_key=key)
+        action = await asyncio.to_thread(self.storage.action, self.user_id, self.session_id, call_key=key)
         if (not isinstance(choice, dict) or choice.get("approval_id") != proposal["approval_id"]
                 or choice.get("decision") not in {"approve", "decline"}
                 or action["decision"] != choice["decision"]):
             raise PublicError("approval_required")
         if action["decision"] == "decline":
             result = {"status": "declined", "approval_id": proposal["approval_id"]}
-            self.storage.finish(self.user_id, self.session_id, proposal["approval_id"], result)
+            await asyncio.to_thread(self.storage.finish, self.user_id, self.session_id, proposal["approval_id"], result)
             return ToolMessage(content=json.dumps(result), name=call["name"], tool_call_id=call["id"])
 
         approved = {**call, "args": {**proposal["arguments"], "approval_id": proposal["approval_id"]}}
         # A crash or cancellation after dispatch cannot leave an old not-applied receipt.
-        self.storage.finish(self.user_id, self.session_id, proposal["approval_id"], {"outcome": "unknown"})
+        await asyncio.to_thread(
+            self.storage.finish, self.user_id, self.session_id, proposal["approval_id"], {"outcome": "unknown"},
+        )
         response = await handler(request.override(tool_call=approved))
-        self.storage.finish(self.user_id, self.session_id, proposal["approval_id"], json.loads(response.text))
+        await asyncio.to_thread(
+            self.storage.finish, self.user_id, self.session_id, proposal["approval_id"], json.loads(response.text),
+        )
         return response

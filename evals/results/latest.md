@@ -4,7 +4,7 @@ All four reproduced review defects are corrected: historical access to created
 ticket results, intermediate SSE narration, staging-crash recovery and lost
 reconciliation responses. [Correction report](../../docs/REVIEW_FIXES.md).
 
-- **337 Python tests passed**; **33/33 protocol requirements passed**.
+- **338 Python tests passed**; **33/33 protocol requirements passed**.
 - **11/11 JavaScript tests passed**. Strict stream/completion matching is retained.
 - Eleven new regression instances cover actual graph/MCP/mock behavior with
   synthetic models, crashes, access changes and controlled failures.
@@ -18,6 +18,17 @@ Final-only SSE now buffers model text until final-message validation. This
 prevents text preceding tool calls from reaching the public stream, at the cost
 of first visible text arriving after generation completes. It does not claim
 live provider-token delivery or add another model generation.
+
+## Hosted CI scheduling correction
+
+The first hosted CI passed 335/337 Python tests and failed two proposal paths
+with SQLite OperationalError. The [original report](protocol-ci-first-run-failed.json)
+is preserved. Blocking state I/O on the event loop could prevent an asynchronous
+checkpoint writer from committing. State calls in asynchronous paths now use
+`asyncio.to_thread`; one deterministic writer-contention regression was added.
+The full corrected local run passed 338 tests and 33 mappings without relaxed
+timeouts or test retries. [Details](../../docs/CI.md#first-hosted-run-and-sqlite-correction).
+The preceding 337-test report is retained in [its archive](protocol-before-ci-lock-fix.json).
 
 ## Historical provider results
 

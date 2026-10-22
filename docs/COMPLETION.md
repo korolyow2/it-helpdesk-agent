@@ -47,7 +47,7 @@ is separate. [README](../README.md) documents startup, API, policies and command
 
 | Layer | Actual result | Evidence |
 | --- | --- | --- |
-| Python correctness | 337 tests passed | [Protocol report](../evals/results/latest-protocol.json) |
+| Python correctness | 338 tests passed | [Protocol report](../evals/results/latest-protocol.json) |
 | Requirement mapping | 33/33 P01–P20, F01–F09 and R01–R04 passed | Same protocol report |
 | Frontend code | 11 stream/review tests passed | `node --test frontend/tests/*.test.mjs` |
 | Prior real model + judge | 17/17 code and judge; 30/30 input classifications | [Measured results](../evals/results/latest.md) |

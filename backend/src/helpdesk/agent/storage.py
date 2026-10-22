@@ -27,6 +27,12 @@ class AppStorage:
     ----------
     database : pathlib.Path
         Agent database; never the mock ticket database.
+
+    Notes
+    -----
+    These methods use synchronous SQLite connections. Asynchronous callers
+    must use asyncio.to_thread so a busy lock cannot block the event loop
+    needed by the asynchronous checkpointer to finish its transaction.
     """
 
     def __init__(self, database):

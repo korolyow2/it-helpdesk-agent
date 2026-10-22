@@ -64,8 +64,8 @@ retained its log and omitted the stale report.
 
 [Validation evidence](evidence/ci-validation.json) and the
 [isolated protocol report](evidence/ci-protocol-local.json) record those results.
-GitHub-hosted execution, cache restoration and artifact upload have not been
-verified locally; their first actual run requires pushing the workflow.
+Those checks were local validation; the first hosted run below exposed a
+separate SQLite scheduling defect.
 
 ## Updating Actions
 
@@ -77,3 +77,25 @@ Keep the version comments aligned with those commits. Validate changes with
 - [Concurrency](https://docs.github.com/en/actions/how-tos/write-workflows/choose-when-workflows-run/control-workflow-concurrency)
 - [Artifacts](https://docs.github.com/en/actions/tutorials/store-and-share-data)
 - [setup-uv](https://github.com/astral-sh/setup-uv)
+
+## First hosted run and SQLite correction
+
+The [first hosted run](https://github.com/korolyow2/it-helpdesk-agent/actions/runs/39752631158)
+on commit `a29d9fb` passed Docker/JavaScript, but Python passed 335/337 tests.
+Its [original report](../evals/results/protocol-ci-first-run-failed.json) is retained.
+Synchronous application-state SQLite calls could block the event loop while
+an asynchronous checkpoint transaction needed that loop to finish committing.
+The result was a busy timeout and OperationalError during proposal persistence.
+
+Asynchronous service, approval middleware and memory endpoints now offload
+those synchronous operations using `asyncio.to_thread`. Connections still open
+and close within the worker that uses them; schema, transaction boundaries,
+authorization, idempotency and timeout limits are unchanged. A deterministic
+regression holds an actual SQLite writer and requires an event-loop coroutine
+to release it. It failed before the correction and passes afterward.
+
+The corrected local protocol run passed **338 tests and all 33 requirements**.
+The [current report](../evals/results/latest-protocol.json) records its source
+hash. Subsequent GitHub runs validate the correction on hosted Ubuntu; the
+initial failed run remains separate evidence. No retry or relaxed assertion
+was added to hide the failure.

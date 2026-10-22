@@ -1,6 +1,7 @@
 """Expose authenticated chat requests and Server-Sent Events for a thin UI."""
 
 from contextlib import aclosing, asynccontextmanager
+import asyncio
 import json
 import os
 from typing import Annotated
@@ -93,12 +94,12 @@ def create_app(*, service, user_tokens, lifespan=None):
     @app.get("/memory")
     async def memory(user_id: User):
         """Inspect only the authenticated user's extracted, unexpired fact."""
-        return {"facts": app.state.service.storage.facts(user_id)}
+        return {"facts": await asyncio.to_thread(app.state.service.storage.facts, user_id)}
 
     @app.delete("/memory")
     async def forget_memory(user_id: User):
         """Delete extracted facts without changing another user or chat history."""
-        app.state.service.storage.forget(user_id)
+        await asyncio.to_thread(app.state.service.storage.forget, user_id)
         return {"status": "deleted"}
 
     @app.exception_handler(PublicError)

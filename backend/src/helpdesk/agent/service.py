@@ -212,8 +212,8 @@ class AgentService:
                 async def accepted(candidate, stored_history):
                     """Process only screened input and application-verified decisions."""
                     nonlocal previous
-                    self.storage.learn(user_id, candidate)
-                    capabilities.facts = self.storage.facts(user_id)
+                    await asyncio.to_thread(self.storage.learn, user_id, candidate)
+                    capabilities.facts = await asyncio.to_thread(self.storage.facts, user_id)
                     if self.unfinished_proposal(previous):
                         previous = await self.recover_review(agent, config, previous, capabilities, user_id, session_id)
                         # Recovery must show the exact proposal before accepting a decision.
@@ -232,11 +232,17 @@ class AgentService:
                                 yield event
                             return
                         await self.approvals.decide(user_id, session_id, proposal, decision)
-                        self.storage.decide(user_id, session_id, proposal["approval_id"], decision)
+                        await asyncio.to_thread(
+                            self.storage.decide, user_id, session_id, proposal["approval_id"], decision,
+                        )
                         resume = {"approval_id": proposal["approval_id"], "decision": decision}
                     elif decision is not None:
-                        action = (self.storage.action(user_id, session_id, approval_id=approval_id)
-                                  if approval_id else self.storage.latest_action(user_id, session_id))
+                        if approval_id:
+                            action = await asyncio.to_thread(
+                                self.storage.action, user_id, session_id, approval_id=approval_id,
+                            )
+                        else:
+                            action = await asyncio.to_thread(self.storage.latest_action, user_id, session_id)
                         if action is None or self.approvals is None:
                             raise PublicError("approval_not_found")
                         async for event in self.repeat_decision(user_id, session_id, action, decision, capabilities):
@@ -353,7 +359,7 @@ class AgentService:
             return snapshot
         latest = snapshot.values["messages"][-1]
         key = hashlib.sha256(json.dumps([latest.id, latest.tool_calls[0]["id"]]).encode()).hexdigest()
-        action = self.storage.action(user_id, session_id, call_key=key)
+        action = await asyncio.to_thread(self.storage.action, user_id, session_id, call_key=key)
         if action is not None and action["decision"] is not None:
             return snapshot
         capabilities.resume = True
@@ -398,13 +404,15 @@ class AgentService:
 
     async def review_state(self, user_id, session_id):
         """Read current backend authority and reconcile a previously uncertain receipt."""
-        action = self.storage.latest_action(user_id, session_id)
+        action = await asyncio.to_thread(self.storage.latest_action, user_id, session_id)
         if action is None or self.approvals is None:
             return None
         proposal = await self.approvals.get(user_id, session_id, action["approval_id"])
         if proposal["status"] == "completed" and (action.get("result") or {}).get("outcome") == "unknown":
             with observation("approval.outcome_resolved", output={"approval_id": action["approval_id"], "status": "completed"}):
-                self.storage.finish(user_id, session_id, action["approval_id"], {"status": "completed"})
+                await asyncio.to_thread(
+                    self.storage.finish, user_id, session_id, action["approval_id"], {"status": "completed"},
+                )
             return proposal
         return proposal if proposal["status"] in {"pending", "approved"} else None
 
@@ -414,7 +422,7 @@ class AgentService:
             raise PublicError("approval_state_conflict")
         proposal = action["proposal"]
         current = await self.approvals.decide(user_id, session_id, proposal, decision)
-        self.storage.decide(user_id, session_id, action["approval_id"], decision)
+        await asyncio.to_thread(self.storage.decide, user_id, session_id, action["approval_id"], decision)
         calls = []
         if current["status"] == "completed":
             reply = "The approved action is already completed. No additional change was made."
@@ -428,10 +436,10 @@ class AgentService:
             arguments = {**proposal["arguments"], "approval_id": proposal["approval_id"]}
             with observation("approval.reconcile", as_type="tool", input={"approval_id": proposal["approval_id"]}) as span:
                 call = {"type": "tool_call", "name": tool.name, "id": f"reconcile-{uuid4()}", "args": arguments}
-                self.storage.finish(user_id, session_id, proposal["approval_id"], {"outcome": "unknown"})
+                await asyncio.to_thread(self.storage.finish, user_id, session_id, proposal["approval_id"], {"outcome": "unknown"})
                 result = await invoke_mcp_safely(call, lambda: tool.ainvoke(call))
                 data = json.loads(result.text)
-                self.storage.finish(user_id, session_id, proposal["approval_id"], data)
+                await asyncio.to_thread(self.storage.finish, user_id, session_id, proposal["approval_id"], data)
                 span.update(output=data)
                 if result.status == "error":
                     raise PublicError(data.get("code", "backend_unavailable"), outcome=data.get("outcome"))
