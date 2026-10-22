@@ -1,5 +1,48 @@
 # Evaluation methods and measured evidence
 
+## Review regression checks — 2026-10-22
+
+Protocol bank v7 adds R01–R04 for the four reproduced review defects: revoked
+created-ticket history, intermediate SSE text, staging-crash recovery and lost
+reconciliation responses. Their tests use the real graph/MCP/mock with synthetic
+models and controlled failures. Final-only SSE now buffers model text until it
+can be distinguished from tool-call narration; tests assert this delivery
+contract explicitly. The old v6 catalog and reports are preserved.
+The 17-case paid provider suite below remains historical and was not rerun for
+these fixes. See [review fixes](REVIEW_FIXES.md) for the current source hashes,
+protocol results and local container verification.
+
+## Completion contract
+
+`evals/completion-datasets.json` freezes 17 new cases before trials and uses the
+separate `helpdesk-completion` Langfuse namespace: 11 tool/workflow cases, two
+answer/memory cases and four adversarial/control cases. Run it with:
+
+```sh
+uv run --env-file .env --env-file .env.langfuse python -m helpdesk.evaluation --dataset evals/completion-datasets.json
+```
+
+Code graders measure exact ticket/comment deltas, pending proposal counts,
+stop-before-approval, explicit decision ordering, terminal backend state,
+restart restoration, duplicate prevention, memory isolation and consumed runtime
+faults. The model still chooses tools; the application owns review and recovery.
+An application-owned outcome receipt is not a fabricated model tool call.
+The Opus 5.5 rubric now evaluates available capabilities and approval outcomes.
+
+The completion-era protocol bank was version 6; the current review bank is v7. F01–F09 map to executed tests instead of pending
+features; the previous bank is archived. One command runs all Python correctness
+checks and maps 29 requirement cases. Browser screenshots are a separate
+scripted-model UI verification. Native experiments exercise the entire logical
+agent/MCP/mock path with isolated databases and in-process HTTP transports;
+they are not TCP latency benchmarks. The container smoke separately verifies
+real network services and provider calls.
+
+See [completion verification](COMPLETION.md) and
+[the current measured results](../evals/results/latest.md). All synthetic labels
+are AI-assisted. Known failures remain in immutable run reports; a selective
+repeat does not replace a failed full run. The remainder of this document also
+preserves the earlier read-only evaluation history.
+
 ## Approach
 
 Use code for observable invariants and an offline LLM judge for answer meaning.
@@ -37,8 +80,9 @@ reports remain unchanged. Version 4 and version 5 pass rates are not directly
 comparable.
 
 `evals/cases.json` separately maps P01–P20 to deterministic requirement tests,
-retains M01–M24 for the original harness, and marks F01–F09 as pending. Backend
-approval tests do not demonstrate conversational approval. Pending features are
+retains M01–M24 for the original harness, and maps F01–F09 to executable
+completion checks. Current v7 additionally maps R01–R04 to review regression
+checks. Historical pending-feature reports remain unchanged. Pending features are
 never counted as passing.
 
 ## Commands
@@ -66,8 +110,9 @@ uv run python -m helpdesk.evals --mode protocol
 uv run --env-file .env --env-file .env.langfuse python -m helpdesk.evals
 ```
 
-The original harness still reports pending assignment capabilities and uses exit
-2 for blockers, 1 for failures, and 0 for completed selected checks. The native
+The original harness retains exit 2 for future pending capabilities, 1 for
+failures, and 0 for completed selected checks. All current F01–F09 capabilities
+now map to passing protocol tests. The native
 experiment runner exits 1 when any joint verdict fails. Upload-only selection
 never removes other items from a frozen suite.
 
@@ -81,7 +126,7 @@ The protocol command groups test lifecycles and requirement scores under
 explains the UI filters and retained historical records. Changing tracing does
 not constitute a new paid-model quality evaluation.
 
-## Current Sonnet 5.5 migration result — 2026-10-21
+## Historical read-only Sonnet 5.5 migration result — 2026-10-21
 
 The agent and primary guardrail now use Sonnet 5.5. Case-shaped guardrail
 examples were replaced with general decision rules. Dataset v5 and its labels
@@ -130,7 +175,7 @@ judge model, refusal-only reserve sequencing and no duplicate parent usage. See
 Changes in joint rates include both application corrections and a judge-model
 change. Every case is now an inspected regression regardless of historical
 split labels. A single final trial per case is not a production reliability or
-security guarantee. The conversational agent remains read-only.
+security guarantee. The agent was read-only at that historical checkpoint.
 
 ## Metrics
 
@@ -253,13 +298,11 @@ there for actual results. No failed attempt is removed from the evidence.
 
 ## Remaining assignment gaps
 
-The agent is currently read-only. Conversational proposal/approval/resume,
-cross-session user facts and retention, browser approve/decline flows, a runtime mock failure
-switch, containerized application startup, and the AWS design deliverable remain
-unfinished. Controlled 429/503 cases run through the real MCP/mock HTTP boundary
-with an injected eval transport. Slow responses, uncertain committed writes,
-restart/idempotency, and approval safety are tested deterministically; they are
-not represented as completed real-model write flows.
+The conversational writes, cross-session OS fact, browser decisions, runtime
+mock switch and application containers are now implemented and evaluated in the
+separate 17-case completion contract described at the top of this document.
+The earlier read-only reports are historical; their labels/results are unchanged.
+The AWS design and candidate-reviewed personal submission narrative remain.
 
 PII detection is deferred explicitly. Fixtures are small and synthetic; no finite
 attack bank proves security. There is no external penetration test, load test,

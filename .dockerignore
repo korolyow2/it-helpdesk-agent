@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+.venv
+.pytest_cache
+**/__pycache__
+**/*.py[cod]
+data/runtime
+backend/tests
+frontend/tests
+docs
+evals
+scripts
+dist
+*.egg-info
+.DS_Store

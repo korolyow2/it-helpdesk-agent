@@ -1,16 +1,19 @@
 """Configure the ready-made ReAct agent and bounded model execution."""
 
 import os
+import json
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware, wrap_model_call
+from langchain.agents.middleware.types import ModelResponse
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import AIMessage, SystemMessage, ToolMessage
 
+from helpdesk.agent.approvals import WRITE_TOOLS
 from helpdesk.agent.context import prepare_context
 from helpdesk.agent.observability import trace_model
 from helpdesk.agent.prompts import SYSTEM_PROMPT
-from helpdesk.agent.tool_policy import overview_ready, tool_error_state, validate_tool_call
+from helpdesk.agent.tool_policy import current_turn, mcp_transport_errors, overview_ready, tool_error_state, validate_tool_call
 from helpdesk.errors import PublicError
 
 
@@ -18,7 +21,35 @@ from helpdesk.errors import PublicError
 async def stop_tools_after_error(request, handler):
     """Offer one argument correction or disable tools after a terminal failure."""
     blocked, pending = tool_error_state(request.messages)
-    if blocked:
+    failures = [item for item in current_turn(request.messages)
+                if isinstance(item, ToolMessage) and item.name in WRITE_TOOLS and item.status == "error"]
+    if blocked and failures:
+        error = json.loads(failures[-1].text)
+        detail = ("The write outcome is unknown. Reply approve to reconcile the same action."
+                  if error.get("outcome") == "unknown" else "No successful change is confirmed.")
+        message = PublicError(error.get("code", "backend_unavailable")).spec.message
+        # Ticket write failures must not become a streamed model claim of success.
+        return ModelResponse(result=[AIMessage(
+            content=f"The action could not be confirmed. {message} {detail}",
+            additional_kwargs={"application_enforced": True},
+        )])
+    completed = [item for item in current_turn(request.messages)
+                 if isinstance(item, ToolMessage) and item.name in WRITE_TOOLS and item.status == "success"]
+    if completed:
+        result = json.loads(completed[-1].text)
+        if result.get("status") == "declined":
+            reply = "The proposal was declined. No change was made."
+        elif result.get("status") == "completed" and completed[-1].name == "create_ticket":
+            reply = f"The approved action is completed. Created ticket {result['ticket']['id']} ({result['ticket']['status']})."
+        elif result.get("status") == "completed":
+            reply = f"The approved action is completed. Added the comment to ticket {result['ticket_id']}."
+        else:
+            raise PublicError("invalid_backend_response")
+        # Do not resend pre-approval ticket evidence after a possible role change.
+        return ModelResponse(result=[AIMessage(content=reply, additional_kwargs={"application_enforced": True})])
+    finished_write = any(isinstance(item, ToolMessage) and item.status == "success" and item.name in WRITE_TOOLS
+                         for item in current_turn(request.messages))
+    if blocked or finished_write:
         request = request.override(tools=[])
     elif pending is not None:
         request = request.override(tools=[tool for tool in request.tools if tool.name == pending.name])
@@ -51,7 +82,7 @@ async def stop_tools_after_error(request, handler):
     return response
 
 
-def build_agent(model, tools, checkpointer, *, tool_middleware=None):
+def build_agent(model, tools, checkpointer, *, tool_middleware=None, write_middleware=None):
     """Create a ReAct agent using the supported LangChain factory.
 
     Parameters
@@ -59,11 +90,13 @@ def build_agent(model, tools, checkpointer, *, tool_middleware=None):
     model : BaseChatModel
         Configured model, or a scripted model for protocol tests.
     tools : list of BaseTool
-        The permitted MCP read tools.
+        Initial local tools; authorized MCP capabilities are discovered dynamically.
     checkpointer : AsyncSqliteSaver
         Persistent, user-scoped conversation checkpoint storage.
     tool_middleware : AgentMiddleware or None, optional
         Per-turn dynamic MCP discovery and tool resolution.
+    write_middleware : AgentMiddleware or None, optional
+        Application-owned approval interruption after argument validation.
 
     Returns
     -------
@@ -84,6 +117,8 @@ def build_agent(model, tools, checkpointer, *, tool_middleware=None):
             prepare_context,
             trace_model,
             validate_tool_call,
+            *([write_middleware] if write_middleware is not None else []),
+            mcp_transport_errors,
         ],
     )
 

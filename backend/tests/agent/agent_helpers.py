@@ -53,6 +53,8 @@ def call(name, arguments, identifier="call-1"):
 async def service(running, tmp_path, model, **kwargs):
     """Open an MCP-backed scripted service with an explicit test classifier."""
     kwargs.setdefault("guardrail", AllowGuardrail())
+    # The protocol runner can load real credentials; tests must never inherit them.
+    kwargs.setdefault("approval_bridge", None)
     async with open_service(
         model=model, mcp_url=running.url,
         user_tokens={f"user-{n:03}": f"mcp-token-{n}" for n in range(1, 5)},

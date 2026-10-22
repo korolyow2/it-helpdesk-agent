@@ -91,13 +91,14 @@ stored completed result without another mutation. These are application rules;
 recovery instructions are not duplicated in each error payload.
 
 The HTTP client implements retries, deadlines, validation, and safe error results.
-The read-only agent validates arguments against the MCP schema before execution
+The agent validates arguments against the MCP schema before execution
 and allows one changed-argument correction of the same tool after
 `invalid_arguments`. Repeating unchanged arguments consumes that opportunity
 without reaching MCP. A second argument error or any other tool error blocks
 further tools. `is_retryable` describes transport recovery; argument correction
-does not change it to true. Interactive credential/state recovery and approval actions remain upcoming;
-there is no implemented OAuth refresh or autonomous operator intervention.
+does not change it to true. Explicit conversational approval and same-ID
+reconciliation are implemented. There is no OAuth refresh or autonomous
+operator intervention.
 
 ## Verification and limits
 
@@ -107,9 +108,12 @@ malformed/oversized responses, secret redaction, database faults, approval gates
 transaction rollback, and lost committed-write responses. Existing tests also
 cover restarts, repeated approvals, concurrency, and user isolation.
 
-Failure injection currently uses test transports and controlled database faults.
-The interactive runtime failure switch, Langfuse traces, and real-model recovery
-evals remain future work. This is a local mock contract, not a guarantee about
+Failure injection includes test transports, database faults and the running
+mock's operator-only `/admin/failures` switch. Completion evals exercise actual
+mock routes, approved-write uncertainty, rate limits and request deadlines.
+The MCP client uses twelve seconds around the backend's ten-second operation
+budget; typed RPC timeouts become minimal tool errors. After write failures,
+an application-owned receipt prevents a model from claiming success. This is a local mock contract, not a guarantee about
 an arbitrary external helpdesk's idempotency or error semantics.
 
 
@@ -130,3 +134,23 @@ successful empty answer. No model substitution or unchanged-request retry is
 performed. A real encoded synthetic request reproduced this provider behavior;
 the original failed trial and follow-up verification remain in eval evidence.
 See [Anthropic stop reasons](https://platform.claude.com/docs/en/build-with-claude/handling-stop-reasons).
+
+## Review recovery and transport failures
+
+The normal tools wrapper and explicit reconciliation use the same typed MCP
+transport mapper. Before dispatching an approved write, persist an unknown
+outcome so a cancellation or process failure cannot retain a stale not-applied
+receipt. A validated response replaces it. A later authorized review lookup can
+confirm backend completion without executing a tool again.
+
+For a failure between staging and the local proposal binding, the durable graph
+already holds the model-selected operation and exact arguments. Resume that
+unfinished tools node with `None` on the same thread and a tools-only breakpoint.
+Only an unapproved proposal is replayed; its backend staging is idempotent.
+Recovery never runs a model, injects approval, or executes a decided action.
+Temporary errors keep that checkpoint retryable. A later explicit decision is
+still required after the exact proposal is restored.
+
+Provisional model fragments are not published. A provider failure before final
+validation produces an error without partial model text. A network failure
+while delivering the validated answer remains an incomplete public stream.

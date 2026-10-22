@@ -1,0 +1,36 @@
+{
+  "reviewed_at": "2026-10-21T19:06:55.789382+00:00",
+  "inspected_instruction_sources": [
+    "backend/src/helpdesk/agent/prompts.py",
+    "backend/src/helpdesk/agent/guardrails/prompts.py",
+    "backend/src/helpdesk/agent/mcp_tools.py",
+    "backend/src/helpdesk/agent/graph.py",
+    "backend/src/helpdesk/agent/approvals.py",
+    "backend/src/helpdesk/mcp/server.py"
+  ],
+  "fixture_marker_matches": {
+    "backend/src/helpdesk/agent/prompts.py": [],
+    "backend/src/helpdesk/agent/guardrails/prompts.py": [],
+    "backend/src/helpdesk/agent/mcp_tools.py": [],
+    "backend/src/helpdesk/agent/graph.py": [],
+    "backend/src/helpdesk/agent/approvals.py": [],
+    "backend/src/helpdesk/mcp/server.py": []
+  },
+  "runtime_agent_imports_evaluation_code": [],
+  "prompt_sha256": {
+    "agent": "0edcea71a83357ae3ea53c0c7aa1bd2d0742326e948e46840dd787b731820607",
+    "guardrail": "ba4f19daa138d523e4b1788da32d56f14858f04b91395a1878fb040cd6a33f74",
+    "judge": "b29a2bb8b8354915a3576f6fcb9ca27bb7be63a45ccf65ba1c1c91ef8c6f7680"
+  },
+  "completion_dataset_sha256": "086e31df2c44b690d289e208b6382d9d38896ab2c005f8ceb5484b815e8933be",
+  "general_contracts": [
+    "clarify missing system or symptom",
+    "model-selected discovery before ticket data",
+    "untrusted tool content and no authority escalation",
+    "native proposal pause and subsequent application-owned decision",
+    "only exact approved action; honest unresolved outcomes",
+    "bounded same-tool argument correction",
+    "narrow unverified OS fact with no permission authority"
+  ],
+  "limits": "Static markers/imports and manual instruction review do not prove absence of overfitting or security. Cases were AI-assisted and inspected. Independent human labels and fresh tasks remain necessary."
+}

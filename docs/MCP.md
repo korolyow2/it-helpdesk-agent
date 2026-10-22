@@ -129,15 +129,22 @@ operation accepts requester, author, role, status, or visibility overrides.
 
 `GET /approvals/{approval_id}` restores proposal state after restart. Both that
 endpoint and the decision endpoint require the mock service key, mock user token,
-and `X-Session-Id`. They are not MCP tools. Until agent/UI integration, an explicit
-API client supplies human decisions, as the tests do; conversational approval
-from the next chat message is not yet wired.
+and `X-Session-Id`. They are not MCP tools. The chat application records an
+explicit next-message decision through these endpoints and resumes the native
+LangGraph interrupt. The model-facing write schemas omit approval_id; code
+injects the stored ID only after checking the exact user/session/action binding.
+The tool node's durable binding prevents proposal restaging when it replays.
+Decline returns a processed rejection without calling the MCP execution tool.
+Completion and uncertain-write receipts are application-owned, without an extra
+model generation. See [the implemented flow](../README.md#approval-and-recovery).
 
 ## Failures
 
 Membership and data calls share one correlation ID and a 10-second backend-work
-budget per MCP operation. Each upstream call makes at most three attempts. Retry
-policy distinguishes temporary faults from authentication, authorization,
+budget per MCP operation. Each upstream call makes at most three attempts.
+The agent's MCP transport timeout is twelve seconds, allowing the backend
+deadline to return a typed error before the transport expires. Retry policy
+distinguishes temporary faults from authentication, authorization,
 validation, approval, configuration, and storage failures. See
 [error handling and recovery](ERRORS.md) for exact categories and actions.
 

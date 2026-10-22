@@ -19,7 +19,7 @@ from helpdesk.errors import ERRORS, REQUEST_ID, PublicError
 from helpdesk.telemetry import observation, trace_headers
 from helpdesk.mcp.errors import ToolFailure
 from helpdesk.mock.models import (
-    AccessResult, AddComment, AddedCommentResult, CreateTicket, CreatedTicketResult,
+    AccessResult, AddComment, AddedCommentResult, ApprovalState, CreateTicket, CreatedTicketResult,
     SearchResult, Ticket, TicketListResult, WriteProposal,
 )
 
@@ -192,6 +192,12 @@ class MockClient:
             result = Ticket.model_validate(body)
             if result.id.casefold() != path.removeprefix("/tickets/").casefold():
                 raise ValueError("Mismatched ticket.")
+        elif path.startswith("/approvals/") and method in {"GET", "POST"}:
+            result = ApprovalState.model_validate(body, strict=True)
+            if result.approval_id != path.split("/")[2]:
+                raise ValueError("Mismatched approval.")
+            if method == "POST" and result.status != {"approve": "approved", "decline": "declined"}.get(payload.get("decision")):
+                raise ValueError("Mismatched approval decision.")
         elif method == "POST":
             creating = path == "/tickets"
             operation = "create_ticket" if creating else "add_comment"
@@ -314,7 +320,7 @@ class MockClient:
         write = method == "POST" and path.startswith("/tickets") and bool(payload.get("approval_id"))
         safe_retry = method in {"GET", "HEAD"} or (
             method == "POST" and session_id and (path == "/tickets" or path.endswith("/comments"))
-        )
+        ) or (method == "POST" and session_id and path.startswith("/approvals/"))
         uncertain = False
         in_flight = False
 

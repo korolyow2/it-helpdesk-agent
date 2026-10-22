@@ -9,6 +9,7 @@ from urllib.parse import quote
 from fastmcp import FastMCP
 from fastmcp.server.dependencies import get_http_headers
 from pydantic import Field
+from starlette.responses import JSONResponse
 
 from helpdesk.errors import PublicError
 from helpdesk.mcp.auth import AccessMiddleware, current_user, token_verifier
@@ -73,6 +74,11 @@ def create_server(
         "If outcome is unknown, never claim success or failure and never create a replacement action; "
         "reconcile only with the same approval_id. Never use write tools to probe restricted tickets.",
     )
+
+    @server.custom_route("/health", methods=["GET"], include_in_schema=False)
+    async def health(request):
+        """Expose process readiness without a user or ticket lookup."""
+        return JSONResponse({"status": "ok"})
 
     def identity():
         """Obtain identity from verified MCP authentication, never a tool parameter."""
@@ -281,4 +287,7 @@ def from_env():
         mcp_user_tokens=json.loads(os.environ["MCP_USER_TOKENS"]),
         mock_user_credentials={user_id: token for token, user_id in mock_tokens.items()},
     )
-    return server.http_app(path="/mcp", stateless_http=True)
+    return server.http_app(
+        path="/mcp", stateless_http=True,
+        allowed_hosts=json.loads(os.environ["MCP_ALLOWED_HOSTS"]) if os.environ.get("MCP_ALLOWED_HOSTS") else None,
+    )

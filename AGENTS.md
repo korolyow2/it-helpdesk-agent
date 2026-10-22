@@ -48,6 +48,15 @@ instructions take priority. Update this file when agreements change.
   Complete edits and checks within that agreed step, then review the result with
   the user before moving to the next step. A broad plan is not authorization to
   implement all stages autonomously.
+- On 2026-10-21 the user explicitly authorized planning and completing the
+  conversational write/approval flow, cross-session facts, browser approval,
+  runtime mock failures and application containers as one batch. Complete that
+  batch with progress updates; no additional approval between its implementation
+  steps is required. This does not authorize a commit or push of the batch.
+- On 2026-10-22 the user explicitly authorized committing and pushing the
+  completion, review fixes and CI changes to the existing GitHub repository.
+  This supersedes the batch's earlier publication restriction. Use the
+  configured Git author and do not add an assistant name or co-author trailer.
 - Do not publish the repository, deploy cloud resources, incur charges, or message
   third parties without a separate user instruction.
 - Preserve user changes. Do not commit or push without a user instruction.
@@ -71,7 +80,7 @@ instructions take priority. Update this file when agreements change.
 - Let the model run before any MCP connection. Initially offer only the local
   `discover_tools` utility; model selection triggers live authorized schema
   discovery. Then offer only `list_tickets` until the model selects it and it
-  succeeds in the current turn, then enable read/search. Recreate capabilities
+  succeeds in the current turn, then enable read/search and proposal tools. Recreate capabilities
   each turn and independently enforce permissions on every MCP operation.
   Do not prefetch ticket data or manufacture assistant tool calls. Clarification
   and out-of-scope answers need no MCP calls. Users without membership receive
@@ -144,10 +153,11 @@ instructions take priority. Update this file when agreements change.
   calls. Check system access as well as permissions on each ticket operation.
 - Write only after explicit user approval in a subsequent message. A model decision
   is not authorization. Enforce approval in code before any ticket mutation.
-- MCP write tools currently stage a pending proposal on their first call and
+- MCP write tools stage a pending proposal on their first call and
   execute only with a matching approved ID. Approval decisions are application-only
-  endpoints and must never become model-callable tools. When wiring LangGraph,
-  stop after proposing and resume only on the user's explicit next-message decision.
+  endpoints and must never become model-callable tools. Use native LangGraph interrupt to stop after proposing and resume only on the
+  user's explicit next-message decision. The model-facing schema must hide approval IDs;
+  only the application may inject the verified stored ID.
 - Persist pending approval across service restarts. Bind it to the user, session,
   exact action, and arguments. Changed actions require new approval. Decline
   never invokes a write.
@@ -261,6 +271,12 @@ instructions take priority. Update this file when agreements change.
 
 ## Evaluation agreement
 
+- Maintain the GitHub Actions CI workflow for protocol checks, frontend tests
+  and Docker builds. Keep it secret-free, use locked dependencies, disable
+  tracing, and preserve nonzero test/build exits when recording logs. Real-model
+  paid evals are separate. Do not claim hosted CI passed from a local run or
+  change branch protection without a user instruction.
+
 - Keep native versioned Langfuse datasets for tool calling, answer quality, and
   adversarial scope/instruction tests, including legitimate refusal controls.
 - Run an offline structured-output LLM judge without application tools. Report
@@ -270,3 +286,36 @@ instructions take priority. Update this file when agreements change.
   tuning they become regression cases rather than unseen evidence.
 - Synthetic AI-assisted judge anchors do not replace independent human review.
   Same-family judging is a limitation; keep the judge model configurable.
+
+## Implemented completion contracts
+
+- Retain only an accepted explicit English first-person operating-system fact,
+  scoped by user, overwritten by the last assertion, with a 30-day TTL. Reading
+  does not refresh it. Authenticated memory deletion affects facts only, not
+  old checkpoints or traces. Broader extraction/summarization is outside scope.
+- Stage model-selected writes through MCP, bind calls durably before native
+  interrupt, and resume only an application-verified subsequent decision.
+  Completion/decline/write-error receipts come from validated system results
+  without another provider call. Unknown outcomes reconcile the same ID.
+- Runtime mock faults are finite, single-worker and operator-authenticated;
+  reset on restart and keep them unavailable to models/browser tokens.
+- Backend operations have a ten-second budget; the MCP transport allows twelve
+  seconds. Keep safe SDK transport error mapping, including unknown approved
+  write outcomes, without exporting raw RPC messages.
+- Application Compose runs mock/MCP/chat with loopback ports, health checks,
+  non-root processes and named volumes. Langfuse remains separate infrastructure.
+
+## Review corrections — 2026-10-22
+
+- Revalidate historical IDs from all supported ticket-result shapes, including
+  nested create receipts and comment target IDs. Never release revoked evidence
+  merely because earlier overview IDs remain visible.
+- Buffer model text until its final message is validated. Publish only that
+  message's fragments or the application-owned proposal; deltas must concatenate
+  exactly to done.reply. Document the added delivery latency and absence of live
+  provider-token delivery; do not add a second generation to hide this tradeoff.
+- Recover an unapproved staging crash from the existing saved tools checkpoint,
+  with no new model or approved mutation. Recovery errors must leave it retryable.
+- Share typed transport handling between normal execution and reconciliation,
+  and durably mark unknown before approved dispatch. Decided actions must never
+  execute during review GET recovery.

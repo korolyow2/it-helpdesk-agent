@@ -226,8 +226,11 @@ policies, and a retention/deletion policy. Local volumes persist until removed;
 automatic retention cleanup is not configured. Session grouping uses a hash of
 both user and session, preventing shared session strings from merging users.
 
-The tracing implementation does not itself implement chat approval, user memory,
-an eval judge, or any AWS deployment. Existing mock writes remain approval-gated.
+Tracing is instrumentation. Conversational approval and expiring user facts are
+implemented in the agent service, and the offline judge is in `evaluation.py`.
+No AWS deployment has been performed. Native graph pauses record
+`awaiting_approval` rather than an operational error. Approval decisions,
+write outcomes, same-ID reconciliation and synthetic fault modes are observable.
 
 ## Verification
 
@@ -296,3 +299,16 @@ SQLite-backed create_agent graph. Graph framework events are not exported as
 additional roots; existing custom spans keep one request tree. Browser tool
 summaries are fetched separately after completion and are not streamed into
 chat text. The request UUID alone grants no access to another user's summary.
+
+## Review correction telemetry
+
+`approval.recover` records a tools-only replay from the same durable model-call
+checkpoint. It does not produce another model generation. Normal execution and
+explicit reconciliation share `mcp.transport_error`; unknown outcomes are saved
+before approved dispatch and confirmed using `approval.outcome_resolved`.
+
+`first_answer_token_ms` measures the first public answer fragment, not raw
+provider TTFT. Final-only delivery buffers model fragments until final-message
+validation, so this now includes final generation latency. Provider-first-token
+metrics, where available, describe a different boundary. Historical pre-review
+traces and their timing are unchanged.

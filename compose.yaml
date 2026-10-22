@@ -1,0 +1,94 @@
+name: helpdesk-app
+
+x-tracing: &tracing
+  HELPDESK_TRACING_ENABLED: ${HELPDESK_TRACING_ENABLED:-false}
+  LANGFUSE_BASE_URL: ${LANGFUSE_CONTAINER_URL:-http://host.docker.internal:3000}
+  LANGFUSE_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-}
+  LANGFUSE_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-}
+  LANGFUSE_TRACING_ENVIRONMENT: development
+  HELPDESK_RELEASE: ${HELPDESK_RELEASE:-local}
+  FASTMCP_TELEMETRY_MODE: propagation_only
+
+x-service: &service
+  image: helpdesk-assignment:local
+  build: .
+  init: true
+  restart: unless-stopped
+  extra_hosts:
+    - host.docker.internal:host-gateway
+
+services:
+  mock:
+    <<: *service
+    command: [python, -m, helpdesk.mock.run]
+    environment:
+      <<: *tracing
+      MOCK_DATABASE: /app/data/runtime/helpdesk.sqlite3
+      MOCK_SERVICE_KEY: ${MOCK_SERVICE_KEY:?Configure .env}
+      MOCK_USER_TOKENS: ${MOCK_USER_TOKENS:?Configure .env}
+      MOCK_FAILURE_MODE: ${MOCK_FAILURE_MODE:-off}
+      MOCK_FAILURE_COUNT: ${MOCK_FAILURE_COUNT:-2}
+      MOCK_FAILURE_DELAY: ${MOCK_FAILURE_DELAY:-4}
+    volumes:
+      - mock-data:/app/data/runtime
+    ports:
+      - 127.0.0.1:8001:8001
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  mcp:
+    <<: *service
+    command: [uvicorn, "helpdesk.mcp.server:from_env", --factory, --host, 0.0.0.0, --port, "8002"]
+    environment:
+      <<: *tracing
+      MOCK_API_URL: http://mock:8001
+      MOCK_SERVICE_KEY: ${MOCK_SERVICE_KEY:?Configure .env}
+      MOCK_USER_TOKENS: ${MOCK_USER_TOKENS:?Configure .env}
+      MCP_USER_TOKENS: ${MCP_USER_TOKENS:?Configure .env}
+      MCP_ALLOWED_HOSTS: '["mcp:*", "localhost:*", "127.0.0.1:*"]'
+    depends_on:
+      mock:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:8002:8002
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  chat:
+    <<: *service
+    environment:
+      <<: *tracing
+      MODEL_PROVIDER: ${MODEL_PROVIDER:-anthropic}
+      MODEL_NAME: ${MODEL_NAME:-claude-sonnet-5-5}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?Configure the provider key in .env}
+      ANTHROPIC_WORKSPACE_ID: ${ANTHROPIC_WORKSPACE_ID:-}
+      AGENT_DATABASE: /app/data/runtime/agent.sqlite3
+      MCP_URL: http://mcp:8002/mcp
+      MCP_USER_TOKENS: ${MCP_USER_TOKENS:?Configure .env}
+      MOCK_API_URL: http://mock:8001
+      MOCK_SERVICE_KEY: ${MOCK_SERVICE_KEY:?Configure .env}
+      MOCK_USER_TOKENS: ${MOCK_USER_TOKENS:?Configure .env}
+    depends_on:
+      mcp:
+        condition: service_healthy
+    volumes:
+      - agent-data:/app/data/runtime
+    ports:
+      - 127.0.0.1:8000:8000
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+volumes:
+  mock-data:
+  agent-data:

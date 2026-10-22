@@ -5,12 +5,15 @@ import json
 from jsonschema.validators import validator_for
 from langchain.agents.middleware import wrap_tool_call
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
+from mcp import MCPError
+from mcp.types import REQUEST_TIMEOUT
 
-from helpdesk.errors import PublicError
+from helpdesk.errors import ERRORS, PublicError
 from helpdesk.telemetry import observation
 
 
 REPAIR_MARKER = "argument_repair"
+WRITE_TOOLS = {"create_ticket", "add_comment"}
 
 
 def tool_error_state(messages):
@@ -121,6 +124,9 @@ async def _validate_tool_call(request, handler):
         raise PublicError("execution_limit_exceeded")
 
     call = request.tool_call
+    latest = next(message for message in reversed(messages) if isinstance(message, AIMessage))
+    if len(latest.tool_calls) != 1 and any(item["name"] in WRITE_TOOLS for item in latest.tool_calls):
+        return tool_error(call, "invalid_arguments")
     if pending is not None:
         latest = next(message for message in reversed(messages) if isinstance(message, AIMessage))
         if len(latest.tool_calls) != 1 or call["name"] != pending.name:
@@ -147,6 +153,12 @@ async def _validate_tool_call(request, handler):
 
     if call["name"] not in {"discover_tools", "list_tickets"} and not overview_ready(messages):
         raise PublicError("execution_limit_exceeded")
+
+    if call["name"] == "add_comment":
+        reads = [item for item in current_turn(messages) if isinstance(item, ToolMessage)
+                 and item.name == "get_ticket" and item.status == "success"]
+        if not any(json.loads(item.text).get("id", "").upper() == call["args"]["ticket_id"].upper() for item in reads):
+            return tool_error(call, "ticket_read_required")
 
     result = await handler(request)
     if pending is not None and isinstance(result, ToolMessage):
@@ -183,3 +195,44 @@ async def validate_tool_call(request, handler):
         if result.status == "error":
             span.update(level="ERROR", status_message="tool_error")
         return result
+
+
+@wrap_tool_call
+async def mcp_transport_errors(request, handler):
+    """Translate typed MCP transport failures before they escape the tool boundary."""
+    return await invoke_mcp_safely(request.tool_call, lambda: handler(request))
+
+
+async def invoke_mcp_safely(call, handler):
+    """Preserve typed errors and write uncertainty for execution and reconciliation.
+
+    Parameters
+    ----------
+    call : dict
+        Trusted tool-call envelope, including application-injected approval ID.
+    handler : callable
+        Asynchronous zero-argument invocation of the resolved MCP tool.
+
+    Returns
+    -------
+    ToolMessage
+        Tool response or a sanitized, correlated transport failure.
+    """
+    try:
+        return await handler()
+    except (MCPError, TimeoutError) as error:
+        data = getattr(error, "data", None)
+        payload = data.get("error") if isinstance(data, dict) else None
+        payload = payload if isinstance(payload, dict) else {}
+        code = payload.get("code")
+        if not isinstance(code, str) or code not in ERRORS:
+            code = "backend_timeout" if isinstance(error, TimeoutError) or error.code == REQUEST_TIMEOUT else "backend_unavailable"
+        outcome = None
+        if call["name"] in WRITE_TOOLS:
+            outcome = payload.get("outcome")
+            if outcome not in ("unknown", "not_applied"):
+                outcome = "unknown" if call["args"].get("approval_id") else "not_applied"
+        failure = PublicError(code, outcome=outcome)
+        with observation("mcp.transport_error", output=failure.payload,
+                         metadata={"exception_type": type(error).__name__, "tool_name": call["name"]}):
+            return ToolMessage(content=str(failure), status="error", tool_call_id=call["id"], name=call["name"])

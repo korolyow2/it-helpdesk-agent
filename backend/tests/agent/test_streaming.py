@@ -87,7 +87,23 @@ async def test_sse_endpoint_exposes_only_answer_text(running, tmp_path):
     assert set(events[-1]["data"]) == {"reply", "request_id"}
     assert "tool_calls" not in response.text
     assert "VPN disconnects" not in response.text
-    assert events[-1]["data"]["reply"] == "The ticket is open."
+
+
+async def test_intermediate_text_plus_tool_call_does_not_enter_answer_stream(running, tmp_path):
+    """The concatenated public deltas must equal the final answer across model steps."""
+    model = ScriptedModel(messages=iter([
+        AIMessage(content="PRIVATE-INTERIM", tool_calls=[{"name": "discover_tools", "args": {}, "id": "discover"}]),
+        call("list_tickets", {}, "overview"), "The accessible overview is ready.",
+    ]))
+    async with service(running, tmp_path, model) as agent:
+        app = create_app(service=agent, user_tokens={"mcp-token-1": "user-001"})
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://chat") as client:
+            response = await client.post("/chat/stream", headers={"Authorization": "Bearer mcp-token-1"},
+                                         json={"user_id": "user-001", "session_id": "session", "message": "List tickets"})
+    events = events_from_sse(response.text)
+    text = "".join(event["data"]["text"] for event in events if event["event"] == "text_delta")
+    assert text == events[-1]["data"]["reply"] == "The accessible overview is ready."
+    assert "PRIVATE" not in response.text
 
 
 @pytest.mark.parametrize("token,user", [(None, "user-001"), ("invalid", "user-001"), ("mcp-token-1", "user-003")])
@@ -106,10 +122,10 @@ async def test_http_identity_cannot_be_chosen_in_body(running, tmp_path, token, 
     assert model.seen == []
 
 
-async def test_sse_error_is_terminal_after_partial_text(running, tmp_path):
-    """A partial answer followed by a failure must never become a completed reply."""
+async def test_sse_error_does_not_publish_unfinished_model_text(running, tmp_path):
+    """An unfinished model message cannot become public answer text or completion."""
     class FailingModel(ProgressiveModel):
-        """Fail after visible text with a diagnostic that must stay private."""
+        """Fail after provisional text with a diagnostic that must stay private."""
 
         async def _astream(self, messages, **kwargs):
             """Emit one fragment, then simulate a provider failure."""
@@ -123,7 +139,8 @@ async def test_sse_error_is_terminal_after_partial_text(running, tmp_path):
             response = await client.post("/chat/stream", headers={"Authorization": "Bearer mcp-token-1"},
                                          json={"user_id": "user-001", "session_id": "session", "message": "Hello"})
     events = events_from_sse(response.text)
-    assert [item["event"] for item in events] == ["text_delta", "error"]
+    assert [item["event"] for item in events] == ["error"]
+    assert "Partial reply" not in response.text
     assert set(events[-1]["data"]) == {"is_error", "code", "message", "is_retryable"}
     assert "PRIVATE" not in response.text
 
@@ -167,18 +184,20 @@ def test_workspace_selection_is_sent_as_a_header(monkeypatch):
     assert "anthropic-workspace-id" not in model._get_request_payload("Hello")
 
 
-async def test_http_sends_text_before_model_finishes(running, tmp_path):
-    """Verify real HTTP chunk delivery without relying on a buffering ASGI client."""
+async def test_http_holds_text_until_final_message_is_validated(running, tmp_path):
+    """A later tool decision must remain possible before any text becomes public."""
     from fastmcp.utilities.asgi_transport import StreamingASGITransport
 
     release = asyncio.Event()
+    generated = asyncio.Event()
 
     class GatedModel(ScriptedModel):
-        """Wait for the HTTP consumer before producing the end of the response."""
+        """Pause before the point where a model could still select a tool."""
 
         async def _astream(self, messages, **kwargs):
-            """Emit one fragment, then wait until the test has received it."""
+            """Expose provisional text internally, then wait for the test to finish it."""
             yield ChatGenerationChunk(message=AIMessageChunk(content="Hello "))
+            generated.set()
             await release.wait()
             yield ChatGenerationChunk(message=AIMessageChunk(content="there."))
 
@@ -191,13 +210,18 @@ async def test_http_sends_text_before_model_finishes(running, tmp_path):
                 json={"user_id": "user-001", "session_id": "session", "message": "Hello"},
             ) as response:
                 lines = response.aiter_lines()
-                while True:
-                    line = await anext(lines)
-                    if line.startswith("data:"):
-                        assert json.loads(line.removeprefix("data:")) == {"text": "Hello "}
-                        break
-                assert not release.is_set()
+                async def next_data():
+                    """Ignore SSE heartbeat comments while waiting for answer data."""
+                    async for line in lines:
+                        if line.startswith("data:"):
+                            return json.loads(line.removeprefix("data:"))
+
+                first = asyncio.create_task(next_data())
+                await generated.wait()
+                await asyncio.sleep(0)
+                assert not first.done()
                 release.set()
+                assert await first == {"text": "Hello "}
                 remaining = "\n".join([line async for line in lines])
     assert 'event: done' in remaining
     assert 'Hello there.' in remaining

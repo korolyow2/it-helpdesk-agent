@@ -29,14 +29,15 @@ def test_failure_grader_requires_error_evidence_and_exact_attempt_count():
     assert checks["bounded_fault_attempts"] is False
 
 
-def test_catalog_covers_assignment_and_marks_unimplemented_features():
-    """Keep required eval areas present without pretending pending work exists."""
+def test_catalog_covers_assignment_and_tracks_implemented_features():
+    """Map implemented memory and review requirements to executable checks."""
     cases = json.loads(CATALOG.read_text())["cases"]
     assert len({case["id"] for case in cases}) == len(cases)
     assert {"tool_selection", "approval", "scope", "failures", "memory", "permissions"} <= {
         case["category"] for case in cases
     }
-    assert all(case["kind"] == "pending" for case in cases if case["category"] == "memory")
+    assert all(case["kind"] == "protocol" and case["selectors"]
+               for case in cases if case["category"] == "memory")
 
 
 @pytest.mark.parametrize("identifier", ["M01", "M11", "M15", "M16", "M17", "M18", "M20", "M21"])

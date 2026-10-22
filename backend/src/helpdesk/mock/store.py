@@ -279,6 +279,8 @@ class TicketStore:
             payload = json.loads(row["payload"])
             if row["operation"] == "add_comment":
                 self.visible_ticket(connection, role, payload["ticket_id"])
+            elif row["status"] == "completed":
+                self.visible_ticket(connection, role, json.loads(row["result"])["ticket"]["id"])
             return self.proposal_result(row)
 
     def decide(self, user_id, session_id, approval_id, decision):

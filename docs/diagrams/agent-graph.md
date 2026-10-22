@@ -79,8 +79,27 @@ limit middleware contributes visible nodes. Model/tool wrapper middleware
 executes around the displayed model/tools and is not a separate graph node.
 The input guardrail is a node of the outer workflow shown above.
 It is outside the nested compiled ReAct graph shown in this section.
-The current agent exposes read tools only; conversational approved writes are
-not represented as implemented.
+The tool node also handles create/comment proposals through `WriteReview`.
+It saves an exact backend proposal and calls native `interrupt`, so its checkpoint
+stops inside the existing tools node. A later authenticated decision resumes that
+same node using `Command(resume=...)`; no hand-assembled ReAct nodes are added.
+A durable application binding prevents restaging on replay. The application
+injects the approved ID, and the backend commits one mutation with its durable
+replay result. Completion/decline/write-error receipts are application-owned.
+
+```mermaid
+flowchart LR
+    Model[Model-selected write] --> Stage[MCP stages proposal]
+    Stage --> Pause[Interrupt in existing tools node]
+    Pause --> Review[Later explicit user decision]
+    Review -->|decline| Declined[No execution call]
+    Review -->|approve| Resume[Resume exact stored call]
+    Resume --> Verify[Backend rechecks approval and access]
+    Verify --> Commit[Atomic mutation and replayable result]
+```
+
+This second diagram describes the review lifecycle inside the compiled tools
+node, not additional compiled graph nodes.
 
 Sources: `backend/src/helpdesk/agent/graph.py`,
 `backend/src/helpdesk/agent/workflow.py`,

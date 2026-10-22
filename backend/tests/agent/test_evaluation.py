@@ -1,6 +1,8 @@
 """Verify evaluation integrity independently of paid model behavior."""
 
 import json
+import subprocess
+import sys
 
 import pytest
 from langchain_core.messages import HumanMessage, ToolMessage, AIMessage
@@ -9,6 +11,12 @@ from pydantic import ValidationError
 from helpdesk.agent.context import authorized_history_view
 from helpdesk.evaluation import DATASET, Judgment, judge_answer, scores_for_result, summarize, tool_metrics
 from helpdesk.evaluation import guardrail_metrics
+
+
+def test_evaluation_cli_exposes_dataset_selection_without_provider_calls():
+    """The documented one-command interface must parse before any paid request."""
+    result = subprocess.run([sys.executable, "-m", "helpdesk.evaluation", "--help"], capture_output=True, text=True)
+    assert result.returncode == 0 and "--dataset" in result.stdout
 
 
 def test_dataset_contracts_and_ids_are_explicit():

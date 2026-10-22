@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 from langfuse import Langfuse, propagate_attributes
 from langfuse.types import MaskOtelSpansResult, OtelSpanPatch
+from langgraph.errors import GraphInterrupt
 from opentelemetry import trace
 
 
@@ -117,7 +118,7 @@ def tracing_client():
     base_url = os.environ.get("LANGFUSE_BASE_URL", "http://127.0.0.1:3000")
     target = urlparse(base_url)
     if (target.scheme not in {"http", "https"}
-            or target.hostname not in {"localhost", "127.0.0.1", "::1", "langfuse-web"}
+            or target.hostname not in {"localhost", "127.0.0.1", "::1", "langfuse-web", "host.docker.internal"}
             or target.username or target.password or target.query or target.fragment
             or not os.environ.get("LANGFUSE_PUBLIC_KEY") or not os.environ.get("LANGFUSE_SECRET_KEY")):
         raise ValueError("Configure local Langfuse URL and project credentials before enabling tracing.")
@@ -215,6 +216,9 @@ def observation(name, *, user_id=None, session_id=None, trace_context=None, envi
                                      "parent_span_id": f"{active.span_id:016x}"})
         try:
             yield current
+        except GraphInterrupt:
+            current.update(metadata={"status": "awaiting_approval"})
+            raise
         except BaseException as error:
             public = getattr(error, "error", error)
             current.update(level="ERROR", status_message=str(getattr(public, "code", "operation_interrupted")))

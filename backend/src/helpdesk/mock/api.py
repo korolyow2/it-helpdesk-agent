@@ -1,17 +1,21 @@
 """Expose authenticated ticket operations and application-only approval decisions."""
 
+import asyncio
 import json
 import os
 from pathlib import Path
 from secrets import compare_digest
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Header, Query, Security
+from fastapi import Depends, FastAPI, Header, Query, Request, Security
+from fastapi.responses import JSONResponse
 from fastapi.security import APIKeyHeader, HTTPAuthorizationCredentials, HTTPBearer
+from pydantic import TypeAdapter, ValidationError
 
 from helpdesk.errors import PublicError
 from helpdesk.mock.errors import install_error_handlers
 from helpdesk.mock.models import AddComment, ApprovalDecision, CreateTicket, Ticket, TicketId
+from helpdesk.mock.failures import FailureConfig, FailureSwitch
 from helpdesk.paths import DEFAULT_DATABASE
 from helpdesk.mock.store import TicketStore
 from helpdesk.telemetry import observation, remote_environment, remote_parent
@@ -22,7 +26,7 @@ SessionHeader = Annotated[
 ]
 
 
-def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str]) -> FastAPI:
+def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str], failure_config=None) -> FastAPI:
     """Create the mock API with service and user authentication.
 
     Parameters
@@ -33,6 +37,8 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
         Shared credential required for MCP-to-mock requests.
     user_tokens : dict of str to str
         Mapping from mock-specific bearer tokens to user IDs.
+    failure_config : FailureConfig or None, optional
+        Initial finite fault settings; defaults to disabled.
 
     Returns
     -------
@@ -54,6 +60,7 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
     install_error_handlers(app)
     store = TicketStore(database)
     tokens = dict(user_tokens)
+    app.state.failures = FailureSwitch(failure_config)
 
     @app.middleware("http")
     async def trace_request(request, call_next):
@@ -65,6 +72,11 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
                       "request_id": request.headers.get("x-request-id")},
         ) as span:
             response = await call_next(request)
+            fault = getattr(request.state, "mock_fault", None)
+            if fault is not None and fault.mode == "committed_timeout" and 200 <= response.status_code < 300:
+                async for _ in response.body_iterator:
+                    pass
+                response = JSONResponse({"error": PublicError("backend_timeout", outcome="unknown").payload}, status_code=504)
             span.update(output={"http_status": response.status_code})
             if response.status_code >= 400:
                 span.update(level="ERROR", status_message=f"http_{response.status_code}")
@@ -107,6 +119,54 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
 
     User = Annotated[str, Depends(authenticated_user)]
 
+    async def ticket_user(request: Request, user_id: User):
+        """Authorize before injecting a fault; ticket checks still run in the store."""
+        with store.connect() as connection:
+            role = store.authorize(connection, user_id)
+            if "ticket_id" in request.path_params:
+                try:
+                    ticket_id = TypeAdapter(TicketId).validate_python(request.path_params["ticket_id"])
+                except ValidationError:
+                    return user_id
+                store.visible_ticket(connection, role, ticket_id)
+        payload = await request.json() if request.method == "POST" else {}
+        fault = app.state.failures.take(request.method, payload)
+        request.state.mock_fault = fault
+        if fault is not None:
+            with observation("mock.synthetic_fault", metadata={"mode": fault.mode, "remaining": app.state.failures.config.remaining}):
+                if fault.mode == "rate_limit":
+                    raise PublicError("rate_limited", retry_after=fault.retry_after_seconds)
+                if fault.mode == "server_error":
+                    raise PublicError("backend_unavailable")
+                if fault.mode == "slow":
+                    await asyncio.sleep(fault.delay_seconds)
+        return user_id
+
+    TicketUser = Annotated[str, Depends(ticket_user)]
+
+    def operator(key: Annotated[str | None, Security(service_auth)]):
+        """Require the operator-held service key, never a browser user token."""
+        if key is None or not compare_digest(key.encode(), service_key.encode()):
+            raise PublicError("service_authentication_failed")
+
+    @app.get("/health", include_in_schema=False)
+    def health():
+        """Check storage readiness without exposing users or tickets."""
+        with store.connect() as connection:
+            connection.execute("SELECT 1 FROM users LIMIT 1").fetchone()
+        return {"status": "ok"}
+
+    @app.get("/admin/failures", dependencies=[Depends(operator)])
+    def failure_status():
+        """Inspect the finite runtime fault configuration."""
+        return app.state.failures.config.model_dump()
+
+    @app.put("/admin/failures", dependencies=[Depends(operator)])
+    def set_failures(config: FailureConfig):
+        """Replace runtime faults; this operation is never an MCP tool."""
+        app.state.failures.config = config
+        return config.model_dump()
+
     @app.get("/access")
     def access(user_id: User) -> dict:
         """Check current Helpdesk membership without returning ticket data."""
@@ -116,7 +176,7 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
 
     @app.get("/tickets")
     def search_tickets(
-        user_id: User,
+        user_id: TicketUser,
         query: Annotated[str, Query(min_length=1, max_length=500)],
         page: Annotated[int, Query(ge=1, le=1000000)] = 1,
         page_size: Annotated[int, Query(ge=1, le=50)] = 5,
@@ -126,7 +186,7 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
 
     @app.get("/tickets/overview")
     def list_tickets(
-        user_id: User,
+        user_id: TicketUser,
         page: Annotated[int, Query(ge=1, le=1000000)] = 1,
         page_size: Annotated[int, Query(ge=1, le=50)] = 50,
     ) -> dict:
@@ -134,18 +194,18 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
         return store.list_tickets(user_id, page, page_size)
 
     @app.get("/tickets/{ticket_id}", response_model=Ticket)
-    def get_ticket(ticket_id: TicketId, user_id: User) -> dict:
+    def get_ticket(ticket_id: TicketId, user_id: TicketUser) -> dict:
         """Read a permitted ticket or return a non-disclosing 404 response."""
         return store.get_ticket(user_id, ticket_id)
 
     @app.post("/tickets")
-    def create_ticket(body: CreateTicket, user_id: User, session_id: SessionHeader) -> dict:
+    def create_ticket(body: CreateTicket, user_id: TicketUser, session_id: SessionHeader) -> dict:
         """Propose ticket creation, or execute its exact approved action."""
         return store.write(user_id, session_id, "create_ticket",
                            body.model_dump(exclude={"approval_id"}), body.approval_id)
 
     @app.post("/tickets/{ticket_id}/comments")
-    def add_comment(ticket_id: TicketId, body: AddComment, user_id: User, session_id: SessionHeader) -> dict:
+    def add_comment(ticket_id: TicketId, body: AddComment, user_id: TicketUser, session_id: SessionHeader) -> dict:
         """Propose a comment, or execute its exact approved action."""
         payload = {"ticket_id": ticket_id, "body": body.body}
         return store.write(user_id, session_id, "add_comment", payload, body.approval_id)
@@ -171,7 +231,9 @@ def create_app(*, database: Path, service_key: str, user_tokens: dict[str, str])
     # Both credentials are required, not alternatives as FastAPI generates by default.
     for path in app.openapi()["paths"].values():
         for operation in path.values():
-            operation["security"] = [{"MockServiceKey": [], "MockUserToken": []}]
+            schemes = {key for item in operation.get("security", []) for key in item}
+            if schemes == {"MockServiceKey", "MockUserToken"}:
+                operation["security"] = [{"MockServiceKey": [], "MockUserToken": []}]
     return app
 
 
@@ -194,4 +256,9 @@ def from_env() -> FastAPI:
         database=Path(os.environ.get("MOCK_DATABASE", str(DEFAULT_DATABASE))),
         service_key=os.environ["MOCK_SERVICE_KEY"],
         user_tokens=json.loads(os.environ["MOCK_USER_TOKENS"]),
+        failure_config=FailureConfig(
+            mode=os.environ.get("MOCK_FAILURE_MODE", "off"),
+            remaining=int(os.environ.get("MOCK_FAILURE_COUNT", "2")),
+            delay_seconds=float(os.environ.get("MOCK_FAILURE_DELAY", "4")),
+        ),
     )

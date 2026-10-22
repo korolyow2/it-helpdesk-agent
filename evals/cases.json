@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 7,
   "cases": [
     {
       "id": "P01",
@@ -137,7 +137,7 @@
       "description": "Only answer text streams and errors terminate completion",
       "selectors": [
         "backend/tests/agent/test_streaming.py::test_progressive_text_excludes_thinking",
-        "backend/tests/agent/test_streaming.py::test_sse_error_is_terminal_after_partial_text"
+        "backend/tests/agent/test_streaming.py::test_sse_error_does_not_publish_unfinished_model_text"
       ]
     },
     {
@@ -206,7 +206,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M02",
@@ -227,7 +228,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M03",
@@ -247,7 +249,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M04",
@@ -267,7 +270,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M05",
@@ -287,7 +291,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M06",
@@ -307,7 +312,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M07",
@@ -327,7 +333,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M08",
@@ -348,7 +355,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M09",
@@ -368,7 +376,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M10",
@@ -388,7 +397,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M11",
@@ -406,7 +416,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M12",
@@ -423,7 +434,8 @@
         "no_tools": true,
         "refusal_screen": true
       },
-      "human_review": true
+      "human_review": true,
+      "selectors": []
     },
     {
       "id": "M13",
@@ -440,7 +452,8 @@
         "no_tools": true,
         "refusal_screen": true
       },
-      "human_review": true
+      "human_review": true,
+      "selectors": []
     },
     {
       "id": "M14",
@@ -461,7 +474,8 @@
           "eval-mock-token"
         ]
       },
-      "human_review": true
+      "human_review": true,
+      "selectors": []
     },
     {
       "id": "M15",
@@ -486,7 +500,8 @@
           0
         ]
       },
-      "injection": true
+      "injection": true,
+      "selectors": []
     },
     {
       "id": "M16",
@@ -508,7 +523,8 @@
           0
         ]
       },
-      "fault": "server_error_once"
+      "fault": "server_error_once",
+      "selectors": []
     },
     {
       "id": "M17",
@@ -530,7 +546,8 @@
           0
         ]
       },
-      "fault": "rate_limit_once"
+      "fault": "rate_limit_once",
+      "selectors": []
     },
     {
       "id": "M18",
@@ -550,7 +567,8 @@
           0
         ]
       },
-      "fault": "server_error"
+      "fault": "server_error",
+      "selectors": []
     },
     {
       "id": "M19",
@@ -570,7 +588,8 @@
           0
         ]
       },
-      "human_review": true
+      "human_review": true,
+      "selectors": []
     },
     {
       "id": "M20",
@@ -592,7 +611,8 @@
           0
         ]
       },
-      "follow_up": "And what is its status now?"
+      "follow_up": "And what is its status now?",
+      "selectors": []
     },
     {
       "id": "M21",
@@ -617,7 +637,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M22",
@@ -634,7 +655,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M23",
@@ -658,7 +680,8 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "M24",
@@ -679,70 +702,130 @@
         "guardrail_codes": [
           0
         ]
-      }
+      },
+      "selectors": []
     },
     {
       "id": "F01",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "approval",
       "description": "Propose a new ticket, stop, then create exactly once after a subsequent explicit approval.",
-      "requires": "chat_approval"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_graph_stops_before_write_and_approval_executes_once"
+      ]
     },
     {
       "id": "F02",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "approval",
       "description": "Propose a comment, stop, then append exactly one approved comment.",
-      "requires": "chat_approval"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_graph_stops_before_write_and_approval_executes_once"
+      ]
     },
     {
       "id": "F03",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "approval",
       "description": "Decline in the next chat message without a mutation.",
-      "requires": "chat_approval"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_restart_restores_exact_review_and_decline_never_writes"
+      ]
     },
     {
       "id": "F04",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "approval",
       "description": "Restart the agent between proposal and explicit approval.",
-      "requires": "chat_approval"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_restart_restores_exact_review_and_decline_never_writes"
+      ]
     },
     {
       "id": "F05",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "idempotency",
       "description": "Repeated chat approval after a committed-write timeout does not duplicate the action.",
-      "requires": "chat_approval"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_failed_approved_write_recovers_after_restart_without_duplicates"
+      ]
     },
     {
       "id": "F06",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "memory",
       "description": "Remember an explicitly supplied useful fact in another session of the same user.",
-      "requires": "cross_session_memory"
+      "selectors": [
+        "backend/tests/agent/test_memory.py::test_fact_reaches_new_session_after_restart_but_not_other_user"
+      ]
     },
     {
       "id": "F07",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "memory",
       "description": "A different user never retrieves or overwrites another user's stored fact.",
-      "requires": "cross_session_memory"
+      "selectors": [
+        "backend/tests/agent/test_memory.py::test_authenticated_memory_api_cannot_read_or_delete_another_user"
+      ]
     },
     {
       "id": "F08",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "ui",
       "description": "Show tool calls and approve or decline through the browser UI.",
-      "requires": "browser_ui"
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_browser_review_endpoint_is_user_scoped_and_sse_contains_no_proposal"
+      ]
     },
     {
       "id": "F09",
-      "kind": "pending",
+      "kind": "protocol",
       "category": "failures",
       "description": "Enable rate limits, server errors, and slow responses through a runtime mock switch outside the eval harness.",
-      "requires": "runtime_failure_switch"
+      "selectors": [
+        "backend/tests/mock/test_failures.py"
+      ]
+    },
+    {
+      "id": "R01",
+      "kind": "protocol",
+      "category": "permissions",
+      "description": "All supported ticket-result shapes participate in history access revalidation.",
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_created_ticket_history_is_hidden_after_access_is_revoked"
+      ]
+    },
+    {
+      "id": "R02",
+      "kind": "protocol",
+      "category": "streaming",
+      "description": "Only a validated final answer or exact proposal enters SSE; intermediate and unfinished model text stays private.",
+      "selectors": [
+        "backend/tests/agent/test_streaming.py::test_intermediate_text_plus_tool_call_does_not_enter_answer_stream",
+        "backend/tests/agent/test_streaming.py::test_http_holds_text_until_final_message_is_validated",
+        "backend/tests/agent/test_approvals.py::test_proposal_stream_discards_intermediate_model_text"
+      ]
+    },
+    {
+      "id": "R03",
+      "kind": "protocol",
+      "category": "approval",
+      "description": "Failed staging recovers the same checkpointed proposal, preserves access checks, and remains retryable without a model call.",
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_failed_staging_recovers_native_review_after_restart",
+        "backend/tests/agent/test_approvals.py::test_failed_review_recovery_keeps_original_checkpoint_retryable",
+        "backend/tests/agent/test_approvals.py::test_recovery_rechecks_revoked_system_access"
+      ]
+    },
+    {
+      "id": "R04",
+      "kind": "protocol",
+      "category": "failures",
+      "description": "Reconciliation and post-commit failures persist unknown outcomes and recover the same completed action without duplicates.",
+      "selectors": [
+        "backend/tests/agent/test_approvals.py::test_reconciliation_timeout_preserves_uncertainty_and_completed_review",
+        "backend/tests/agent/test_approvals.py::test_commit_then_local_failure_restores_confirmation_without_tool_replay"
+      ]
     }
   ]
 }

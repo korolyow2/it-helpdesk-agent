@@ -53,6 +53,8 @@ def install_error_handlers(app):
     async def public_error(request, error):
         """Serialize an expected application failure."""
         headers = {"WWW-Authenticate": "Bearer"} if error.code == "authentication_failed" else None
+        if error.code == "rate_limited" and "retry_after_seconds" in error.payload:
+            headers = {**(headers or {}), "Retry-After": str(error.payload["retry_after_seconds"])}
         return response(request, error, headers)
 
     @app.exception_handler(RequestValidationError)

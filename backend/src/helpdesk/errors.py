@@ -28,6 +28,7 @@ ERRORS = {
     "approval_required": ErrorSpec(409, "Explicit user approval is required before executing this action."),
     "approval_declined": ErrorSpec(409, "The user declined this action; it cannot be executed."),
     "approval_mismatch": ErrorSpec(409, "The action differs from the proposal that was approved."),
+    "ticket_read_required": ErrorSpec(409, "Read the target ticket before proposing a comment."),
     "pending_approval_exists": ErrorSpec(409, "Another action is awaiting a decision in this session."),
     "approval_state_conflict": ErrorSpec(409, "This decision cannot be applied to the current approval state."),
     "data_conflict": ErrorSpec(409, "The change violates a data constraint and was rolled back."),

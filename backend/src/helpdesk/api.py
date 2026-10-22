@@ -5,7 +5,7 @@ import json
 import os
 from typing import Annotated
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, Path as ApiPath
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -26,6 +26,7 @@ class ChatRequest(BaseModel):
     user_id: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=128)]
     session_id: Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")]
     message: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10000)]
+    approval_id: Annotated[str, StringConstraints(min_length=1, max_length=100)] | None = None
 
 
 def create_app(*, service, user_tokens, lifespan=None):
@@ -59,6 +60,7 @@ def create_app(*, service, user_tokens, lifespan=None):
         return user_id
 
     User = Annotated[str, Depends(authenticate)]
+    Session = Annotated[str, ApiPath(pattern=r"^[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}$")]
 
     def check_user(body: ChatRequest, user_id: User):
         """Reject requests attempting to act as a different user."""
@@ -78,6 +80,27 @@ def create_app(*, service, user_tokens, lifespan=None):
         """Fetch completed tool summaries separately from the answer stream."""
         return {"tools": app.state.service.request_tools(user_id, request_id)}
 
+    @app.get("/health", include_in_schema=False)
+    async def health():
+        """Expose readiness without credentials or application data."""
+        return {"status": "ok"}
+
+    @app.get("/chat/sessions/{session_id}/approval")
+    async def pending_approval(session_id: Session, user_id: User):
+        """Restore this user's proposal separately from answer-only SSE events."""
+        return {"approval": await app.state.service.pending_approval(user_id, session_id)}
+
+    @app.get("/memory")
+    async def memory(user_id: User):
+        """Inspect only the authenticated user's extracted, unexpired fact."""
+        return {"facts": app.state.service.storage.facts(user_id)}
+
+    @app.delete("/memory")
+    async def forget_memory(user_id: User):
+        """Delete extracted facts without changing another user or chat history."""
+        app.state.service.storage.forget(user_id)
+        return {"status": "deleted"}
+
     @app.exception_handler(PublicError)
     async def public_error(request, error):
         """Return the minimal error before response headers have been sent."""
@@ -92,13 +115,13 @@ def create_app(*, service, user_tokens, lifespan=None):
     @app.post("/chat")
     async def chat(body: ChatRequest, user_id: VerifiedUser):
         """Collect a reply for clients that do not need streaming."""
-        return await app.state.service.run(user_id, body.session_id, body.message)
+        return await app.state.service.run(user_id, body.session_id, body.message, approval_id=body.approval_id)
 
     @app.post("/chat/stream", response_class=EventSourceResponse)
     async def chat_stream(body: ChatRequest, user_id: VerifiedUser):
         """Stream chat events; a failure is terminal and never followed by done."""
         try:
-            async with aclosing(app.state.service.stream(user_id, body.session_id, body.message)) as stream:
+            async with aclosing(app.state.service.stream(user_id, body.session_id, body.message, approval_id=body.approval_id)) as stream:
                 async for event in stream:
                     data = ({"reply": event["data"]["reply"], "request_id": event["data"]["request_id"]}
                             if event["event"] == "done" else {"text": event["data"]["text"]})

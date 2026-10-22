@@ -581,3 +581,22 @@ found no existing refs. All 230 candidate files passed a configured-secret and
 private-key scan; local credentials, runtime databases and caches remain ignored.
 Publish the current implementation and its honest evaluation/assignment gaps;
 publication does not mean that the unfinished assignment requirements are met.
+
+## Authorized completion batch — 2026-10-21
+
+Completed conversational create/comment through native graph interrupt and later
+application-verified review; durable replay and recovery; one OS preference with
+30-day TTL/deletion; browser decisions; operator runtime failures; and a running
+three-container application. The [completion report](COMPLETION.md) and
+[assignment matrix](ASSIGNMENT_STATUS.md) supersede earlier pending descriptions.
+Actual checks: 326 Python tests, 29 mapped requirements, 11 frontend tests and
+17/17 final real-model/judge completion cases. The first 16/17 failure and its
+C13 repeats remain preserved. The batch remains uncommitted/unpushed.
+
+## Four review corrections — 2026-10-22
+
+The user authorized fixing all four Astra findings. Add direct regressions for
+nested ticket history revocation, final-only SSE, checkpointed staging recovery
+and lost reconciliation responses. Keep model settings and human-approval
+boundaries unchanged. Current verification is recorded in `docs/REVIEW_FIXES.md`;
+pre-review paid evaluations remain historical, not silently relabeled as current.

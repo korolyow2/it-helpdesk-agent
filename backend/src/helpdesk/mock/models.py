@@ -113,6 +113,12 @@ class WriteProposal(BaseModel):
     arguments: dict
 
 
+class ApprovalState(WriteProposal):
+    """Restore an application-owned approval, including terminal states."""
+
+    status: Literal["pending", "approved", "declined", "completed"]
+
+
 class CreatedTicketResult(BaseModel):
     """Represent the confirmed result of one approved ticket creation."""
 

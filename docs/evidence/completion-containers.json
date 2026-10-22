@@ -1,0 +1,185 @@
+{
+  "session_id": "completion-86762703587f433088c6e3a82d6ed6bd",
+  "turns": [
+    {
+      "message": "Please propose adding this comment to ticket TKT-001: 'VPN still disconnects after phone verification; final container verification 19:02:24.' Read the ticket first.",
+      "result": {
+        "reply": "Proposed action: add_comment\nbody: VPN still disconnects after phone verification; final container verification 19:02:24.\nticket_id: TKT-001\nNo change has been made. Reply approve or decline, or use the review buttons.",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_48496b3b-70d3-4eaa-9f82-01919bfe6428"
+              }
+            ]
+          },
+          {
+            "name": "get_ticket",
+            "arguments": {
+              "ticket_id": "TKT-001"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"},{\"id\":\"CMT-3cf777de043e4340874dd73e561f64f6\",\"author_id\":\"user-001\",\"body\":\"Reconnect did not help; VPN still disconnects after phone verification.\",\"created_at\":\"2026-10-21T18:36:21.172407Z\"}]}",
+                "id": "lc_4781e64a-0ab7-4328-bbb0-5dbd62c926ee"
+              }
+            ]
+          },
+          {
+            "name": "add_comment",
+            "arguments": {
+              "body": "VPN still disconnects after phone verification; final container verification 19:02:24.",
+              "ticket_id": "TKT-001"
+            },
+            "status": "pending",
+            "content": "{\"approval_id\": \"0cc5e1cd-bc31-451f-ba98-3530916dff3b\", \"status\": \"pending\", \"operation\": \"add_comment\", \"arguments\": {\"body\": \"VPN still disconnects after phone verification; final container verification 19:02:24.\", \"ticket_id\": \"TKT-001\"}}"
+          }
+        ],
+        "approval": {
+          "approval_id": "0cc5e1cd-bc31-451f-ba98-3530916dff3b",
+          "status": "pending",
+          "operation": "add_comment",
+          "arguments": {
+            "body": "VPN still disconnects after phone verification; final container verification 19:02:24.",
+            "ticket_id": "TKT-001"
+          }
+        },
+        "request_id": "833fdb91-071b-4b85-b044-8f65d01fa2df",
+        "trace_id": "341b97989df0b5d152446c97e9dd502d"
+      }
+    },
+    {
+      "message": "approve",
+      "result": {
+        "reply": "The approved action is completed. Added the comment to ticket TKT-001.",
+        "tool_calls": [
+          {
+            "name": "add_comment",
+            "arguments": {
+              "ticket_id": "TKT-001",
+              "body": "VPN still disconnects after phone verification; final container verification 19:02:24."
+            },
+            "status": "completed",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"status\":\"completed\",\"approval_id\":\"0cc5e1cd-bc31-451f-ba98-3530916dff3b\",\"ticket_id\":\"TKT-001\",\"comment\":{\"id\":\"CMT-118596ecd0b449e498e99d6505685421\",\"author_id\":\"user-001\",\"body\":\"VPN still disconnects after phone verification; final container verification 19:02:24.\",\"created_at\":\"2026-10-21T19:03:08.672351Z\"}}",
+                "id": "lc_05b433fc-41ed-41fd-a1a9-94b4b9b33d38"
+              }
+            ]
+          }
+        ],
+        "request_id": "3cf074b7-72db-417a-bc58-a8233acea388",
+        "trace_id": "9de188c1fac2e23cee3dd646c1a6d30e"
+      }
+    },
+    {
+      "message": "approve",
+      "result": {
+        "reply": "The approved action is already completed. No additional change was made.",
+        "tool_calls": [],
+        "request_id": "f347bbb5-4e18-4e30-aa22-6b7264737d1d",
+        "trace_id": "f0196ca6470ac7f2bcf5822c0963d3f2"
+      }
+    }
+  ],
+  "comments_before": 3,
+  "approval": {
+    "approval_id": "0cc5e1cd-bc31-451f-ba98-3530916dff3b",
+    "status": "pending",
+    "operation": "add_comment",
+    "arguments": {
+      "body": "VPN still disconnects after phone verification; final container verification 19:02:24.",
+      "ticket_id": "TKT-001"
+    }
+  },
+  "comments_after_proposal": 3,
+  "restored_after_container_restart": true,
+  "comments_after_repeated_approval": 4,
+  "exactly_one_comment": true,
+  "runtime_failures": {
+    "browser_token_cannot_change_faults": true,
+    "result": {
+      "reply": "TKT-001, \"VPN disconnects after verification\", has the status **open**. That means it hasn't been resolved yet.\n\n- **Issue:** The VPN accepts the password and asks for the phone verification code. The connection closes right after the code is entered, every time, on the user's laptop.\n- **Comments:**\n  - The requester said the code is accepted before the connection closes. Restarting the laptop didn't help.\n  - Later comments say reconnecting didn't help and the VPN still disconnects after phone verification.",
+      "tool_calls": [
+        {
+          "name": "discover_tools",
+          "arguments": {},
+          "status": "success",
+          "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+        },
+        {
+          "name": "list_tickets",
+          "arguments": {},
+          "status": "success",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+              "id": "lc_0198f479-b2ac-4eb2-bcfa-3bf3e2246132"
+            }
+          ]
+        },
+        {
+          "name": "get_ticket",
+          "arguments": {
+            "ticket_id": "TKT-001"
+          },
+          "status": "success",
+          "content": [
+            {
+              "type": "text",
+              "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"},{\"id\":\"CMT-3cf777de043e4340874dd73e561f64f6\",\"author_id\":\"user-001\",\"body\":\"Reconnect did not help; VPN still disconnects after phone verification.\",\"created_at\":\"2026-10-21T18:36:21.172407Z\"},{\"id\":\"CMT-118596ecd0b449e498e99d6505685421\",\"author_id\":\"user-001\",\"body\":\"VPN still disconnects after phone verification; final container verification 19:02:24.\",\"created_at\":\"2026-10-21T19:03:08.672351Z\"}]}",
+              "id": "lc_b87e9aa9-275a-4914-ba52-135b95e84342"
+            }
+          ]
+        }
+      ],
+      "request_id": "ad5641fd-8c70-4a51-893f-00b26dd19546",
+      "trace_id": "72bf4b69cc8804e8eed8e9ce21526435"
+    },
+    "configured_failures_consumed": true,
+    "recovered_answer": true,
+    "restored_mode": "off"
+  },
+  "verified_at": "2026-10-21T19:06:55.766119+00:00",
+  "image_id": "sha256:5d68a9c576ea40c1176dfe9effc92fbe145b31f8ce56dcd8102850b1e16d79d9",
+  "services": [
+    {
+      "Service": "chat",
+      "Health": "healthy",
+      "State": "running",
+      "Image": "helpdesk-assignment:local",
+      "Ports": "127.0.0.1:8000->8000/tcp"
+    },
+    {
+      "Service": "mcp",
+      "Health": "healthy",
+      "State": "running",
+      "Image": "helpdesk-assignment:local",
+      "Ports": "127.0.0.1:8002->8002/tcp"
+    },
+    {
+      "Service": "mock",
+      "Health": "healthy",
+      "State": "running",
+      "Image": "helpdesk-assignment:local",
+      "Ports": "127.0.0.1:8001->8001/tcp"
+    }
+  ],
+  "compose_configuration_valid": true,
+  "verification_scope": "Real Sonnet, authenticated HTTP chat, MCP and mock in three running containers. Pending proposal survives mock/chat restart. Two approvals add exactly one comment; runtime rate limit recovery runs over the container network. Browser clicks are tested separately with scripted model."
+}

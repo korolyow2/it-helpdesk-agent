@@ -24,7 +24,10 @@ Changing the user or session cannot replay the previous browser's history.
 
 - POST `/chat/stream` sends only the newest message plus user/session identifiers.
 - The outer LangGraph workflow screens input before the persistent ReAct graph.
-- Only answer `text_delta` events enter the chat. `done` confirms the exact text
+- Model fragments are held until the final message is validated, excluding
+  text emitted before a tool call. This delays first visible text until generation
+  completes; it is SSE delivery rather than live provider-token delivery.
+- Only final answer `text_delta` events enter the chat. `done` confirms the exact text
   and returns the completed request ID. Incomplete streams remain errors.
 - A separate authenticated GET `/chat/requests/{request_id}/tools` fills the tool
   panel with names and statuses. No ticket payloads or arguments enter that
@@ -33,8 +36,13 @@ Changing the user or session cannot replay the previous browser's history.
   new message; identity/session controls are locked while a request is active.
 - Blocked requests receive a static reply and leave server conversation history
   unchanged. Their visible browser bubbles are never sent back as history.
-- The interface is currently read-only. Conversational proposals and functional
-  approve/decline controls remain pending with the agent write integration.
+- A separate authenticated GET `/chat/sessions/{session_id}/approval` restores
+  the exact pending proposal. Buttons send approve/decline with its ID in the
+  next request. Pending review values render as text; stale IDs cannot approve
+  another action. Completed/declined outcomes are distinct from tool errors.
+- An already approved action offers only an explicit retry of the same ID.
+  A previously unknown outcome can be confirmed by the review endpoint; a
+  completed review is displayed without enabled mutation controls.
 
 ## Dependency
 
@@ -53,7 +61,7 @@ credentials or changing the server's conversation/authorization contract.
 
 ```sh
 uv run python -m pytest backend/tests/agent/test_frontend.py backend/tests/agent/test_input_guardrail.py
-node --test frontend/tests/stream.test.mjs
+node --test frontend/tests/*.test.mjs
 ```
 
 The JavaScript parser tests cover arbitrary chunk boundaries, split UTF-8/CRLF,
@@ -63,3 +71,10 @@ provider API calls. It verified successful streaming, the separate tool panel,
 a static blocked reply, a partial-error display and a successful next request.
 See `docs/evidence/frontend-smoke.png`. These checks are not a new real-model
 quality evaluation or evidence of conversational approved writes.
+
+The current completion browser check restored two real graph interrupts through
+the authenticated UI. Approve added one comment; decline added none. The fixture
+used a scripted model with the real create_agent/MCP/mock stack, not a paid model.
+[Browser evidence](../docs/evidence/completion-browser.json) and the pending,
+approved and declined screenshots under `docs/evidence/completion-review-*.png`
+record the result. The separate container smoke uses the real Sonnet provider.

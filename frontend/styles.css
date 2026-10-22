@@ -23,6 +23,11 @@ aside { padding: 20px; border: 1px solid #dce1e9; border-radius: 10px; backgroun
 aside p, aside li { font-size: 13px; }
 ol { padding-left: 20px; line-height: 1.8; overflow-wrap: anywhere; }
 .notice { margin-top: 28px; padding-top: 16px; border-top: 1px solid #e5e9ef; }
+#review { margin-top: 24px; border-top: 1px solid #e5e9ef; padding-top: 20px; }
+#proposal { font-size: 13px; overflow-wrap: anywhere; }
+#proposal dt { font-weight: 600; margin-top: 12px; }
+#proposal dd { margin: 4px 0 0; white-space: pre-wrap; }
+.review-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 @media (max-width: 760px) {
   main { padding: 20px 12px; }
   header { display: block; }

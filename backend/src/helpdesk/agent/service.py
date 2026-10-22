@@ -1,4 +1,4 @@
-"""Run the read-only agent with user-bound MCP access and durable history."""
+"""Run the Helpdesk agent with durable human review and user-scoped memory."""
 
 import argparse
 
@@ -21,14 +21,20 @@ from langchain.agents.middleware.tool_call_limit import ToolCallLimitExceededErr
 from fastmcp.client.transports import StreamableHttpTransport
 from langchain.mcp import MCPAdapter
 from langchain_core.messages import AIMessage, AIMessageChunk, ToolMessage
+from langchain_core.tools import ToolException
 from langgraph.checkpoint.sqlite.aio import AsyncSqliteSaver
 from langgraph.errors import GraphRecursionError
+from langgraph.types import Command
 
+from helpdesk.agent.approvals import RECOVERING_REVIEW, ApprovalBridge, WriteReview, decision_from_message, proposal_reply
 from helpdesk.agent.graph import build_agent, model_from_env
 from helpdesk.agent.guardrails.input import InputGuardrail
 from helpdesk.agent.mcp_tools import MCPTools
 from helpdesk.agent.observability import FirstTokenHandler
 from helpdesk.agent.workflow import build_workflow
+from helpdesk.agent.storage import AppStorage
+from helpdesk.agent.tool_policy import WRITE_TOOLS, invoke_mcp_safely
+from helpdesk.mcp.mock_client import MockClient
 from helpdesk.errors import ERRORS, REQUEST_ID, PublicError
 from helpdesk.paths import DATA_DIR
 from helpdesk.telemetry import observation, trace_headers, tracing_client
@@ -56,10 +62,14 @@ class AgentService:
         HTTP transport injection for integration tests.
     guardrail : InputGuardrail or None, optional
         Independent input classifier; defaults to the configured provider model.
+    storage : AppStorage or None, optional
+        Durable approval bindings and expiring facts, supplied by open_service.
+    approval_bridge : ApprovalBridge or None, optional
+        Application-only approval endpoints; absent configuration exposes reads only.
     """
 
     def __init__(self, model, checkpointer, mcp_url, user_tokens, *, deadline=60.0, httpx_client_factory=None,
-                 guardrail=None):
+                 guardrail=None, storage=None, approval_bridge=None):
         self.model = model
         self.guardrail = guardrail if guardrail is not None else InputGuardrail(model)
         self.checkpointer = checkpointer
@@ -68,16 +78,19 @@ class AgentService:
         self.deadline = deadline
         self.httpx_client_factory = httpx_client_factory
         self.completed_tools = OrderedDict()
+        self.storage, self.approvals = storage, approval_bridge
         # Serialize this small local service to avoid competing writes to one history.
         self.lock = asyncio.Lock()
 
-    async def run(self, user_id, session_id, message):
+    async def run(self, user_id, session_id, message, *, approval_id=None):
         """Collect the streaming run for callers that need one final response.
 
         Parameters
         ----------
         user_id, session_id, message : str
             Trusted user, conversation, and user input.
+        approval_id : str or None, optional
+            Exact displayed proposal for a browser decision; never a model argument.
 
         Returns
         -------
@@ -85,20 +98,22 @@ class AgentService:
             Completed reply and tool results.
         """
         result = None
-        async for event in self.stream(user_id, session_id, message):
+        async for event in self.stream(user_id, session_id, message, approval_id=approval_id):
             if event["event"] == "done":
                 result = event["data"]
         if result is None:
             raise PublicError("internal_error")
         return result
 
-    async def stream(self, user_id, session_id, message):
+    async def stream(self, user_id, session_id, message, *, approval_id=None):
         """Trace one user turn while preserving answer-only public streaming.
 
         Parameters
         ----------
         user_id, session_id, message : str
             Application identity, conversation, and user input.
+        approval_id : str or None, optional
+            Optional binding for an explicit approve/decline message.
 
         Yields
         ------
@@ -118,10 +133,10 @@ class AgentService:
                 input={"input_status": "awaiting_screening"},
                 metadata={"request_id": request_id, "model_call_limit": 6,
                           "tool_call_limit": 6, "deadline_seconds": self.deadline,
-                          "approval": "read_only_stage"},
+                          "approval": "human_review", "approval_id": approval_id},
             ) as span:
                 try:
-                    async with aclosing(self._stream(user_id, session_id, message)) as events:
+                    async with aclosing(self._stream(user_id, session_id, message, approval_id=approval_id)) as events:
                         async for event in events:
                             if event["event"] == "input_screened":
                                 input_decision = event["data"]["decision"]
@@ -143,7 +158,8 @@ class AgentService:
                                 if len(self.completed_tools) > 128:
                                     self.completed_tools.popitem(last=False)
                                 span.update(output={"reply": event["data"]["reply"]},
-                                            metadata={"status": "blocked" if input_decision == "block" else "completed"})
+                                            metadata={"status": "blocked" if input_decision == "block" else
+                                                      "awaiting_approval" if event["data"].get("approval") else "completed"})
                                 parent = trace_headers().get("traceparent")
                                 event = {**event, "data": {
                                     **event["data"], "request_id": request_id,
@@ -159,7 +175,7 @@ class AgentService:
         finally:
             REQUEST_ID.reset(correlation)
 
-    async def _stream(self, user_id, session_id, message):
+    async def _stream(self, user_id, session_id, message, *, approval_id=None):
         """Yield text and completion with internal metadata for application consumers.
 
         Parameters
@@ -185,27 +201,54 @@ class AgentService:
         token = self.user_tokens.get(user_id) if isinstance(user_id, str) else None
         if token is None:
             raise PublicError("authentication_failed", attempts=0)
-        thread_id = hashlib.sha256(json.dumps([user_id, session_id]).encode()).hexdigest()
         request_id = REQUEST_ID.get() or str(uuid4())
         try:
             async with asyncio.timeout(self.deadline), self.lock:
-                transport = StreamableHttpTransport(
-                    self.mcp_url, auth=token,
-                    headers={"X-Session-Id": session_id, "X-Request-Id": request_id, **trace_headers()},
-                    httpx_client_factory=self.httpx_client_factory,
-                )
-                client = Client(transport, timeout=10, init_timeout=10, cache=False)
-                capabilities = MCPTools(MCPAdapter(client))
-                agent = build_agent(
-                    self.model, [capabilities.discovery], self.checkpointer,
-                    tool_middleware=capabilities,
-                )
-                config = {"configurable": {"thread_id": thread_id, "checkpoint_ns": ""}, "recursion_limit": 64,
-                          "callbacks": [FirstTokenHandler()]}
+                capabilities, agent, config = self.conversation(user_id, session_id, request_id)
                 previous = await agent.aget_state(config)
                 history = previous.values.get("messages", [])
+                capabilities.resume = bool(previous.interrupts)
+
+                async def accepted(candidate, stored_history):
+                    """Process only screened input and application-verified decisions."""
+                    nonlocal previous
+                    self.storage.learn(user_id, candidate)
+                    capabilities.facts = self.storage.facts(user_id)
+                    if self.unfinished_proposal(previous):
+                        previous = await self.recover_review(agent, config, previous, capabilities, user_id, session_id)
+                        # Recovery must show the exact proposal before accepting a decision.
+                        if previous.interrupts:
+                            for event in self.proposal_events(previous.interrupts[0].value["proposal"]):
+                                yield event
+                            return
+                    decision = decision_from_message(candidate)
+                    resume = None
+                    if previous.interrupts:
+                        proposal = previous.interrupts[0].value["proposal"]
+                        if approval_id is not None and approval_id != proposal["approval_id"]:
+                            raise PublicError("approval_mismatch")
+                        if decision is None:
+                            for event in self.proposal_events(proposal):
+                                yield event
+                            return
+                        await self.approvals.decide(user_id, session_id, proposal, decision)
+                        self.storage.decide(user_id, session_id, proposal["approval_id"], decision)
+                        resume = {"approval_id": proposal["approval_id"], "decision": decision}
+                    elif decision is not None:
+                        action = (self.storage.action(user_id, session_id, approval_id=approval_id)
+                                  if approval_id else self.storage.latest_action(user_id, session_id))
+                        if action is None or self.approvals is None:
+                            raise PublicError("approval_not_found")
+                        async for event in self.repeat_decision(user_id, session_id, action, decision, capabilities):
+                            yield event
+                        return
+                    elif approval_id is not None:
+                        raise PublicError("approval_required")
+                    async for event in self._agent_turn(agent, config, candidate, stored_history, resume=resume):
+                        yield event
+
                 workflow = build_workflow(
-                    self.guardrail, lambda message, history: self._agent_turn(agent, config, message, history),
+                    self.guardrail, accepted,
                 )
                 parts = workflow.astream(
                     {"message": message.strip(), "history": history},
@@ -266,7 +309,138 @@ class AgentService:
             raise PublicError("request_not_found")
         return record[1]
 
-    async def _agent_turn(self, agent, config, message, history):
+    @staticmethod
+    def proposal_events(proposal, calls=None):
+        """Render a pending review outside the public token stream's tool payloads."""
+        reply = proposal_reply(proposal)
+        yield {"event": "text_delta", "data": {"message_id": str(uuid4()), "text": reply}}
+        yield {"event": "done", "data": {"reply": reply, "tool_calls": calls or [], "approval": proposal}}
+
+    def conversation(self, user_id, session_id, request_id):
+        """Build an unconnected, credential-bound graph for a conversation checkpoint."""
+        thread_id = hashlib.sha256(json.dumps([user_id, session_id]).encode()).hexdigest()
+        transport = StreamableHttpTransport(
+            self.mcp_url, auth=self.user_tokens[user_id],
+            headers={"X-Session-Id": session_id, "X-Request-Id": request_id, **trace_headers()},
+            httpx_client_factory=self.httpx_client_factory,
+        )
+        # Leave time for the backend's ten-second error to cross MCP.
+        client = Client(transport, timeout=12, init_timeout=12, cache=False)
+        capabilities = MCPTools(MCPAdapter(client), writes=self.approvals is not None)
+        agent = build_agent(
+            self.model, [capabilities.discovery], self.checkpointer,
+            tool_middleware=capabilities,
+            write_middleware=WriteReview(self.storage, user_id, session_id) if self.approvals else None,
+        )
+        config = {"configurable": {"thread_id": thread_id, "checkpoint_ns": ""}, "recursion_limit": 64,
+                  "callbacks": [FirstTokenHandler()]}
+        return capabilities, agent, config
+
+    @staticmethod
+    def unfinished_proposal(snapshot):
+        """Recognize a checkpointed write that failed before its native review pause."""
+        messages = snapshot.values.get("messages", [])
+        if snapshot.interrupts or "tools" not in snapshot.next or not messages:
+            return False
+        last = messages[-1]
+        return (isinstance(last, AIMessage) and len(last.tool_calls) == 1
+                and last.tool_calls[0]["name"] in WRITE_TOOLS
+                and not last.tool_calls[0]["args"].get("approval_id"))
+
+    async def recover_review(self, agent, config, snapshot, capabilities, user_id, session_id):
+        """Replay only the saved proposal node, deduplicating its exact backend action."""
+        if not self.unfinished_proposal(snapshot):
+            return snapshot
+        latest = snapshot.values["messages"][-1]
+        key = hashlib.sha256(json.dumps([latest.id, latest.tool_calls[0]["id"]]).encode()).hexdigest()
+        action = self.storage.action(user_id, session_id, call_key=key)
+        if action is not None and action["decision"] is not None:
+            return snapshot
+        capabilities.resume = True
+        with observation("approval.recover", metadata={"source": "checkpointed_model_call"}) as span:
+            # The saved model call is durable before tool execution. Never run a
+            # new model or an approved mutation while restoring its review.
+            token = RECOVERING_REVIEW.set(True)
+            try:
+                await agent.ainvoke(None, config, interrupt_after=["tools"])
+            except ToolException as error:
+                try:
+                    payload = json.loads(str(error))
+                except (ValueError, TypeError):
+                    payload = {}
+                code = payload.get("code") if isinstance(payload, dict) else None
+                raise PublicError(code if isinstance(code, str) and code in ERRORS else "backend_unavailable") from None
+            finally:
+                RECOVERING_REVIEW.reset(token)
+            restored = await agent.aget_state(config)
+            if not restored.interrupts:
+                last = restored.values.get("messages", [])[-1]
+                if isinstance(last, ToolMessage) and last.status == "error":
+                    payload = json.loads(last.text)
+                    raise PublicError(payload.get("code", "backend_unavailable"), outcome=payload.get("outcome"))
+                raise PublicError("invalid_backend_response")
+            span.update(output={"status": "pending", "approval_id": restored.interrupts[0].value["proposal"]["approval_id"]})
+            return restored
+
+    async def pending_approval(self, user_id, session_id):
+        """Restore the exact review, including a crash before saving its local binding."""
+        if user_id not in self.user_tokens:
+            raise PublicError("authentication_failed")
+        try:
+            async with asyncio.timeout(self.deadline), self.lock:
+                if self.approvals is not None:
+                    capabilities, agent, config = self.conversation(user_id, session_id, REQUEST_ID.get() or str(uuid4()))
+                    snapshot = await agent.aget_state(config)
+                    await self.recover_review(agent, config, snapshot, capabilities, user_id, session_id)
+                return await self.review_state(user_id, session_id)
+        except TimeoutError:
+            raise PublicError("deadline_exceeded") from None
+
+    async def review_state(self, user_id, session_id):
+        """Read current backend authority and reconcile a previously uncertain receipt."""
+        action = self.storage.latest_action(user_id, session_id)
+        if action is None or self.approvals is None:
+            return None
+        proposal = await self.approvals.get(user_id, session_id, action["approval_id"])
+        if proposal["status"] == "completed" and (action.get("result") or {}).get("outcome") == "unknown":
+            with observation("approval.outcome_resolved", output={"approval_id": action["approval_id"], "status": "completed"}):
+                self.storage.finish(user_id, session_id, action["approval_id"], {"status": "completed"})
+            return proposal
+        return proposal if proposal["status"] in {"pending", "approved"} else None
+
+    async def repeat_decision(self, user_id, session_id, action, decision, capabilities):
+        """Replay only the original model-selected action after an explicit retry."""
+        if action["decision"] not in {None, decision}:
+            raise PublicError("approval_state_conflict")
+        proposal = action["proposal"]
+        current = await self.approvals.decide(user_id, session_id, proposal, decision)
+        self.storage.decide(user_id, session_id, action["approval_id"], decision)
+        calls = []
+        if current["status"] == "completed":
+            reply = "The approved action is already completed. No additional change was made."
+        elif decision == "decline":
+            reply = "The proposal was declined. No change was made."
+        else:
+            # Reconciliation is a replay of an already selected, approved action.
+            # It never asks the model for a replacement action or idempotency key.
+            await capabilities.discover()
+            tool = next(item for item in capabilities.tools if item.name == proposal["operation"])
+            arguments = {**proposal["arguments"], "approval_id": proposal["approval_id"]}
+            with observation("approval.reconcile", as_type="tool", input={"approval_id": proposal["approval_id"]}) as span:
+                call = {"type": "tool_call", "name": tool.name, "id": f"reconcile-{uuid4()}", "args": arguments}
+                self.storage.finish(user_id, session_id, proposal["approval_id"], {"outcome": "unknown"})
+                result = await invoke_mcp_safely(call, lambda: tool.ainvoke(call))
+                data = json.loads(result.text)
+                self.storage.finish(user_id, session_id, proposal["approval_id"], data)
+                span.update(output=data)
+                if result.status == "error":
+                    raise PublicError(data.get("code", "backend_unavailable"), outcome=data.get("outcome"))
+            calls = [{"name": tool.name, "arguments": arguments, "status": data.get("status", result.status), "content": result.content}]
+            reply = "The approved action is confirmed completed. No duplicate change was made."
+        yield {"event": "text_delta", "data": {"message_id": str(uuid4()), "text": reply}}
+        yield {"event": "done", "data": {"reply": reply, "tool_calls": calls}}
+
+    async def _agent_turn(self, agent, config, message, history, *, resume=None):
         """Stream an accepted turn through the persistent create_agent graph.
 
         Parameters
@@ -279,6 +453,8 @@ class AgentService:
             Current message already accepted by the input guardrail.
         history : list of BaseMessage
             Existing user-scoped history used to repair interrupted read pairs.
+        resume : dict or None, optional
+            Application-verified approval decision for a paused tool node.
 
         Yields
         ------
@@ -294,10 +470,12 @@ class AgentService:
         ]
         # Complete interrupted read calls before adding the new user message.
         result = None
-        parts = agent.astream(
-            {"messages": [
+        text_chunks = {}
+        graph_input = Command(resume=resume) if resume else {"messages": [
                 *interrupted, {"role": "user", "content": message.strip()},
-            ]},
+            ]}
+        parts = agent.astream(
+            graph_input,
             config, stream_mode=["messages", "values"], version="v2",
         )
         async with aclosing(parts):
@@ -307,24 +485,51 @@ class AgentService:
                 elif part["type"] == "messages":
                     chunk, _metadata = part["data"]
                     if isinstance(chunk, AIMessageChunk) and chunk.text:
-                        yield {"event": "text_delta", "data": {"message_id": chunk.id, "text": chunk.text}}
+                        text_chunks.setdefault(chunk.id, []).append(chunk.text)
+        snapshot = await agent.aget_state(config)
+        if snapshot.interrupts:
+            proposal = snapshot.interrupts[0].value["proposal"]
+            calls = self.turn_tool_calls(snapshot.values.get("messages", []))
+            calls.append({"name": proposal["operation"], "arguments": proposal["arguments"],
+                          "status": "pending", "content": json.dumps(proposal)})
+            for event in self.proposal_events(proposal, calls):
+                yield event
+            return
         if result is None:
             raise PublicError("internal_error", request_id=REQUEST_ID.get())
         messages = result["messages"]
         last = messages[-1]
         if not isinstance(last, AIMessage) or last.tool_calls or not last.text:
             raise PublicError("internal_error", request_id=REQUEST_ID.get())
-        # Only expose this turn's calls; earlier messages remain in the checkpoint.
+        # A model can emit text before deciding to call a tool. Publish only
+        # the validated final message, never text from those intermediate steps.
+        chunks = text_chunks.get(last.id, [])
+        if "".join(chunks) != last.text:
+            chunks = [last.text]
+        for text in chunks:
+            yield {"event": "text_delta", "data": {"message_id": last.id, "text": text}}
+        calls = self.turn_tool_calls(messages)
+        if resume:
+            calls = [call for call in calls if call["name"] in {"create_ticket", "add_comment"}]
+        yield {"event": "done", "data": {"reply": last.text, "tool_calls": calls}}
+
+    @staticmethod
+    def turn_tool_calls(messages):
+        """Expose actual current-turn outcomes without fabricating model decisions."""
         start = next(index for index in range(len(messages) - 1, -1, -1) if messages[index].type == "human")
         arguments = {call["id"]: call["args"]
                      for item in messages[start:] if isinstance(item, AIMessage)
                      for call in item.tool_calls}
-        calls = [
-            {"name": item.name, "arguments": arguments.get(item.tool_call_id, {}),
-             "status": item.status, "content": item.content}
-            for item in messages[start:] if isinstance(item, ToolMessage)
-        ]
-        yield {"event": "done", "data": {"reply": last.text, "tool_calls": calls}}
+        calls = []
+        for item in messages[start:]:
+            if not isinstance(item, ToolMessage):
+                continue
+            status = item.status
+            if item.name in {"create_ticket", "add_comment"} and status == "success":
+                status = json.loads(item.text).get("status", status)
+            calls.append({"name": item.name, "arguments": arguments.get(item.tool_call_id, {}),
+                          "status": status, "content": item.content})
+        return calls
 
 
 @asynccontextmanager
@@ -351,6 +556,13 @@ async def open_service(*, model, mcp_url, user_tokens, database, **kwargs):
     """
     database = Path(database)
     database.parent.mkdir(parents=True, exist_ok=True)
+    kwargs.setdefault("storage", AppStorage(database))
+    if "approval_bridge" not in kwargs and os.environ.get("MOCK_SERVICE_KEY") and os.environ.get("MOCK_USER_TOKENS"):
+        credentials = json.loads(os.environ["MOCK_USER_TOKENS"])
+        kwargs["approval_bridge"] = ApprovalBridge(MockClient(
+            os.environ.get("MOCK_API_URL", "http://127.0.0.1:8001"), os.environ["MOCK_SERVICE_KEY"],
+            {user: token for token, user in credentials.items()},
+        ))
     client = tracing_client()
     async with AsyncSqliteSaver.from_conn_string(str(database)) as checkpointer:
         try:
@@ -365,7 +577,7 @@ async def open_service(*, model, mcp_url, user_tokens, database, **kwargs):
 
 async def main():
     """Run one trusted local CLI message; this is not an authenticated web API."""
-    parser = argparse.ArgumentParser(description="Run one read-only Helpdesk agent turn.")
+    parser = argparse.ArgumentParser(description="Run one Helpdesk agent turn, or explicitly approve/decline its proposal.")
     parser.add_argument("--user", required=True)
     parser.add_argument("--session", required=True)
     parser.add_argument("--message", required=True)

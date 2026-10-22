@@ -37,8 +37,10 @@ def authorized_history_view(messages):
             continue
         ids = {item["id"] for item in data.get("items", [])
                if isinstance(item, dict) and isinstance(item.get("id"), str)}
-        if isinstance(data.get("id"), str):
-            ids.add(data["id"])
+        for record in (data, data.get("ticket")):
+            if isinstance(record, dict):
+                ids.update(record[key] for key in ("id", "ticket_id")
+                           if isinstance(record.get(key), str))
         if index < start:
             historical_ids.update(ids)
         elif message.name == "list_tickets":

@@ -12,7 +12,7 @@
     <main>
       <header>
         <div><p class="eyebrow">LOCAL SUPPORT ASSISTANT</p><h1>IT Helpdesk</h1></div>
-        <p>Find related tickets and check their status.</p>
+        <p>Find tickets, review proposed changes, and approve one exact action.</p>
       </header>
       <form id="connection">
         <label>User ID<input id="user" required placeholder="Your configured user ID" autocomplete="off"></label>
@@ -28,7 +28,16 @@
           <h2>Tool activity</h2>
           <p>Names and outcomes appear after a completed reply.</p>
           <ol id="tools"><li>No completed request yet.</li></ol>
-          <p class="notice">Ticket changes are not available in this version.</p>
+          <section id="review" hidden aria-labelledby="review-title">
+            <h2 id="review-title">Review proposed change</h2>
+            <p id="review-status"></p>
+            <dl id="proposal"></dl>
+            <p>No change runs until you approve. Declining makes no change.</p>
+            <div class="review-actions">
+              <button id="approve" type="button">Approve</button>
+              <button id="decline" type="button">Decline</button>
+            </div>
+          </section>
         </aside>
       </section>
     </main>
