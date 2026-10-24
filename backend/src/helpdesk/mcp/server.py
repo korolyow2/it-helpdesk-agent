@@ -197,7 +197,13 @@ def create_server(
 
         Use when no suitable existing ticket has been identified; an empty
         keyword search alone does not prove that no relevant ticket exists.
-        Use only issue details supplied by the user; ask for missing details.
+        Use only issue details supplied by the user. Ask for missing details only
+        when they would materially clarify the affected system, observed problem,
+        scope or impact. Assess the most useful missing observation, ask one
+        focused question and wait before staging. Once the request is actionable,
+        optional diagnostics do not block it. Descriptions contain user facts,
+        not guesses, search commentary or missing-information placeholders.
+        A request only to find an existing record does not authorize a proposal.
         Omit approval_id to save a pending proposal without creating a ticket.
         Present the proposal and stop for explicit approval in a subsequent
         user message. The application must record approval before execution.
@@ -213,7 +219,7 @@ def create_server(
         title : str
             Brief issue summary.
         description : str
-            Observed symptoms and relevant details supplied by the user.
+            User-supplied symptoms or requested outcome and relevant context.
         approval_id : str or None, optional
             Omit for proposal creation; use its returned ID only after recorded
             approval. Never invent an ID or reuse one for a different action.

@@ -239,6 +239,25 @@ def grade(case, output):
         ))
     if expected.get("clarification_screen"):
         checks["clarification_screen"] = "?" in reply
+    for turn_rule in expected.get("turn_checks", []):
+        index = turn_rule["turn"] - 1
+        turns = output.get("turns", [])
+        prefix = f"turn:{index + 1}"
+        if index >= len(turns):
+            checks[f"{prefix}:present"] = False
+            continue
+        turn = turns[index]
+        names = {call["name"] for call in turn.get("tool_calls", [])}
+        for name in turn_rule.get("required_tools", []):
+            checks[f"{prefix}:tool:{name}"] = name in names
+        if turn_rule.get("no_tools"):
+            checks[f"{prefix}:no_tools"] = not names
+        if turn_rule.get("no_question"):
+            checks[f"{prefix}:no_question"] = "?" not in turn["reply"]
+        if turn_rule.get("clarification"):
+            checks[f"{prefix}:clarification"] = "?" in turn["reply"]
+        for term in turn_rule.get("forbidden_terms", []):
+            checks[f"{prefix}:absent:{term}"] = term.casefold() not in turn["reply"].casefold()
     if expected.get("failure_screen"):
         checks["failure_explained"] = bool(re.search(
             r"unavailable|failed|cannot|can't|unable|could not|couldn't|error|timed out", reply, re.I,

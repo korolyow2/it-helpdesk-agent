@@ -1,0 +1,157 @@
+{
+  "recorded_at": "2026-10-23T11:16:44.881299+00:00",
+  "method": "AI-assisted heuristic review of real browser conversations, not independent human grading or an LLM judge run.",
+  "configured_model": "claude-sonnet-5-5",
+  "configured_max_tokens": 1024,
+  "independent_trials": false,
+  "browser_steps": 21,
+  "authenticated_conversations": 2,
+  "counts": {
+    "pass": 13,
+    "partial": 3,
+    "fail": 5
+  },
+  "verdicts": [
+    {
+      "id": "B01",
+      "verdict": "pass"
+    },
+    {
+      "id": "B02",
+      "verdict": "pass"
+    },
+    {
+      "id": "B03",
+      "verdict": "partial"
+    },
+    {
+      "id": "B04",
+      "verdict": "pass"
+    },
+    {
+      "id": "B05",
+      "verdict": "pass"
+    },
+    {
+      "id": "B06",
+      "verdict": "pass"
+    },
+    {
+      "id": "B07",
+      "verdict": "pass"
+    },
+    {
+      "id": "B08",
+      "verdict": "pass"
+    },
+    {
+      "id": "B09",
+      "verdict": "pass"
+    },
+    {
+      "id": "B10",
+      "verdict": "fail"
+    },
+    {
+      "id": "B11",
+      "verdict": "fail"
+    },
+    {
+      "id": "B12",
+      "verdict": "pass"
+    },
+    {
+      "id": "B13",
+      "verdict": "pass"
+    },
+    {
+      "id": "B14",
+      "verdict": "fail"
+    },
+    {
+      "id": "B15",
+      "verdict": "pass"
+    },
+    {
+      "id": "B16",
+      "verdict": "pass"
+    },
+    {
+      "id": "B17",
+      "verdict": "partial"
+    },
+    {
+      "id": "B18",
+      "verdict": "partial"
+    },
+    {
+      "id": "B19",
+      "verdict": "pass"
+    },
+    {
+      "id": "B20",
+      "verdict": "fail"
+    },
+    {
+      "id": "B21",
+      "verdict": "fail"
+    }
+  ],
+  "database_before": {
+    "tickets": 9,
+    "comments": 7
+  },
+  "database_before_approval": {
+    "tickets": 9,
+    "comments": 7,
+    "cedar_tickets": 0
+  },
+  "database_after": {
+    "tickets": 10,
+    "comments": 7,
+    "cedar_tickets": [
+      [
+        "TKT-3C4D5C10FABF4359A21132D90BFC0ADB",
+        "USB webcam in meeting room Cedar freezes after ~30 seconds in Teams",
+        "open"
+      ]
+    ]
+  },
+  "runtime_fault": {
+    "mode": "server_error",
+    "target": "read",
+    "remaining": 3,
+    "step": "B20"
+  },
+  "fault_settings_restored": {
+    "mode": "off",
+    "target": "any",
+    "remaining": 2,
+    "delay_seconds": 4.0,
+    "retry_after_seconds": 0.2
+  },
+  "known_open_findings": [
+    "Contradiction of completed writes after a later read failure and recovery.",
+    "Ignored proposal corrections and natural approval/cancellation phrases.",
+    "Missing schema fields reported as negative facts.",
+    "Verbose clarification and technical proposal labels."
+  ],
+  "baseline_frontend_asset": "/assets/app.js?v=31d499e027",
+  "frontend_app_sha256_after_render_fix": "4258c17030eea51a729a3056a95c5c2c21fda9620db98cb75b66a6f1d7def4fc",
+  "backend_sha256_at_report": "94bf3fba7c1d2d19d4ec0910c6f32fa7892456b57d27476b734c8a1374fb4d7e",
+  "sources": [
+    "https://www.microsoft.com/en-us/research/blog/guidelines-for-human-ai-interaction-design/",
+    "https://fluent2.microsoft.design/responsible-AI",
+    "https://developers.google.com/assistant/conversation-design/learn-about-conversation",
+    "https://developers.google.com/assistant/conversation-design/confirmations",
+    "https://www.gov.uk/guidance/using-chatbots-and-webchat-tools"
+  ],
+  "transcript_file": "transcript.json",
+  "rendering_check_file": "word-rendering-verification.json",
+  "presentation": {
+    "mode": "word_by_word",
+    "milliseconds_between_words": 40,
+    "skip_when_hidden_or_reduced_motion": true,
+    "server_stream_unchanged": true
+  }
+}

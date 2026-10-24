@@ -147,7 +147,8 @@ class TicketStore:
                 f"SELECT COUNT(*) FROM tickets WHERE {predicate}", (role,),
             ).fetchone()[0]
             rows = connection.execute(
-                f"SELECT id, title, status FROM tickets WHERE {predicate} ORDER BY id LIMIT ? OFFSET ?",
+                f"SELECT id, title, status FROM tickets WHERE {predicate} "
+                "ORDER BY CAST(id AS INTEGER), id LIMIT ? OFFSET ?",
                 (role, page_size, (page - 1) * page_size),
             ).fetchall()
 
@@ -183,6 +184,14 @@ class TicketStore:
         ids = list(dict.fromkeys(value.upper() for value in re.findall(
             r"(?<![\w-])TKT-[A-Z0-9]+(?![\w-])", query, flags=re.IGNORECASE
         )))
+        numeric_id = re.fullmatch(r"(?:check\s+)?([1-9][0-9]*)", query.strip(), flags=re.IGNORECASE)
+        if numeric_id:
+            ids.append(numeric_id.group(1))
+        ids.extend(re.findall(
+            r"(?<![\w-])(?:ticket\s+(?:id\s*)?#?|#)\s*([1-9][0-9]*)(?![\w-])",
+            query, flags=re.IGNORECASE,
+        ))
+        ids = list(dict.fromkeys(ids))
         terms = list(dict.fromkeys(re.findall(r"[^\W_]+", query.lower())))
         if not terms:
             raise PublicError("invalid_arguments")
@@ -208,7 +217,7 @@ class TicketStore:
                 parameters.append(role)
             total = connection.execute(f"SELECT COUNT(*) FROM ({sql})", parameters).fetchone()[0]
             rows = connection.execute(
-                sql + " ORDER BY score DESC, id LIMIT ? OFFSET ?",
+                sql + " ORDER BY score DESC, CAST(id AS INTEGER), id LIMIT ? OFFSET ?",
                 [*parameters, page_size, (page - 1) * page_size],
             ).fetchall()
         return {
@@ -402,7 +411,11 @@ class TicketStore:
             span.update(metadata={"write_phase": "approved_mutation", "approval": "verified"})
             timestamp = datetime.now(timezone.utc).isoformat()
             if operation == "create_ticket":
-                ticket_id = f"TKT-{uuid4().hex.upper()}"
+                # Allocate inside the same write transaction as the ticket and receipt.
+                ticket_id = str(connection.execute(
+                    "UPDATE ticket_sequence SET last_number = last_number + 1 "
+                    "WHERE singleton = 1 RETURNING last_number",
+                ).fetchone()[0])
                 connection.execute(
                     """INSERT INTO tickets (id, requester_id, title, description, status, visibility, created_at)
                        VALUES (?, ?, ?, ?, 'open', 'internal', ?)""",

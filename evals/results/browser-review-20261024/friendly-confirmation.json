@@ -1,0 +1,19 @@
+{
+  "activityExpanded": false,
+  "app": "/assets/app.js?v=9678aab999",
+  "approvalButtons": [
+    {
+      "disabled": false,
+      "label": "Approve"
+    },
+    {
+      "disabled": false,
+      "label": "Decline"
+    }
+  ],
+  "fields": "TITLE\nRequest for Cisco AnyConnect VPN account for project Atlas\nDETAILS\nUser requests a new Cisco AnyConnect VPN account on their company laptop. Purpose: to access the internal development environment for project Atlas.",
+  "reply": "I can create this ticket for you:\n\nRequest for Cisco AnyConnect VPN account for project Atlas\n\nUser requests a new Cisco AnyConnect VPN account on their company laptop. Purpose: to access the internal development environment for project Atlas.\n\nShall I create it?",
+  "reviewTitle": "Create ticket",
+  "session": "dfdd3ace-5b6a-45a8-a6ee-471d93ba5bae",
+  "status": "Reply complete."
+}

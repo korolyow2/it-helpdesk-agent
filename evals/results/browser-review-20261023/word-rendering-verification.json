@@ -1,0 +1,14 @@
+{
+  "recorded_at": "2026-10-23T11:23:20.093Z",
+  "milliseconds_between_words": 40,
+  "partial": {
+    "app": "/assets/app.js?v=4258c17030",
+    "partial": "The",
+    "status": "Writing the reply..."
+  },
+  "completed": {
+    "reply": "The approved action is already completed. No additional change was made.",
+    "status": "Reply complete."
+  },
+  "progressive": true
+}

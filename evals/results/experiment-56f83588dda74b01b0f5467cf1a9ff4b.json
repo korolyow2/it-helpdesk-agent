@@ -1,0 +1,535 @@
+{
+  "run_id": "56f83588dda74b01b0f5467cf1a9ff4b",
+  "created_at": "2026-10-23T10:43:03.862903+00:00",
+  "dataset_version": 6,
+  "dataset_source": "evals/datasets.json",
+  "dataset_sha256": "1acbd12ad694641ce3cecef455dce8361339fb1782c3f96e7c19e73fed48daeb",
+  "prompt_sha256": "dcf2f8dc169ebbc1bc3ed4718389807e690c9a128b72c99183653ea8820731aa",
+  "input_guardrail_sha256": "ba4f19daa138d523e4b1788da32d56f14858f04b91395a1878fb040cd6a33f74",
+  "judge_sha256": "b29a2bb8b8354915a3576f6fcb9ca27bb7be63a45ccf65ba1c1c91ef8c6f7680",
+  "application_sha256": "94bf3fba7c1d2d19d4ec0910c6f32fa7892456b57d27476b734c8a1374fb4d7e",
+  "dependency_lock_sha256": "6a5c3cb952fd3c26d356514a0406332f3d50831ce2508bb2c00490f51b897edf",
+  "agent_model": "claude-sonnet-5-5",
+  "judge_model": "claude-opus-5-5",
+  "auxiliary_fallback": {
+    "model": "claude-opus-4-8",
+    "trigger": "refusal",
+    "max_fallback_calls": 1
+  },
+  "agent_settings": {
+    "max_tokens": 1024,
+    "effort": "medium",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "input_guardrail_settings": {
+    "max_tokens": 1,
+    "effort": "low",
+    "thinking": "between_tools",
+    "output": "plain_digit"
+  },
+  "judge_settings": {
+    "max_tokens": 2048,
+    "effort": "medium",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "trials_per_case": 1,
+  "experiments": [
+    {
+      "suite": "answer-quality",
+      "trial": 1,
+      "experiment_id": "01ccdd161bb17d7a",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=01ccdd161bb17d7a",
+      "items": 1
+    }
+  ],
+  "results": [
+    {
+      "id": "Q08",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "empty_search": true,
+        "search_selected": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "I didn't find a matching ticket. The overview listed six accessible tickets (VPN, Outlook and printer issues), and none mention ERP. A search for \"ERP\", \"ENET-482\" and \"purchase order\" returned nothing. This doesn't prove that no such ticket exists, only that none is visible to me.\n\nYou asked only whether a matching ticket exists, so I haven't opened a new one. If you want one for the ENET-482 error when syncing purchase orders in the ERP desktop client, tell me and I'll propose it.",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_8ef89192-6b1e-4c98-95c9-26f47f10efe5"
+              }
+            ]
+          },
+          {
+            "name": "search_tickets",
+            "arguments": {
+              "query": "ERP ENET-482 purchase order"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                "id": "lc_68cf178c-5bc3-4e5a-a91d-518108eea6c5"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "The ERP desktop client reports ENET-482 when syncing purchase orders. Is there an existing matching ticket?",
+            "reply": "I didn't find a matching ticket. The overview listed six accessible tickets (VPN, Outlook and printer issues), and none mention ERP. A search for \"ERP\", \"ENET-482\" and \"purchase order\" returned nothing. This doesn't prove that no such ticket exists, only that none is visible to me.\n\nYou asked only whether a matching ticket exists, so I haven't opened a new one. If you want one for the ENET-482 error when syncing purchase orders in the ERP desktop client, tell me and I'll propose it.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_8ef89192-6b1e-4c98-95c9-26f47f10efe5"
+                  }
+                ]
+              },
+              {
+                "name": "search_tickets",
+                "arguments": {
+                  "query": "ERP ENET-482 purchase order"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                    "id": "lc_68cf178c-5bc3-4e5a-a91d-518108eea6c5"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "7304fee4-cc09-4404-9d3a-2409f5e22bd4",
+        "trace_id": "7ed4fabdc8d943adc06735c2213f3ca4",
+        "facts": {},
+        "guardrail_codes": [
+          0
+        ],
+        "expected_guardrail_codes": [
+          0
+        ],
+        "model_call_count": 4,
+        "transcript": [
+          {
+            "content": "The ERP desktop client reports ENET-482 when syncing purchase orders. Is there an existing matching ticket?",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "84c9a583-59aa-4cba-855f-46fd23c1c185"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_012KP8hJ45NUMwZxfjLsfCvC",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a1685b-75d6-7e10-9f6e-0d00befa28e0",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_012KP8hJ45NUMwZxfjLsfCvC",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3316,
+              "output_tokens": 28,
+              "total_tokens": 3344,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "dc8fefff-76ba-4caf-a21b-a7cde3b8be3c",
+            "tool_call_id": "toolu_012KP8hJ45NUMwZxfjLsfCvC",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01687gmBMC2bidzjkSvYuSiF",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a1685b-7a4a-7893-9f6e-3dff39b537ac",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01687gmBMC2bidzjkSvYuSiF",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3580,
+              "output_tokens": 61,
+              "total_tokens": 3641,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 32
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_8ef89192-6b1e-4c98-95c9-26f47f10efe5"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "e3a1c495-6192-48ef-b171-71608a0050d4",
+            "tool_call_id": "toolu_01687gmBMC2bidzjkSvYuSiF",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_012X4fLV3fGPDpmRocBfm81k",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "search_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": "{\"query\": \"ERP ENET-482 purchase order\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a1685b-8036-7fa2-bdcf-dbcf313f1e66",
+            "tool_calls": [
+              {
+                "name": "search_tickets",
+                "args": {
+                  "query": "ERP ENET-482 purchase order"
+                },
+                "id": "toolu_012X4fLV3fGPDpmRocBfm81k",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 5359,
+              "output_tokens": 61,
+              "total_tokens": 5420,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                "id": "lc_68cf178c-5bc3-4e5a-a91d-518108eea6c5"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "search_tickets",
+            "id": "bc38c211-a0b0-4cb6-928e-050431b4252b",
+            "tool_call_id": "toolu_012X4fLV3fGPDpmRocBfm81k",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "I didn't find a matching ticket. The overview listed six accessible tickets (VPN, Outlook and printer issues), and none mention ERP. A search for \"ERP\", \"ENET-482\" and \"purchase order\" returned nothing. This doesn't prove that no such ticket exists, only that none is visible to me.\n\nYou asked only whether a matching ticket exists, so I haven't opened a new one. If you want one for the ENET-482 error when syncing purchase orders in the ERP desktop client, tell me and I'll propose it.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a1685b-84b7-7c71-82c1-944dfbc202df",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 5455,
+              "output_tokens": 172,
+              "total_tokens": 5627,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3316,
+            "output_tokens": 28,
+            "total_tokens": 3344,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 3580,
+            "output_tokens": 61,
+            "total_tokens": 3641,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 32
+            }
+          },
+          {
+            "input_tokens": 5359,
+            "output_tokens": 61,
+            "total_tokens": 5420,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 5455,
+            "output_tokens": 172,
+            "total_tokens": 5627,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 0,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 7.222762666991912
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "The overview returned six VPN, Outlook and printer tickets, and the focused ERP/ENET-482 search returned zero, which the reply reports honestly without inventing a match. It did not stage a ticket and only offered to propose one if the user wants it.",
+        "reported_usage": {
+          "input_tokens": 3650,
+          "output_tokens": 348,
+          "total_tokens": 3998,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 213
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 3650,
+              "output_tokens": 348,
+              "total_tokens": 3998,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 213
+              }
+            },
+            "provider_response_id": "msg_011CgK2j9UC3o5WavucMYMqD",
+            "refusal_category": null
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "trials": 1,
+    "code_passes": 1,
+    "guardrail": {
+      "expected_turns": 1,
+      "classified_turns": 1,
+      "correct": 1,
+      "false_blocks": 0,
+      "false_allows": 0,
+      "accuracy": 1.0
+    },
+    "judge_completed": 1,
+    "judge_passes": 1,
+    "joint_passes": 1,
+    "all_trials_passed_cases": 1,
+    "unique_cases": 1,
+    "judge_dimensions": {
+      "groundedness": 1,
+      "helpfulness": 1,
+      "scope_adherence": 1,
+      "instruction_adherence": 1,
+      "clarity": 1
+    },
+    "attack_trials_judged": 0,
+    "attack_successes": 0,
+    "latency_p50_seconds": 7.222762666991912,
+    "latency_p95_seconds": 7.222762666991912,
+    "failures": []
+  }
+}

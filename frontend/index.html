@@ -4,40 +4,57 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>IT Helpdesk</title>
-    <link rel="stylesheet" href="/assets/styles.css">
+    <link rel="stylesheet" href="/assets/styles.css?v=0344e01497">
     <script type="module" src="/assets/vendor/deep-chat-2.5.1.bundle.js"></script>
-    <script type="module" src="/assets/app.js"></script>
+    <script type="module" src="/assets/app.js?v=9678aab999"></script>
   </head>
   <body>
     <main>
       <header>
-        <div><p class="eyebrow">LOCAL SUPPORT ASSISTANT</p><h1>IT Helpdesk</h1></div>
-        <p>Find tickets, review proposed changes, and approve one exact action.</p>
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">IT</span>
+          <div><p class="eyebrow">Your support workspace</p><h1>IT Helpdesk</h1></div>
+        </div>
+        <p class="header-note">Find the right ticket.<br>Review every change before it is saved.</p>
       </header>
       <form id="connection">
         <label>User ID<input id="user" required placeholder="Your configured user ID" autocomplete="off"></label>
         <label>User access token<input id="token" type="password" required autocomplete="off" placeholder="Your Helpdesk token"></label>
         <label>Session ID<input id="session" required pattern="[A-Za-z0-9][A-Za-z0-9_.:\-]{0,127}" autocomplete="off"></label>
-        <button type="submit">Connect</button>
-        <button id="new-session" type="button">New session</button>
+        <div class="connection-actions">
+          <button type="submit">Connect</button>
+          <button id="new-session" type="button">New session</button>
+        </div>
       </form>
       <p id="status" role="status" aria-live="polite">Enter your Helpdesk credentials to start. Credentials stay in this page's memory.</p>
       <section class="workspace">
-        <div id="chat-container"><deep-chat id="chat" aria-label="Helpdesk conversation"></deep-chat></div>
-        <aside>
-          <h2>Tool activity</h2>
-          <p>Names and outcomes appear after a completed reply.</p>
-          <ol id="tools"><li>No completed request yet.</li></ol>
+        <section id="chat-container" aria-labelledby="conversation-title">
+          <div class="conversation-heading">
+            <div><h2 id="conversation-title">Conversation</h2><p>Describe the issue. We will take it from there.</p></div>
+            <span class="assistant-label">AI assistant</span>
+          </div>
+          <deep-chat id="chat" aria-label="Helpdesk conversation" aria-describedby="composer-help"></deep-chat>
+          <div id="composer-help" class="composer-help">
+            <span>Changes are saved only after your approval.</span>
+            <span id="keyboard-hint" class="keyboard-help"><kbd>Enter</kbd> to send · <kbd>Shift + Enter</kbd> for a new line</span>
+            <span id="busy-hint" hidden>Reply in progress. You can draft your next message.</span>
+          </div>
+        </section>
+        <aside aria-label="Request review and activity">
           <section id="review" hidden aria-labelledby="review-title">
-            <h2 id="review-title">Review proposed change</h2>
+            <h2 id="review-title">Review your request</h2>
             <p id="review-status"></p>
             <dl id="proposal"></dl>
-            <p>No change runs until you approve. Declining makes no change.</p>
             <div class="review-actions">
               <button id="approve" type="button">Approve</button>
               <button id="decline" type="button">Decline</button>
             </div>
           </section>
+          <details id="activity">
+            <summary>Tool activity</summary>
+            <p>Names and outcomes appear after a completed reply.</p>
+            <ol id="tools"><li class="empty-tool">No completed request yet.</li></ol>
+          </details>
         </aside>
       </section>
     </main>

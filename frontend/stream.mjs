@@ -1,8 +1,10 @@
 // Parse only the public answer protocol; never expose model or tool event payloads.
-export async function readAnswerStream(response, onText) {
+export async function readAnswerStream(response, onText, onReset) {
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || `Request failed (${response.status}).`);
+    throw Object.assign(new Error(error.message || `Request failed (${response.status}).`), {
+      code: error.code, status: response.status,
+    });
   }
   if (!response.headers.get("content-type")?.includes("text/event-stream") || !response.body) {
     throw new Error("The server did not return an answer stream.");
@@ -26,10 +28,16 @@ export async function readAnswerStream(response, onText) {
         const data = lines.filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
         if (!event || !data) continue;
         if (completion) throw new Error("Unexpected data after the completed reply.");
-        if (!["text_delta", "done", "error"].includes(event)) throw new Error("Unexpected answer event.");
+        if (!["text_delta", "text_reset", "done", "error"].includes(event)) throw new Error("Unexpected answer event.");
         const payload = JSON.parse(data);
-        if (event === "error") throw new Error(payload.message || "The request failed.");
-        if (event === "text_delta") {
+        if (event === "error") {
+          throw Object.assign(new Error(payload.message || "The request failed."), {code: payload.code});
+        }
+        if (event === "text_reset") {
+          if (typeof onReset !== "function") throw new Error("The client cannot replace an unfinished answer.");
+          text = "";
+          await onReset();
+        } else if (event === "text_delta") {
           if (typeof payload.text !== "string") throw new Error("Invalid answer text.");
           text += payload.text;
           await onText(payload.text);

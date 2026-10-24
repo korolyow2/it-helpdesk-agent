@@ -196,7 +196,9 @@ def test_failed_completion_rolls_back_the_ticket_write(client, mock_config, data
         assert connection.execute("SELECT COUNT(*) FROM tickets").fetchone()[0] == 8
         assert connection.execute("SELECT status FROM approvals").fetchone()[0] == "approved"
         connection.execute("DROP TRIGGER fail_completion")
-    assert client.post("/tickets", headers=headers(), json=execution).json()["status"] == "completed"
+    result = client.post("/tickets", headers=headers(), json=execution).json()
+    assert result["status"] == "completed"
+    assert result["ticket"]["id"] == "1"
 
 
 def test_normalized_comment_id_keeps_one_approved_action(client):

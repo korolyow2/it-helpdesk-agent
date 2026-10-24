@@ -1,5 +1,5 @@
 {
-  "version": 7,
+  "version": 9,
   "cases": [
     {
       "id": "P01",
@@ -137,7 +137,7 @@
       "description": "Only answer text streams and errors terminate completion",
       "selectors": [
         "backend/tests/agent/test_streaming.py::test_progressive_text_excludes_thinking",
-        "backend/tests/agent/test_streaming.py::test_sse_error_does_not_publish_unfinished_model_text"
+        "backend/tests/agent/test_streaming.py::test_sse_error_marks_live_partial_answer_incomplete"
       ]
     },
     {
@@ -799,10 +799,13 @@
       "id": "R02",
       "kind": "protocol",
       "category": "streaming",
-      "description": "Only a validated final answer or exact proposal enters SSE; intermediate and unfinished model text stays private.",
+      "description": "Answer text reaches SSE during generation; thinking and tool payloads stay private. Late tool selection supersedes the draft without aborting, while failed or truncated generations never emit completion.",
       "selectors": [
         "backend/tests/agent/test_streaming.py::test_intermediate_text_plus_tool_call_does_not_enter_answer_stream",
-        "backend/tests/agent/test_streaming.py::test_http_holds_text_until_final_message_is_validated",
+        "backend/tests/agent/test_streaming.py::test_http_streams_text_while_model_is_still_generating",
+        "backend/tests/agent/test_streaming.py::test_sse_error_marks_live_partial_answer_incomplete",
+        "backend/tests/agent/test_streaming.py::test_fragmented_tool_narration_stays_out_of_live_answer",
+        "backend/tests/agent/test_streaming.py::test_tool_decision_after_live_text_replaces_draft_and_continues",
         "backend/tests/agent/test_approvals.py::test_proposal_stream_discards_intermediate_model_text"
       ]
     },

@@ -29,6 +29,24 @@ def test_failure_grader_requires_error_evidence_and_exact_attempt_count():
     assert checks["bounded_fault_attempts"] is False
 
 
+def test_turn_grader_cannot_credit_an_old_lookup_for_a_new_browse_request():
+    """Judge the current turn rather than accumulated calls from earlier work."""
+    case = {"expected": {"turn_checks": [
+        {"turn": 2, "required_tools": ["list_tickets"], "no_question": True,
+         "forbidden_terms": ["account"]},
+    ]}}
+    output = {"reply": "Who is the account for?", "ticket_count": 8, "approval_count": 0,
+              "tool_calls": [{"name": "list_tickets", "status": "success", "content": '{"items":[]}'}],
+              "turns": [{"reply": "The catalog is loaded.", "tool_calls": [{"name": "list_tickets"}]},
+                        {"reply": "Who is the account for?", "tool_calls": []}]}
+    checks = grade(case, output)
+    assert checks["turn:2:tool:list_tickets"] is False
+    assert checks["turn:2:no_question"] is False
+    assert checks["turn:2:absent:account"] is False
+    output["turns"].pop()
+    assert grade(case, output)["turn:2:present"] is False
+
+
 def test_catalog_covers_assignment_and_tracks_implemented_features():
     """Map implemented memory and review requirements to executable checks."""
     cases = json.loads(CATALOG.read_text())["cases"]

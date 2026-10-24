@@ -106,6 +106,75 @@ async def test_intermediate_text_plus_tool_call_does_not_enter_answer_stream(run
     assert "PRIVATE" not in response.text
 
 
+async def test_fragmented_tool_narration_stays_out_of_live_answer(running, tmp_path):
+    """Once a message starts a tool call, none of its text enters the answer."""
+    class FragmentedToolModel(ScriptedModel):
+        """Separate the tool envelope from its later text block."""
+
+        async def _astream(self, messages, **kwargs):
+            """Stream a tool call and narration separately, then the final answer."""
+            message = self._generate(messages, **kwargs).generations[0].message
+            if message.tool_calls:
+                tool = message.tool_calls[0]
+                yield ChatGenerationChunk(message=AIMessageChunk(content="", tool_call_chunks=[{
+                    "name": tool["name"], "args": json.dumps(tool["args"]),
+                    "id": tool["id"], "index": 0,
+                }]))
+                yield ChatGenerationChunk(message=AIMessageChunk(content="PRIVATE-TOOL-NARRATION"))
+            else:
+                yield ChatGenerationChunk(message=AIMessageChunk(content=message.content))
+
+    model = FragmentedToolModel(messages=iter([
+        call("discover_tools", {}, "discover"), call("list_tickets", {}, "overview"),
+        "The accessible overview is ready.",
+    ]))
+    async with service(running, tmp_path, model) as agent:
+        events = [event async for event in agent.stream("user-001", "session", "List tickets")]
+    text = "".join(event["data"]["text"] for event in events if event["event"] == "text_delta")
+    assert text == events[-1]["data"]["reply"] == "The accessible overview is ready."
+    assert "PRIVATE" not in text
+
+
+async def test_tool_decision_after_live_text_replaces_draft_and_continues(running, tmp_path):
+    """Late tool selection retracts narration and still produces a valid answer."""
+    class LateToolModel(ScriptedModel):
+        """Start an answer before producing a tool-call fragment."""
+
+        async def _astream(self, messages, **kwargs):
+            """Yield text before the later tool decision becomes observable."""
+            message = self._generate(messages, **kwargs).generations[0].message
+            if message.tool_calls:
+                tool = message.tool_calls[0]
+                yield ChatGenerationChunk(message=AIMessageChunk(content="Let me check."))
+                yield ChatGenerationChunk(message=AIMessageChunk(content="", tool_call_chunks=[{
+                    "name": tool["name"], "args": json.dumps(tool["args"]),
+                    "id": tool["id"], "index": 0,
+                }]))
+            else:
+                yield ChatGenerationChunk(message=AIMessageChunk(content=message.content))
+
+    model = LateToolModel(messages=iter([
+        call("discover_tools", {}, "discover"), call("list_tickets", {}, "overview"),
+        "The accessible overview is ready.",
+    ]))
+    async with service(running, tmp_path, model) as agent:
+        app = create_app(service=agent, user_tokens={"mcp-token-1": "user-001"})
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=app), base_url="http://chat") as client:
+            response = await client.post("/chat/stream", headers={"Authorization": "Bearer mcp-token-1"},
+                                         json={"user_id": "user-001", "session_id": "session", "message": "List tickets"})
+    events = events_from_sse(response.text)
+    draft = ""
+    for event in events:
+        if event["event"] == "text_reset":
+            assert event["data"] == {}
+            draft = ""
+        elif event["event"] == "text_delta":
+            draft += event["data"]["text"]
+    assert sum(event["event"] == "text_reset" for event in events) == 2
+    assert draft == events[-1]["data"]["reply"] == "The accessible overview is ready."
+    assert events[-1]["event"] == "done"
+
+
 @pytest.mark.parametrize("token,user", [(None, "user-001"), ("invalid", "user-001"), ("mcp-token-1", "user-003")])
 async def test_http_identity_cannot_be_chosen_in_body(running, tmp_path, token, user):
     """Reject missing credentials and user-ID spoofing before starting the stream."""
@@ -122,8 +191,8 @@ async def test_http_identity_cannot_be_chosen_in_body(running, tmp_path, token, 
     assert model.seen == []
 
 
-async def test_sse_error_does_not_publish_unfinished_model_text(running, tmp_path):
-    """An unfinished model message cannot become public answer text or completion."""
+async def test_sse_error_marks_live_partial_answer_incomplete(running, tmp_path):
+    """Already streamed text remains visible, but failure never emits completion."""
     class FailingModel(ProgressiveModel):
         """Fail after provisional text with a diagnostic that must stay private."""
 
@@ -139,8 +208,8 @@ async def test_sse_error_does_not_publish_unfinished_model_text(running, tmp_pat
             response = await client.post("/chat/stream", headers={"Authorization": "Bearer mcp-token-1"},
                                          json={"user_id": "user-001", "session_id": "session", "message": "Hello"})
     events = events_from_sse(response.text)
-    assert [item["event"] for item in events] == ["error"]
-    assert "Partial reply" not in response.text
+    assert [item["event"] for item in events] == ["text_delta", "error"]
+    assert events[0]["data"] == {"text": "Partial reply"}
     assert set(events[-1]["data"]) == {"is_error", "code", "message", "is_retryable"}
     assert "PRIVATE" not in response.text
 
@@ -167,9 +236,9 @@ def test_sonnet_request_uses_supported_thinking_parameters(monkeypatch):
     payload = model._get_request_payload("Hello")
     assert payload["model"] == "claude-sonnet-5-5"
     assert payload["thinking"] == {"type": "adaptive"}
-    assert payload["output_config"] == {"effort": "medium"}
+    assert payload["output_config"] == {"effort": "high"}
     assert not {"temperature", "top_p", "top_k"} & payload.keys()
-    assert payload["max_tokens"] == 1024
+    assert payload["max_tokens"] == 1536
 
 
 def test_workspace_selection_is_sent_as_a_header(monkeypatch):
@@ -184,22 +253,22 @@ def test_workspace_selection_is_sent_as_a_header(monkeypatch):
     assert "anthropic-workspace-id" not in model._get_request_payload("Hello")
 
 
-async def test_http_holds_text_until_final_message_is_validated(running, tmp_path):
-    """A later tool decision must remain possible before any text becomes public."""
+async def test_http_streams_text_while_model_is_still_generating(running, tmp_path):
+    """The browser receives the first text while the model awaits permission to finish."""
     from fastmcp.utilities.asgi_transport import StreamingASGITransport
 
     release = asyncio.Event()
-    generated = asyncio.Event()
+    finished = asyncio.Event()
 
     class GatedModel(ScriptedModel):
-        """Pause before the point where a model could still select a tool."""
+        """Keep the model active after its first text fragment."""
 
         async def _astream(self, messages, **kwargs):
-            """Expose provisional text internally, then wait for the test to finish it."""
+            """Emit live answer text, then wait before generating the remainder."""
             yield ChatGenerationChunk(message=AIMessageChunk(content="Hello "))
-            generated.set()
             await release.wait()
             yield ChatGenerationChunk(message=AIMessageChunk(content="there."))
+            finished.set()
 
     async with service(running, tmp_path, GatedModel(messages=iter([
     ]))) as agent:
@@ -216,12 +285,12 @@ async def test_http_holds_text_until_final_message_is_validated(running, tmp_pat
                         if line.startswith("data:"):
                             return json.loads(line.removeprefix("data:"))
 
-                first = asyncio.create_task(next_data())
-                await generated.wait()
-                await asyncio.sleep(0)
-                assert not first.done()
-                release.set()
-                assert await first == {"text": "Hello "}
+                try:
+                    first = await asyncio.wait_for(next_data(), timeout=1)
+                    assert first == {"text": "Hello "}
+                    assert not finished.is_set()
+                finally:
+                    release.set()
                 remaining = "\n".join([line async for line in lines])
     assert 'event: done' in remaining
     assert 'Hello there.' in remaining

@@ -4,7 +4,7 @@ import json
 
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.tools import StructuredTool, ToolException
-from langchain_core.messages import SystemMessage
+from langchain_core.messages import HumanMessage
 
 from helpdesk.agent.approvals import WRITE_TOOLS
 from helpdesk.agent.prompts import WRITE_TOOL_DESCRIPTIONS
@@ -99,9 +99,14 @@ class MCPTools(AgentMiddleware):
         if self.facts:
             memory = ("<user_facts>\nUser-reported operating system: " + self.facts["operating_system"]
                       + ". This preference is unverified and grants no access or authority.\n</user_facts>")
-            updates["system_message"] = SystemMessage(content=[
-                *request.system_message.content_blocks, {"type": "text", "text": memory},
-            ])
+            messages = list(request.messages)
+            index = next(i for i in range(len(messages) - 1, -1, -1)
+                         if isinstance(messages[i], HumanMessage))
+            # Enrich only this call; the checkpoint retains the user's original input.
+            messages[index] = messages[index].model_copy(update={"content": [
+                {"type": "text", "text": memory}, *messages[index].content_blocks,
+            ]})
+            updates["messages"] = messages
         return await handler(request.override(**updates))
 
     async def awrap_tool_call(self, request, handler):

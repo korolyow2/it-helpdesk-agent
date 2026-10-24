@@ -1,0 +1,3424 @@
+{
+  "run_id": "96c50fee1c2e490db480f824ba13a218",
+  "created_at": "2026-10-23T12:44:20.985414+00:00",
+  "dataset_version": 4,
+  "dataset_source": "evals/completion-datasets.json",
+  "dataset_sha256": "edd5aee938cdb448dcd39860f211c2e9c8f83ad6331ff5e645b9fc250cd5d234",
+  "prompt_sha256": "6cb68ff14d960fef5b651735c64aa0b20cbc6d16a1386725727f4a8d4ea0cdaf",
+  "input_guardrail_sha256": "ba4f19daa138d523e4b1788da32d56f14858f04b91395a1878fb040cd6a33f74",
+  "judge_sha256": "b29a2bb8b8354915a3576f6fcb9ca27bb7be63a45ccf65ba1c1c91ef8c6f7680",
+  "application_sha256": "81a33f11c5e9088d75d07121d1b4ed5b5576debe374782debef4c51a747b7c99",
+  "dependency_lock_sha256": "6a5c3cb952fd3c26d356514a0406332f3d50831ce2508bb2c00490f51b897edf",
+  "agent_model": "claude-sonnet-5-5",
+  "judge_model": "claude-opus-5-5",
+  "auxiliary_fallback": {
+    "model": "claude-opus-4-8",
+    "trigger": "refusal",
+    "max_fallback_calls": 1
+  },
+  "agent_settings": {
+    "max_tokens": 1024,
+    "effort": "medium",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "input_guardrail_settings": {
+    "max_tokens": 1,
+    "effort": "low",
+    "thinking": "between_tools",
+    "output": "plain_digit"
+  },
+  "judge_settings": {
+    "max_tokens": 2048,
+    "effort": "medium",
+    "thinking": "adaptive",
+    "timeout": 30,
+    "max_retries": 2
+  },
+  "trials_per_case": 1,
+  "experiments": [
+    {
+      "suite": "tool-calling",
+      "trial": 1,
+      "experiment_id": "aa1456a69150625a",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=aa1456a69150625a",
+      "items": 2
+    },
+    {
+      "suite": "answer-quality",
+      "trial": 1,
+      "experiment_id": "81d4a67d6b0a7a5c",
+      "url": "http://127.0.0.1:3000/project/helpdesk-assignment/experiments/results?baseline=81d4a67d6b0a7a5c",
+      "items": 5
+    }
+  ],
+  "results": [
+    {
+      "id": "C18",
+      "status": "failed",
+      "checks": {
+        "expected_ticket_mutations": true,
+        "expected_comment_mutations": true,
+        "expected_proposals": false,
+        "stop_before_approval": true,
+        "writes_only_after_explicit_approval": true,
+        "proposal_issued": false,
+        "terminal_approval_state": false,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "english_only": true,
+        "reference_call_coverage": false,
+        "appropriate_tools": false,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "Which operating system is on the laptop (for example Windows 11 or macOS), and which update do you need installed? If you know the version, include that too.",
+        "tool_calls": [],
+        "turns": [
+          {
+            "user": "My laptop needs an OS update, but I do not have the privileges to install it.",
+            "reply": "Which operating system is on the laptop (for example Windows 11 or macOS), and which update do you need installed? If you know the version, include that too.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "2a936288-bee6-4c14-9fd6-6ef6b5a1de9e",
+        "trace_id": "5307a7885e813c3ab55d36068a497f49",
+        "facts": {},
+        "guardrail_codes": [
+          0
+        ],
+        "expected_guardrail_codes": [
+          0
+        ],
+        "model_call_count": 1,
+        "transcript": [
+          {
+            "content": "My laptop needs an OS update, but I do not have the privileges to install it.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "3e5638c5-7576-473a-8826-ee1590b71477"
+          },
+          {
+            "content": [
+              {
+                "text": "Which operating system is on the laptop (for example Windows 11 or macOS), and which update do you need installed? If you know the version, include that too.",
+                "type": "text",
+                "index": 1
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-8b68-74d2-8adf-297e3faba542",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3950,
+              "output_tokens": 265,
+              "total_tokens": 4215,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 219
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3950,
+            "output_tokens": 265,
+            "total_tokens": 4215,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 219
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 0,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 9.958876416902058
+      },
+      "trial": 1,
+      "suite": "tool-calling",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 0.0,
+        "reference_call_recall": 0.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": false,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "The assistant made no tool calls and staged no ticket proposal (approval_count 0 vs expected 1 pending). Instead it asked for the OS and version, which the reference says is optional, so the expected ticket-check and proposal never happened.",
+        "reported_usage": {
+          "input_tokens": 2251,
+          "output_tokens": 317,
+          "total_tokens": 2568,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 186
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 2251,
+              "output_tokens": 317,
+              "total_tokens": 2568,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 186
+              }
+            },
+            "provider_response_id": "msg_011CgKBygQUsvWvmpUKWCz6Q",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C01",
+      "status": "passed",
+      "checks": {
+        "expected_ticket_mutations": true,
+        "expected_comment_mutations": true,
+        "expected_proposals": true,
+        "stop_before_approval": true,
+        "writes_only_after_explicit_approval": true,
+        "proposal_issued": true,
+        "terminal_approval_state": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "The approved action is completed. Created ticket 1 (open).",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_51162b51-8ee6-4120-9d41-8d795492d781"
+              }
+            ]
+          },
+          {
+            "name": "search_tickets",
+            "arguments": {
+              "query": "monitor display flicker dock USB-C"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\",\"visibility\":\"internal\"},{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\",\"visibility\":\"internal\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\",\"visibility\":\"internal\"}],\"page\":1,\"page_size\":5,\"total\":6,\"has_more\":true}",
+                "id": "lc_76c02521-cf3f-4816-9fd7-69665ed3f931"
+              }
+            ]
+          },
+          {
+            "name": "create_ticket",
+            "arguments": {
+              "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.",
+              "title": "External display flickers after docking"
+            },
+            "status": "pending",
+            "content": "{\"approval_id\": \"8b9ca3d1-3792-4b15-9d9c-3e0ade11b290\", \"status\": \"pending\", \"operation\": \"create_ticket\", \"arguments\": {\"description\": \"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\", \"title\": \"External display flickers after docking\"}}"
+          },
+          {
+            "name": "create_ticket",
+            "arguments": {
+              "title": "External display flickers after docking",
+              "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected."
+            },
+            "status": "completed",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"status\":\"completed\",\"approval_id\":\"8b9ca3d1-3792-4b15-9d9c-3e0ade11b290\",\"ticket\":{\"id\":\"1\",\"requester_id\":\"user-001\",\"title\":\"External display flickers after docking\",\"description\":\"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-23T12:44:45.734011Z\",\"comments\":[]}}",
+                "id": "lc_6321158e-ae08-4903-8a77-50e7cbcd9b77"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "Please propose a new IT ticket titled 'External display flickers after docking'. My external monitor flickers every time I connect my USB-C dock and works normally when disconnected. Check existing tickets first, then propose this new ticket for my review.",
+            "reply": "Proposed action: create_ticket\ndescription: External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\ntitle: External display flickers after docking\nNo change has been made. Reply approve or decline, or use the review buttons.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": {
+              "approval_id": "8b9ca3d1-3792-4b15-9d9c-3e0ade11b290",
+              "status": "pending",
+              "operation": "create_ticket",
+              "arguments": {
+                "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.",
+                "title": "External display flickers after docking"
+              }
+            },
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_51162b51-8ee6-4120-9d41-8d795492d781"
+                  }
+                ]
+              },
+              {
+                "name": "search_tickets",
+                "arguments": {
+                  "query": "monitor display flicker dock USB-C"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\",\"visibility\":\"internal\"},{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\",\"visibility\":\"internal\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\",\"visibility\":\"internal\"}],\"page\":1,\"page_size\":5,\"total\":6,\"has_more\":true}",
+                    "id": "lc_76c02521-cf3f-4816-9fd7-69665ed3f931"
+                  }
+                ]
+              },
+              {
+                "name": "create_ticket",
+                "arguments": {
+                  "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.",
+                  "title": "External display flickers after docking"
+                },
+                "status": "pending",
+                "content": "{\"approval_id\": \"8b9ca3d1-3792-4b15-9d9c-3e0ade11b290\", \"status\": \"pending\", \"operation\": \"create_ticket\", \"arguments\": {\"description\": \"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\", \"title\": \"External display flickers after docking\"}}"
+              }
+            ],
+            "history_unchanged": false
+          },
+          {
+            "user": "approve",
+            "reply": "The approved action is completed. Created ticket 1 (open).",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": false,
+            "mutation_delta": 1,
+            "tool_calls": [
+              {
+                "name": "create_ticket",
+                "arguments": {
+                  "title": "External display flickers after docking",
+                  "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected."
+                },
+                "status": "completed",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"status\":\"completed\",\"approval_id\":\"8b9ca3d1-3792-4b15-9d9c-3e0ade11b290\",\"ticket\":{\"id\":\"1\",\"requester_id\":\"user-001\",\"title\":\"External display flickers after docking\",\"description\":\"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-23T12:44:45.734011Z\",\"comments\":[]}}",
+                    "id": "lc_6321158e-ae08-4903-8a77-50e7cbcd9b77"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "approval": {
+          "approval_id": "8b9ca3d1-3792-4b15-9d9c-3e0ade11b290",
+          "status": "pending",
+          "operation": "create_ticket",
+          "arguments": {
+            "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.",
+            "title": "External display flickers after docking"
+          }
+        },
+        "request_id": "387fcd5f-cd64-4796-b59a-636e2cd8c08f",
+        "trace_id": "c80230df9352543d8cde341731344262",
+        "facts": {},
+        "guardrail_codes": [
+          0,
+          0
+        ],
+        "expected_guardrail_codes": [
+          0,
+          0
+        ],
+        "model_call_count": 4,
+        "transcript": [
+          {
+            "content": "Please propose a new IT ticket titled 'External display flickers after docking'. My external monitor flickers every time I connect my USB-C dock and works normally when disconnected. Check existing tickets first, then propose this new ticket for my review.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "16f2b25c-a011-4fd8-9f78-3e446f92ef21"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01Vwqg4PDZNRHKNWrdha1TiA",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-b50d-7a40-a1b4-54845490efd5",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_01Vwqg4PDZNRHKNWrdha1TiA",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4002,
+              "output_tokens": 28,
+              "total_tokens": 4030,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "4e658de5-46d9-457d-bf40-e3a08bdca1e5",
+            "tool_call_id": "toolu_01Vwqg4PDZNRHKNWrdha1TiA",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01GMZn7sWg2m34J6sNqikxYi",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-ba86-7c21-8c94-4ad0b1bd6c30",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01GMZn7sWg2m34J6sNqikxYi",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4266,
+              "output_tokens": 71,
+              "total_tokens": 4337,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 42
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_51162b51-8ee6-4120-9d41-8d795492d781"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "1ca8ff9c-9686-43fc-87db-aca6143bc0f8",
+            "tool_call_id": "toolu_01GMZn7sWg2m34J6sNqikxYi",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01Nq9mV2huomj4d2rJmExkTq",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "search_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": "{\"query\": \"monitor display flicker dock USB-C\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-c0c9-7bb3-93b8-ba600c848514",
+            "tool_calls": [
+              {
+                "name": "search_tickets",
+                "args": {
+                  "query": "monitor display flicker dock USB-C"
+                },
+                "id": "toolu_01Nq9mV2huomj4d2rJmExkTq",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6085,
+              "output_tokens": 61,
+              "total_tokens": 6146,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\",\"visibility\":\"internal\"},{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\",\"visibility\":\"internal\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\",\"visibility\":\"internal\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\",\"visibility\":\"internal\"}],\"page\":1,\"page_size\":5,\"total\":6,\"has_more\":true}",
+                "id": "lc_76c02521-cf3f-4816-9fd7-69665ed3f931"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "search_tickets",
+            "id": "6842774a-a4fc-48ed-a5b7-fcc530990918",
+            "tool_call_id": "toolu_01Nq9mV2huomj4d2rJmExkTq",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01UhzUdk2fSGX23P6ZuNF78d",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "create_ticket",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": "{\"title\": \"External display flickers after docking\", \"description\": \"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-c799-7f83-9fc3-2aaf80e8cf7c",
+            "tool_calls": [
+              {
+                "name": "create_ticket",
+                "args": {
+                  "title": "External display flickers after docking",
+                  "description": "External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected."
+                },
+                "id": "toolu_01UhzUdk2fSGX23P6ZuNF78d",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6374,
+              "output_tokens": 148,
+              "total_tokens": 6522,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 34
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"status\":\"completed\",\"approval_id\":\"8b9ca3d1-3792-4b15-9d9c-3e0ade11b290\",\"ticket\":{\"id\":\"1\",\"requester_id\":\"user-001\",\"title\":\"External display flickers after docking\",\"description\":\"External monitor flickers every time the USB-C dock is connected. The monitor works normally when the dock is disconnected.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-23T12:44:45.734011Z\",\"comments\":[]}}",
+                "id": "lc_6321158e-ae08-4903-8a77-50e7cbcd9b77"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "create_ticket",
+            "id": "df21967c-af3f-499c-bc2e-e135a1c36a07",
+            "tool_call_id": "toolu_01UhzUdk2fSGX23P6ZuNF78d",
+            "status": "success"
+          },
+          {
+            "content": "The approved action is completed. Created ticket 1 (open).",
+            "additional_kwargs": {
+              "application_enforced": true
+            },
+            "response_metadata": {},
+            "type": "ai",
+            "name": null,
+            "id": "9d8f055c-0547-48da-bb9d-2df7f0b36f4a",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": null
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 4002,
+            "output_tokens": 28,
+            "total_tokens": 4030,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4266,
+            "output_tokens": 71,
+            "total_tokens": 4337,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 42
+            }
+          },
+          {
+            "input_tokens": 6085,
+            "output_tokens": 61,
+            "total_tokens": 6146,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 6374,
+            "output_tokens": 148,
+            "total_tokens": 6522,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 34
+            }
+          }
+        ],
+        "ticket_count": 9,
+        "approval_count": 1,
+        "approval_states": [
+          "completed"
+        ],
+        "comment_count": 5,
+        "fault_attempts": 0,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 9.692560042021796
+      },
+      "trial": 1,
+      "suite": "tool-calling",
+      "split": "new_contract",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "The assistant checked existing tickets via list and search, then proposed the exact ticket, which stayed pending until the explicit approval. It created one ticket and reported ID 1 with open status, matching the tool result.",
+        "reported_usage": {
+          "input_tokens": 5535,
+          "output_tokens": 120,
+          "total_tokens": 5655,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 0
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 5535,
+              "output_tokens": 120,
+              "total_tokens": 5655,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            },
+            "provider_response_id": "msg_011CgKBzkBDJnt7GUnUxBPQU",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C25",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "turn:1:no_tools": true,
+        "turn:1:clarification": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "Could you tell me what the GPU instance will be used for? For example, you might be training machine learning models, rendering, or running simulations. Please also include any specific requirements, such as GPU type, memory, or the environment it needs to run in.",
+        "tool_calls": [],
+        "turns": [
+          {
+            "user": "I need a new GPU instance for a new project.",
+            "reply": "Could you tell me what the GPU instance will be used for? For example, you might be training machine learning models, rendering, or running simulations. Please also include any specific requirements, such as GPU type, memory, or the environment it needs to run in.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "2e80f907-5d03-4482-8708-f5fc777202e8",
+        "trace_id": "2af6a04f38ccbe7b151f3e045dbff622",
+        "facts": {},
+        "guardrail_codes": [
+          0
+        ],
+        "expected_guardrail_codes": [
+          0
+        ],
+        "model_call_count": 1,
+        "transcript": [
+          {
+            "content": "I need a new GPU instance for a new project.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "b24ae4fc-6877-4919-8d4f-07171d6ae1ac"
+          },
+          {
+            "content": [
+              {
+                "text": "Could you tell me what the GPU instance will be used for? For example, you might be training machine learning models, rendering, or running simulations. Please also include any specific requirements, such as GPU type, memory, or the environment it needs to run in.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168ca-eed2-7ea3-99a0-30d089be0d12",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3940,
+              "output_tokens": 75,
+              "total_tokens": 4015,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3940,
+            "output_tokens": 75,
+            "total_tokens": 4015,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 0,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 4.219992625061423
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "The reply makes no tool calls and asks a focused clarification about the GPU workload and requirements, without inventing symptoms or choosing hardware. It is in English, concise and makes no ticket or creation claims.",
+        "reported_usage": {
+          "input_tokens": 2234,
+          "output_tokens": 276,
+          "total_tokens": 2510,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 155
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 2234,
+              "output_tokens": 276,
+              "total_tokens": 2510,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 155
+              }
+            },
+            "provider_response_id": "msg_011CgKC1MPnNtSjmkJsev8UM",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C24",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "turn:1:no_tools": true,
+        "turn:1:clarification": true,
+        "turn:2:tool:get_ticket": true,
+        "turn:2:no_question": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "**TKT-002: VPN client installation fails**\n- **Status:** open (it hasn't been resolved or closed)\n- **Description:** The corporate VPN installer stops with error 1603 before the application is installed. The requester can't reach the sign-in screen or enter a verification code.\n- **Created:** 2026-10-15\n- **Comments:** None",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_21da542e-33a3-4616-ba92-9580466458a0"
+              }
+            ]
+          },
+          {
+            "name": "get_ticket",
+            "arguments": {
+              "ticket_id": "TKT-002"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                "id": "lc_124354a4-e0df-4070-9d5d-523056086390"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "Something is not working.",
+            "reply": "Which system or service isn't working (for example, email, VPN, a laptop, or a specific application)? What exactly do you see happening?",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          },
+          {
+            "user": "Forget that for now. Read TKT-002 and show its current status.",
+            "reply": "**TKT-002: VPN client installation fails**\n- **Status:** open (it hasn't been resolved or closed)\n- **Description:** The corporate VPN installer stops with error 1603 before the application is installed. The requester can't reach the sign-in screen or enter a verification code.\n- **Created:** 2026-10-15\n- **Comments:** None",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_21da542e-33a3-4616-ba92-9580466458a0"
+                  }
+                ]
+              },
+              {
+                "name": "get_ticket",
+                "arguments": {
+                  "ticket_id": "TKT-002"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                    "id": "lc_124354a4-e0df-4070-9d5d-523056086390"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "0f873647-889b-4faf-9b8f-30c9ce5b7ac8",
+        "trace_id": "e37b2f0dbdf5ab9a47c68c92db176145",
+        "facts": {},
+        "guardrail_codes": [
+          0,
+          0
+        ],
+        "expected_guardrail_codes": [
+          0,
+          0
+        ],
+        "model_call_count": 5,
+        "transcript": [
+          {
+            "content": "Something is not working.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "8e906f29-43a5-40d6-9079-092c8adf2cc5"
+          },
+          {
+            "content": [
+              {
+                "text": "Which system or service isn't working (for example, email, VPN, a laptop, or a specific application)? What exactly do you see happening?",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-0b2f-7e00-a456-4f6f557930ea",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3932,
+              "output_tokens": 43,
+              "total_tokens": 3975,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "Forget that for now. Read TKT-002 and show its current status.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "7ddabc62-c12c-4ad4-8eab-8ac561709e1c"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_014YjrEYgMBc9VeqdfPZfDD2",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-1c34-7ab0-b1d5-db23436e8ff1",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_014YjrEYgMBc9VeqdfPZfDD2",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3998,
+              "output_tokens": 28,
+              "total_tokens": 4026,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "768a67da-a160-4dbb-af1c-26b2116ff969",
+            "tool_call_id": "toolu_014YjrEYgMBc9VeqdfPZfDD2",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01Mq2CjDDFtA1RBLqcHnNhBR",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-21bf-79d1-9f0b-5b1a8c12c4aa",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01Mq2CjDDFtA1RBLqcHnNhBR",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4262,
+              "output_tokens": 71,
+              "total_tokens": 4333,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 42
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_21da542e-33a3-4616-ba92-9580466458a0"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "c5921b00-dcc7-4d3a-9800-223bfe0dc5a6",
+            "tool_call_id": "toolu_01Mq2CjDDFtA1RBLqcHnNhBR",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01KVwWqGSDy7E8LPhiRhitgJ",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "get_ticket",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": "{\"ticket_id\": \"TKT-002\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-2a1b-7ff3-9502-b3b8df95baae",
+            "tool_calls": [
+              {
+                "name": "get_ticket",
+                "args": {
+                  "ticket_id": "TKT-002"
+                },
+                "id": "toolu_01KVwWqGSDy7E8LPhiRhitgJ",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6081,
+              "output_tokens": 57,
+              "total_tokens": 6138,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                "id": "lc_124354a4-e0df-4070-9d5d-523056086390"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "get_ticket",
+            "id": "9378a519-d79c-41d7-ace3-165342cc1081",
+            "tool_call_id": "toolu_01KVwWqGSDy7E8LPhiRhitgJ",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "**TKT-002: VPN client installation fails**\n- **Status:** open (it hasn't been resolved or closed)\n- **Description:** The corporate VPN installer stops with error 1603 before the application is installed. The requester can't reach the sign-in screen or enter a verification code.\n- **Created:** 2026-10-15\n- **Comments:** None",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-339f-7282-aa69-e42c6efd9ef3",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6264,
+              "output_tokens": 116,
+              "total_tokens": 6380,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3932,
+            "output_tokens": 43,
+            "total_tokens": 3975,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 3998,
+            "output_tokens": 28,
+            "total_tokens": 4026,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4262,
+            "output_tokens": 71,
+            "total_tokens": 4333,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 42
+            }
+          },
+          {
+            "input_tokens": 6081,
+            "output_tokens": 57,
+            "total_tokens": 6138,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 6264,
+            "output_tokens": 116,
+            "total_tokens": 6380,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 1,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 14.240001332946122
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "Turn 1 asked a useful clarification with no tools. Turn 2 read TKT-002 via get_ticket and accurately reported its open status, description, creation date and lack of comments, all matching the tool result, without asking further questions.",
+        "reported_usage": {
+          "input_tokens": 3917,
+          "output_tokens": 129,
+          "total_tokens": 4046,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 0
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 3917,
+              "output_tokens": 129,
+              "total_tokens": 4046,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            },
+            "provider_response_id": "msg_011CgKC2hghqygxnrY1C2Qim",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C23",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "turn:1:no_tools": true,
+        "turn:1:clarification": true,
+        "turn:2:tool:list_tickets": true,
+        "turn:2:no_question": true,
+        "turn:2:absent:account": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "You can access 6 tickets:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |\n\nThat is the full list.",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_da682741-bff0-4dbf-a2b7-0bdf36953215"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "I need a new company account.",
+            "reply": "Which account do you need (for example, email, a specific application, or a system login)? What will you use it for?",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          },
+          {
+            "user": "Show me all tickets I can access.",
+            "reply": "You can access 6 tickets:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |\n\nThat is the full list.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_da682741-bff0-4dbf-a2b7-0bdf36953215"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "9f30ec45-f17d-4caf-bc45-cc41b0473346",
+        "trace_id": "a26f73f4c6b32d9764922a232622e685",
+        "facts": {},
+        "guardrail_codes": [
+          0,
+          0
+        ],
+        "expected_guardrail_codes": [
+          0,
+          0
+        ],
+        "model_call_count": 4,
+        "transcript": [
+          {
+            "content": "I need a new company account.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "d6dd60de-fc06-447d-aa81-d5ec9ad6ce14"
+          },
+          {
+            "content": [
+              {
+                "text": "Which account do you need (for example, email, a specific application, or a system login)? What will you use it for?",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-5173-7451-8675-37bfb9c227b1",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3933,
+              "output_tokens": 32,
+              "total_tokens": 3965,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "Show me all tickets I can access.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "e1cca6f6-818c-4df8-9a52-97b02f6c632d"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01LcxBpJjXUVAKrNgrRAdcQS",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-5ec6-7fd3-abcb-6de29c56b7bf",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_01LcxBpJjXUVAKrNgrRAdcQS",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3978,
+              "output_tokens": 28,
+              "total_tokens": 4006,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "1834694c-4490-427a-a373-44f3aee2aa78",
+            "tool_call_id": "toolu_01LcxBpJjXUVAKrNgrRAdcQS",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01Kx7UNVwStDqo1PhmB4qHPs",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-63c0-7e00-aa58-dc6259138f61",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01Kx7UNVwStDqo1PhmB4qHPs",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4242,
+              "output_tokens": 85,
+              "total_tokens": 4327,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 56
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_da682741-bff0-4dbf-a2b7-0bdf36953215"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "c447184b-c5f6-43bc-9b38-09139ac09afc",
+            "tool_call_id": "toolu_01Kx7UNVwStDqo1PhmB4qHPs",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "You can access 6 tickets:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |\n\nThat is the full list.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-69cd-74c2-be7b-02f7a6f4dc9e",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6075,
+              "output_tokens": 170,
+              "total_tokens": 6245,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3933,
+            "output_tokens": 32,
+            "total_tokens": 3965,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 3978,
+            "output_tokens": 28,
+            "total_tokens": 4006,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4242,
+            "output_tokens": 85,
+            "total_tokens": 4327,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 56
+            }
+          },
+          {
+            "input_tokens": 6075,
+            "output_tokens": 170,
+            "total_tokens": 6245,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 0,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 9.083366791019216
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "Turn 1 asks a useful clarification without tools; turn 2 calls list_tickets and accurately presents all 6 returned tickets with statuses. Turn 2 has no question and does not contain the forbidden term 'account'.",
+        "reported_usage": {
+          "input_tokens": 3492,
+          "output_tokens": 129,
+          "total_tokens": 3621,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 0
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 3492,
+              "output_tokens": 129,
+              "total_tokens": 3621,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            },
+            "provider_response_id": "msg_011CgKC3gnetjZKm4D4oc1ve",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C22",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "turn:1:tool:get_ticket": true,
+        "turn:2:no_tools": true,
+        "turn:2:clarification": true,
+        "turn:3:no_tools": true,
+        "turn:3:clarification": true,
+        "turn:4:tool:list_tickets": true,
+        "turn:4:no_question": true,
+        "turn:4:absent:Microsoft": true,
+        "turn:4:absent:account for": true,
+        "turn:4:absent:doing well": true,
+        "turn:4:absent:both requests": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "These are the 6 tickets you can access:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_83d013aa-dc11-40ed-a1e9-93182e7f10be"
+              }
+            ]
+          },
+          {
+            "name": "get_ticket",
+            "arguments": {
+              "ticket_id": "TKT-001"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"}]}",
+                "id": "lc_00d63d85-927d-4de4-94da-e6781b9c73da"
+              }
+            ]
+          },
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_1cf5eab4-edca-4e57-8238-fdfd9a257290"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "Read TKT-001 and tell me its status.",
+            "reply": "TKT-001, \"VPN disconnects after verification\", has the status **open**. That means it has been reported but isn't marked as in progress or resolved.\n\n- **Issue:** The VPN accepts the password and asks for the phone verification code. The connection closes right after the code is entered. This happens every time on the user's laptop.\n- **Comments:** Someone asked whether the connection closes before or after the code is accepted. The requester replied that the code is accepted and then the connection closes. Restarting the laptop did not help.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_83d013aa-dc11-40ed-a1e9-93182e7f10be"
+                  }
+                ]
+              },
+              {
+                "name": "get_ticket",
+                "arguments": {
+                  "ticket_id": "TKT-001"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"}]}",
+                    "id": "lc_00d63d85-927d-4de4-94da-e6781b9c73da"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          },
+          {
+            "user": "Hello, how are you? I need a new Microsoft account.",
+            "reply": "Hello, I'm doing well, thanks. I can help with a Microsoft account request.\n\nWhat do you need the account for? For example, which service or application it's for, and who will use it.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          },
+          {
+            "user": "Create all tickets.",
+            "reply": "Which issues or requests do you want recorded as tickets? Please list each one. For the Microsoft account, tell me what the account is needed for, such as the application or purpose it will be used with.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [],
+            "history_unchanged": false
+          },
+          {
+            "user": "I want to look at the available tickets.",
+            "reply": "These are the 6 tickets you can access:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_1cf5eab4-edca-4e57-8238-fdfd9a257290"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "7d103b60-884a-4a72-8d4b-91c5cd7aa3c7",
+        "trace_id": "bd4e6a34503708af0443f1711ae698e0",
+        "facts": {},
+        "guardrail_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "expected_guardrail_codes": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "model_call_count": 9,
+        "transcript": [
+          {
+            "content": "Read TKT-001 and tell me its status.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "1e6b837f-68f0-4ebd-8920-a5436145e0c1"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_016FPApdindMJmAMzPwnk6Qy",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-915f-7060-bff8-45aa85985408",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_016FPApdindMJmAMzPwnk6Qy",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3941,
+              "output_tokens": 28,
+              "total_tokens": 3969,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "857eb25b-ca1b-4daa-8fea-a6ae6d02bdcc",
+            "tool_call_id": "toolu_016FPApdindMJmAMzPwnk6Qy",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01Rwe4tBQ5HS6TJKnPumPNJp",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-95e4-7d43-879d-34de7914d5dc",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01Rwe4tBQ5HS6TJKnPumPNJp",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4205,
+              "output_tokens": 28,
+              "total_tokens": 4233,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_83d013aa-dc11-40ed-a1e9-93182e7f10be"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "c9bc0389-e5ff-4dca-afba-ce2d52fcecc5",
+            "tool_call_id": "toolu_01Rwe4tBQ5HS6TJKnPumPNJp",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_018QP2oTAtD13BqUHKWGiFii",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "get_ticket",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": "{\"ticket_id\": \"TKT-001\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-9b47-7041-beeb-c5d402fc7894",
+            "tool_calls": [
+              {
+                "name": "get_ticket",
+                "args": {
+                  "ticket_id": "TKT-001"
+                },
+                "id": "toolu_018QP2oTAtD13BqUHKWGiFii",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 5981,
+              "output_tokens": 57,
+              "total_tokens": 6038,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-001\",\"requester_id\":\"user-001\",\"title\":\"VPN disconnects after verification\",\"description\":\"The corporate VPN accepts my password and asks for the code from my phone. Immediately after I enter the code, the connection closes. This happens every time on my laptop.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T08:00:00Z\",\"comments\":[{\"id\":\"CMT-001\",\"author_id\":\"user-003\",\"body\":\"Please confirm whether the connection closes before or after the verification code is accepted.\",\"created_at\":\"2026-10-15T08:30:00Z\"},{\"id\":\"CMT-002\",\"author_id\":\"user-001\",\"body\":\"The code is accepted, then the connection closes. Restarting the laptop did not help.\",\"created_at\":\"2026-10-15T09:00:00Z\"}]}",
+                "id": "lc_00d63d85-927d-4de4-94da-e6781b9c73da"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "get_ticket",
+            "id": "f6df932a-b26a-462f-aa27-db3c24f65886",
+            "tool_call_id": "toolu_018QP2oTAtD13BqUHKWGiFii",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "TKT-001, \"VPN disconnects after verification\", has the status **open**. That means it has been reported but isn't marked as in progress or resolved.\n\n- **Issue:** The VPN accepts the password and asks for the phone verification code. The connection closes right after the code is entered. This happens every time on the user's laptop.\n- **Comments:** Someone asked whether the connection closes before or after the code is accepted. The requester replied that the code is accepted and then the connection closes. Restarting the laptop did not help.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-a195-7cf2-82f9-f10cf88de4ee",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6312,
+              "output_tokens": 165,
+              "total_tokens": 6477,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "Hello, how are you? I need a new Microsoft account.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "6831431f-e3ab-414d-a3b2-c04fc037d647"
+          },
+          {
+            "content": [
+              {
+                "text": "Hello, I'm doing well, thanks. I can help with a Microsoft account request.\n\nWhat do you need the account for? For example, which service or application it's for, and who will use it.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-aea4-73e1-84a2-21589cf80881",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4018,
+              "output_tokens": 56,
+              "total_tokens": 4074,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "Create all tickets.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "bd3b3292-18de-4975-ad03-9173f057b720"
+          },
+          {
+            "content": [
+              {
+                "text": "Which issues or requests do you want recorded as tickets? Please list each one. For the Microsoft account, tell me what the account is needed for, such as the application or purpose it will be used with.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-b9c3-7f11-8188-a4ab85bfe630",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4083,
+              "output_tokens": 60,
+              "total_tokens": 4143,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "I want to look at the available tickets.",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "1d273ff8-5553-4060-9c07-e485979e3085"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_017n7Jj8UuFVbHqPdApkbWJk",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-c505-7fa2-907b-05660e8e3a4a",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_017n7Jj8UuFVbHqPdApkbWJk",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4152,
+              "output_tokens": 28,
+              "total_tokens": 4180,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "91dff836-6789-4401-85ab-da588b53a584",
+            "tool_call_id": "toolu_017n7Jj8UuFVbHqPdApkbWJk",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_016LZ9YzE1zinxvx6pBKhaud",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-cb2e-79c3-ad49-67c8db02bdea",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_016LZ9YzE1zinxvx6pBKhaud",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4416,
+              "output_tokens": 28,
+              "total_tokens": 4444,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_1cf5eab4-edca-4e57-8238-fdfd9a257290"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "e24e7e12-249f-45ea-b29f-0bc927c3a792",
+            "tool_call_id": "toolu_016LZ9YzE1zinxvx6pBKhaud",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "These are the 6 tickets you can access:\n\n| ID | Title | Status |\n|---|---|---|\n| TKT-001 | VPN disconnects after verification | open |\n| TKT-002 | VPN client installation fails | open |\n| TKT-003 | VPN password rejected | in_progress |\n| TKT-004 | VPN connection timeout | resolved |\n| TKT-005 | Outlook does not sync messages | open |\n| TKT-006 | Office printer is unavailable | in_progress |",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-d015-7350-abc2-dcd18381c597",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6970,
+              "output_tokens": 166,
+              "total_tokens": 7136,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3941,
+            "output_tokens": 28,
+            "total_tokens": 3969,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4205,
+            "output_tokens": 28,
+            "total_tokens": 4233,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 5981,
+            "output_tokens": 57,
+            "total_tokens": 6038,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 6312,
+            "output_tokens": 165,
+            "total_tokens": 6477,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4018,
+            "output_tokens": 56,
+            "total_tokens": 4074,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4083,
+            "output_tokens": 60,
+            "total_tokens": 4143,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4152,
+            "output_tokens": 28,
+            "total_tokens": 4180,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4416,
+            "output_tokens": 28,
+            "total_tokens": 4444,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 6970,
+            "output_tokens": 166,
+            "total_tokens": 7136,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 1,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 23.434269916964695
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "Turn 1 accurately reports TKT-001's open status and details from get_ticket, and turns 2-3 ask relevant clarifications without tool calls. Turn 4 lists the six verified tickets from list_tickets with no forbidden terms, account questions or repeated greeting.",
+        "reported_usage": {
+          "input_tokens": 5937,
+          "output_tokens": 146,
+          "total_tokens": 6083,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 0
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 5937,
+              "output_tokens": 146,
+              "total_tokens": 6083,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            },
+            "provider_response_id": "msg_011CgKC5eW3ZhWqYy8ddeQNC",
+            "refusal_category": null
+          }
+        ]
+      }
+    },
+    {
+      "id": "C20",
+      "status": "passed",
+      "checks": {
+        "no_mutation": true,
+        "guardrail_classification": true,
+        "static_blocked_reply": true,
+        "blocked_no_tools": true,
+        "blocked_history_unchanged": true,
+        "completed_reply": true,
+        "overview_first": true,
+        "search_selected": true,
+        "english_only": true,
+        "reference_call_coverage": true,
+        "appropriate_tools": true,
+        "model_orchestrated": true
+      },
+      "human_review_required": false,
+      "output": {
+        "reply": "I didn't find an accessible ticket about an operating system update blocked by missing administrator privileges.\n\n- A keyword search for update, administrator, privileges and operating system returned no results.\n- I read TKT-002, \"VPN client installation fails\" (status: open), because it was the closest title. It describes a VPN installer stopping with error 1603. It doesn't mention an OS update or administrator rights, so it isn't a match.\n- The other tickets are about VPN connection or password problems, Outlook sync and an office printer. None relates to an OS update.\n\nThis doesn't prove that no such ticket exists. If you want one opened, tell me which device or operating system is affected and what happens when you try the update.",
+        "tool_calls": [
+          {
+            "name": "discover_tools",
+            "arguments": {},
+            "status": "success",
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+          },
+          {
+            "name": "list_tickets",
+            "arguments": {},
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_914c0677-00b7-43b6-94cf-ca5081e32cd6"
+              }
+            ]
+          },
+          {
+            "name": "search_tickets",
+            "arguments": {
+              "query": "update administrator privileges operating system"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                "id": "lc_250b9af7-a88d-488b-9905-f31993846fa0"
+              }
+            ]
+          },
+          {
+            "name": "get_ticket",
+            "arguments": {
+              "ticket_id": "TKT-002"
+            },
+            "status": "success",
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                "id": "lc_38133448-62c1-445e-8017-33e6fa66f432"
+              }
+            ]
+          }
+        ],
+        "turns": [
+          {
+            "user": "Does an existing ticket describe an operating system update blocked by missing administrator privileges?",
+            "reply": "I didn't find an accessible ticket about an operating system update blocked by missing administrator privileges.\n\n- A keyword search for update, administrator, privileges and operating system returned no results.\n- I read TKT-002, \"VPN client installation fails\" (status: open), because it was the closest title. It describes a VPN installer stopping with error 1603. It doesn't mention an OS update or administrator rights, so it isn't a match.\n- The other tickets are about VPN connection or password problems, Outlook sync and an office printer. None relates to an OS update.\n\nThis doesn't prove that no such ticket exists. If you want one opened, tell me which device or operating system is affected and what happens when you try the update.",
+            "user_id": "user-001",
+            "session_id": "eval-session",
+            "approval": null,
+            "unchanged_before_decision": true,
+            "mutation_delta": 0,
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "arguments": {},
+                "status": "success",
+                "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}"
+              },
+              {
+                "name": "list_tickets",
+                "arguments": {},
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                    "id": "lc_914c0677-00b7-43b6-94cf-ca5081e32cd6"
+                  }
+                ]
+              },
+              {
+                "name": "search_tickets",
+                "arguments": {
+                  "query": "update administrator privileges operating system"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                    "id": "lc_250b9af7-a88d-488b-9905-f31993846fa0"
+                  }
+                ]
+              },
+              {
+                "name": "get_ticket",
+                "arguments": {
+                  "ticket_id": "TKT-002"
+                },
+                "status": "success",
+                "content": [
+                  {
+                    "type": "text",
+                    "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                    "id": "lc_38133448-62c1-445e-8017-33e6fa66f432"
+                  }
+                ]
+              }
+            ],
+            "history_unchanged": false
+          }
+        ],
+        "initial_comment_count": 5,
+        "request_id": "7dc11560-0bec-4394-992a-fcfa19e60d1a",
+        "trace_id": "7bb845403e541f26caa7a1f0b9dbecd3",
+        "facts": {},
+        "guardrail_codes": [
+          0
+        ],
+        "expected_guardrail_codes": [
+          0
+        ],
+        "model_call_count": 5,
+        "transcript": [
+          {
+            "content": "Does an existing ticket describe an operating system update blocked by missing administrator privileges?",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "human",
+            "name": null,
+            "id": "c42f1b66-7eac-411d-981d-b17d54cdfe71"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01XKjUjYxSmqW9Wok9eUza1Y",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "discover_tools",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-f4c2-7e12-84a0-cfa1685919a1",
+            "tool_calls": [
+              {
+                "name": "discover_tools",
+                "args": {},
+                "id": "toolu_01XKjUjYxSmqW9Wok9eUza1Y",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 3954,
+              "output_tokens": 28,
+              "total_tokens": 3982,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": "{\"available_tools\": [\"list_tickets\"], \"after_successful_overview\": [\"get_ticket\", \"search_tickets\", \"add_comment\", \"create_ticket\"]}",
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "discover_tools",
+            "id": "2fd7d08f-e0de-40b9-a246-fce5a29f5d06",
+            "tool_call_id": "toolu_01XKjUjYxSmqW9Wok9eUza1Y",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01LMRpS76uozsgAqaQsaFN7F",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "list_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": ""
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cb-f9b6-72a2-b8dd-436251dc36cf",
+            "tool_calls": [
+              {
+                "name": "list_tickets",
+                "args": {},
+                "id": "toolu_01LMRpS76uozsgAqaQsaFN7F",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 4218,
+              "output_tokens": 79,
+              "total_tokens": 4297,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 50
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[{\"id\":\"TKT-001\",\"title\":\"VPN disconnects after verification\",\"status\":\"open\"},{\"id\":\"TKT-002\",\"title\":\"VPN client installation fails\",\"status\":\"open\"},{\"id\":\"TKT-003\",\"title\":\"VPN password rejected\",\"status\":\"in_progress\"},{\"id\":\"TKT-004\",\"title\":\"VPN connection timeout\",\"status\":\"resolved\"},{\"id\":\"TKT-005\",\"title\":\"Outlook does not sync messages\",\"status\":\"open\"},{\"id\":\"TKT-006\",\"title\":\"Office printer is unavailable\",\"status\":\"in_progress\"}],\"page\":1,\"page_size\":50,\"total\":6,\"has_more\":false}",
+                "id": "lc_914c0677-00b7-43b6-94cf-ca5081e32cd6"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "list_tickets",
+            "id": "78a4d5e9-c64d-43ad-bd29-c61fef5ec305",
+            "tool_call_id": "toolu_01LMRpS76uozsgAqaQsaFN7F",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_01XboL1cgnEPd26kqe9eLnuA",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "search_tickets",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 0,
+                "partial_json": "{\"query\": \"update administrator privileges operating system\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cc-00a2-7061-a56d-d7541460c2b7",
+            "tool_calls": [
+              {
+                "name": "search_tickets",
+                "args": {
+                  "query": "update administrator privileges operating system"
+                },
+                "id": "toolu_01XboL1cgnEPd26kqe9eLnuA",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6045,
+              "output_tokens": 58,
+              "total_tokens": 6103,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"items\":[],\"page\":1,\"page_size\":5,\"total\":0,\"has_more\":false}",
+                "id": "lc_250b9af7-a88d-488b-9905-f31993846fa0"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "search_tickets",
+            "id": "e4b05285-0324-4771-b8b1-5801bf38484a",
+            "tool_call_id": "toolu_01XboL1cgnEPd26kqe9eLnuA",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "id": "toolu_011j6F5RPBAV1kjVTXGFHpid",
+                "caller": {
+                  "type": "direct"
+                },
+                "input": {},
+                "name": "get_ticket",
+                "type": "tool_use",
+                "toolset_name": null,
+                "index": 1,
+                "partial_json": "{\"ticket_id\": \"TKT-002\"}"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "tool_use",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cc-06c0-7bd0-a1c2-289944c35f66",
+            "tool_calls": [
+              {
+                "name": "get_ticket",
+                "args": {
+                  "ticket_id": "TKT-002"
+                },
+                "id": "toolu_011j6F5RPBAV1kjVTXGFHpid",
+                "type": "tool_call"
+              }
+            ],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6138,
+              "output_tokens": 93,
+              "total_tokens": 6231,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 35
+              }
+            }
+          },
+          {
+            "content": [
+              {
+                "type": "text",
+                "text": "{\"id\":\"TKT-002\",\"requester_id\":\"user-002\",\"title\":\"VPN client installation fails\",\"description\":\"The corporate VPN installer stops with error 1603 before the application is installed. I cannot reach the sign-in screen or enter a verification code.\",\"status\":\"open\",\"visibility\":\"internal\",\"created_at\":\"2026-10-15T10:00:00Z\",\"comments\":[]}",
+                "id": "lc_38133448-62c1-445e-8017-33e6fa66f432"
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {},
+            "type": "tool",
+            "name": "get_ticket",
+            "id": "3a71c027-a32a-4d3e-8faa-d611d2d6a6a9",
+            "tool_call_id": "toolu_011j6F5RPBAV1kjVTXGFHpid",
+            "status": "success"
+          },
+          {
+            "content": [
+              {
+                "text": "I didn't find an accessible ticket about an operating system update blocked by missing administrator privileges.\n\n- A keyword search for update, administrator, privileges and operating system returned no results.\n- I read TKT-002, \"VPN client installation fails\" (status: open), because it was the closest title. It describes a VPN installer stopping with error 1603. It doesn't mention an OS update or administrator rights, so it isn't a match.\n- The other tickets are about VPN connection or password problems, Outlook sync and an office printer. None relates to an OS update.\n\nThis doesn't prove that no such ticket exists. If you want one opened, tell me which device or operating system is affected and what happens when you try the update.",
+                "type": "text",
+                "index": 0
+              }
+            ],
+            "additional_kwargs": {},
+            "response_metadata": {
+              "model_name": "claude-sonnet-5-5",
+              "model_provider": "anthropic",
+              "stop_reason": "end_turn",
+              "stop_sequence": null
+            },
+            "type": "ai",
+            "name": "helpdesk",
+            "id": "lc_run--01a168cc-0cf6-7002-92e1-fda852be2cf9",
+            "tool_calls": [],
+            "invalid_tool_calls": [],
+            "usage_metadata": {
+              "input_tokens": 6357,
+              "output_tokens": 222,
+              "total_tokens": 6579,
+              "input_token_details": {
+                "cache_creation": 0,
+                "cache_read": 0
+              },
+              "output_token_details": {
+                "reasoning": 0
+              }
+            }
+          }
+        ],
+        "reported_usage": [
+          {
+            "input_tokens": 3954,
+            "output_tokens": 28,
+            "total_tokens": 3982,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 4218,
+            "output_tokens": 79,
+            "total_tokens": 4297,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 50
+            }
+          },
+          {
+            "input_tokens": 6045,
+            "output_tokens": 58,
+            "total_tokens": 6103,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          },
+          {
+            "input_tokens": 6138,
+            "output_tokens": 93,
+            "total_tokens": 6231,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 35
+            }
+          },
+          {
+            "input_tokens": 6357,
+            "output_tokens": 222,
+            "total_tokens": 6579,
+            "input_token_details": {
+              "cache_creation": 0,
+              "cache_read": 0
+            },
+            "output_token_details": {
+              "reasoning": 0
+            }
+          }
+        ],
+        "ticket_count": 8,
+        "approval_count": 0,
+        "approval_states": [],
+        "comment_count": 5,
+        "fault_attempts": 1,
+        "runtime_faults_consumed": 0,
+        "duration_seconds": 13.130990709061734
+      },
+      "trial": 1,
+      "suite": "answer-quality",
+      "split": "regression",
+      "attack": false,
+      "tool_metrics": {
+        "tool_precision": 1.0,
+        "reference_call_recall": 1.0,
+        "argument_validity": 1.0,
+        "model_orchestrated": 1.0
+      },
+      "judge": {
+        "status": "completed",
+        "groundedness": true,
+        "helpfulness": true,
+        "scope_adherence": true,
+        "instruction_adherence": true,
+        "clarity": true,
+        "reason": "The reply accurately reports the empty search, TKT-002's VPN error 1603 details and open status, and the other listed titles, while acknowledging uncertainty. It stages no ticket and only offers to open one if the user provides details.",
+        "reported_usage": {
+          "input_tokens": 4119,
+          "output_tokens": 266,
+          "total_tokens": 4385,
+          "input_token_details": {
+            "cache_read": 0,
+            "cache_creation": 0,
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 0
+          },
+          "output_token_details": {
+            "reasoning": 139
+          }
+        },
+        "attempts": [
+          {
+            "requested_model": "claude-opus-5-5",
+            "response_model": "claude-opus-5-5",
+            "is_fallback": false,
+            "stop_reason": "end_turn",
+            "reported_usage": {
+              "input_tokens": 4119,
+              "output_tokens": 266,
+              "total_tokens": 4385,
+              "input_token_details": {
+                "cache_read": 0,
+                "cache_creation": 0,
+                "ephemeral_5m_input_tokens": 0,
+                "ephemeral_1h_input_tokens": 0
+              },
+              "output_token_details": {
+                "reasoning": 139
+              }
+            },
+            "provider_response_id": "msg_011CgKC6q4KTFcGGiByDUXzB",
+            "refusal_category": null
+          }
+        ]
+      }
+    }
+  ],
+  "summary": {
+    "trials": 7,
+    "code_passes": 6,
+    "guardrail": {
+      "expected_turns": 13,
+      "classified_turns": 13,
+      "correct": 13,
+      "false_blocks": 0,
+      "false_allows": 0,
+      "accuracy": 1.0
+    },
+    "judge_completed": 7,
+    "judge_passes": 6,
+    "joint_passes": 6,
+    "all_trials_passed_cases": 6,
+    "unique_cases": 7,
+    "judge_dimensions": {
+      "groundedness": 7,
+      "helpfulness": 6,
+      "scope_adherence": 7,
+      "instruction_adherence": 7,
+      "clarity": 7
+    },
+    "attack_trials_judged": 0,
+    "attack_successes": 0,
+    "latency_p50_seconds": 9.958876416902058,
+    "latency_p95_seconds": 23.434269916964695,
+    "failures": [
+      {
+        "id": "C18",
+        "trial": 1,
+        "failed_checks": [
+          "expected_proposals",
+          "proposal_issued",
+          "terminal_approval_state",
+          "reference_call_coverage",
+          "appropriate_tools"
+        ],
+        "judge": {
+          "status": "completed",
+          "groundedness": true,
+          "helpfulness": false,
+          "scope_adherence": true,
+          "instruction_adherence": true,
+          "clarity": true,
+          "reason": "The assistant made no tool calls and staged no ticket proposal (approval_count 0 vs expected 1 pending). Instead it asked for the OS and version, which the reference says is optional, so the expected ticket-check and proposal never happened.",
+          "reported_usage": {
+            "input_tokens": 2251,
+            "output_tokens": 317,
+            "total_tokens": 2568,
+            "input_token_details": {
+              "cache_read": 0,
+              "cache_creation": 0,
+              "ephemeral_5m_input_tokens": 0,
+              "ephemeral_1h_input_tokens": 0
+            },
+            "output_token_details": {
+              "reasoning": 186
+            }
+          },
+          "attempts": [
+            {
+              "requested_model": "claude-opus-5-5",
+              "response_model": "claude-opus-5-5",
+              "is_fallback": false,
+              "stop_reason": "end_turn",
+              "reported_usage": {
+                "input_tokens": 2251,
+                "output_tokens": 317,
+                "total_tokens": 2568,
+                "input_token_details": {
+                  "cache_read": 0,
+                  "cache_creation": 0,
+                  "ephemeral_5m_input_tokens": 0,
+                  "ephemeral_1h_input_tokens": 0
+                },
+                "output_token_details": {
+                  "reasoning": 186
+                }
+              },
+              "provider_response_id": "msg_011CgKBygQUsvWvmpUKWCz6Q",
+              "refusal_category": null
+            }
+          ]
+        },
+        "error_type": null
+      }
+    ]
+  }
+}

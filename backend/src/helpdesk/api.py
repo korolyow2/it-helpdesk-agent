@@ -124,8 +124,12 @@ def create_app(*, service, user_tokens, lifespan=None):
         try:
             async with aclosing(app.state.service.stream(user_id, body.session_id, body.message, approval_id=body.approval_id)) as stream:
                 async for event in stream:
-                    data = ({"reply": event["data"]["reply"], "request_id": event["data"]["request_id"]}
-                            if event["event"] == "done" else {"text": event["data"]["text"]})
+                    if event["event"] == "done":
+                        data = {"reply": event["data"]["reply"], "request_id": event["data"]["request_id"]}
+                    elif event["event"] == "text_reset":
+                        data = {}
+                    else:
+                        data = {"text": event["data"]["text"]}
                     yield ServerSentEvent(event=event["event"], data=data)
         except PublicError as error:
             yield ServerSentEvent(event="error", data=error.payload)

@@ -6,8 +6,54 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 import pytest
 
 from agent_helpers import ScriptedModel, service
-from helpdesk.agent.context import model_messages
+from helpdesk.agent.context import authorized_history_view, model_messages
 from helpdesk.errors import PublicError
+
+
+def test_hidden_history_retains_provider_turn_boundaries():
+    """Separate past instructions from a new request without exposing old evidence."""
+    from langchain_anthropic import ChatAnthropic
+
+    messages = [
+        HumanMessage("Hello, I need a new work account."),
+        AIMessage(content="", tool_calls=[
+            {"name": "get_ticket", "args": {"ticket_id": "TKT-007"}, "id": "old-read"},
+        ]),
+        ToolMessage('{"id":"TKT-007","description":"PRIVATE-EVIDENCE"}',
+                    name="get_ticket", tool_call_id="old-read", status="success"),
+        AIMessage("PRIVATE-EVIDENCE"),
+        HumanMessage("Create all tickets."),
+        AIMessage("Which issues should the tickets describe?"),
+        HumanMessage("I want to see the available tickets."),
+    ]
+    original = [message.model_dump() for message in messages]
+    view = authorized_history_view(messages)
+    model = ChatAnthropic(model="claude-sonnet-5-5", api_key="test-key")
+    payload = model._get_request_payload(view)
+    assert [message["role"] for message in payload["messages"]] == [
+        "user", "assistant", "user", "assistant", "user",
+    ]
+    assert view[-1] is messages[-1]
+    assert payload["messages"][-1]["content"] == messages[-1].text
+    assert "PRIVATE-EVIDENCE" not in str(payload)
+    assert "TKT-007" not in str(payload)
+    assert [message.model_dump() for message in messages] == original
+
+
+def test_fresh_authorized_history_keeps_original_messages():
+    """Restore original context only when current access checks cover its records."""
+    messages = [
+        HumanMessage("Read that ticket."),
+        AIMessage(content="", tool_calls=[
+            {"name": "get_ticket", "args": {"ticket_id": "TKT-001"}, "id": "old-read"},
+        ]),
+        ToolMessage('{"id":"TKT-001"}', name="get_ticket", tool_call_id="old-read", status="success"),
+        AIMessage("The ticket is open."), HumanMessage("Show available tickets."),
+        AIMessage(content="", tool_calls=[{"name": "list_tickets", "args": {}, "id": "fresh-list"}]),
+        ToolMessage('{"items":[{"id":"TKT-001"}]}', name="list_tickets",
+                    tool_call_id="fresh-list", status="success"),
+    ]
+    assert authorized_history_view(messages) is messages
 
 
 def test_compact_tools_without_changing_persisted_objects():

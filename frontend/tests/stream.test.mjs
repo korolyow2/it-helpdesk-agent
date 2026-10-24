@@ -28,6 +28,19 @@ test("a failure after partial text never becomes a completed reply", async () =>
   assert.equal(partial, "Partial");
 });
 
+test("a reset discards superseded narration and validates only the final draft", async () => {
+  const source = 'event: text_delta\ndata: {"text":"Let me check."}\n\n' +
+    'event: text_reset\ndata: {}\n\n' +
+    'event: text_delta\ndata: {"text":"The ticket is open."}\n\n' +
+    'event: done\ndata: {"reply":"The ticket is open.","request_id":"sample"}\n\n';
+  let draft = "";
+  let resets = 0;
+  const result = await readAnswerStream(response(source), text => { draft += text; }, () => { draft = ""; resets++; });
+  assert.equal(resets, 1);
+  assert.equal(draft, result.reply);
+  assert.equal(draft, "The ticket is open.");
+});
+
 for (const [name, source] of [
   ["missing completion", 'event: text_delta\ndata: {"text":"Partial"}\n\n'],
   ["mismatched completion", 'event: done\ndata: {"reply":"Invented"}\n\n'],

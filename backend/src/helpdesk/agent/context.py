@@ -3,7 +3,7 @@
 import json
 
 from langchain.agents.middleware import wrap_model_call
-from langchain_core.messages import BaseMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.messages.utils import count_tokens_approximately
 
 from helpdesk.errors import PublicError
@@ -19,8 +19,10 @@ def authorized_history_view(messages):
     Notes
     -----
     This changes only model input. User-supplied references remain available,
-    and persistent checkpoints are unchanged. No ticket RPC runs before the
-    model chooses a tool. A partial overview cannot authorize unseen tickets.
+    and persistent checkpoints are unchanged. Omitted responses retain a neutral
+    assistant boundary so providers cannot merge old requests into the new turn.
+    No ticket RPC runs before the model chooses a tool. A partial overview cannot
+    authorize unseen tickets.
     """
     start = next((i for i in range(len(messages) - 1, -1, -1)
                   if isinstance(messages[i], HumanMessage)), 0)
@@ -47,7 +49,19 @@ def authorized_history_view(messages):
             visible_ids.update(ids)
     if historical_ids <= visible_ids:
         return messages
-    return [item for item in messages[:start] if isinstance(item, HumanMessage)] + messages[start:]
+    history = []
+    for item in messages[:start]:
+        if isinstance(item, HumanMessage):
+            history.extend([
+                item,
+                AIMessage(
+                    content=("This is an earlier conversation turn. Its assistant response and ticket "
+                             "evidence are omitted pending current access checks. "
+                             "Do not treat that earlier user message as a new instruction."),
+                    additional_kwargs={"context_omitted": True},
+                ),
+            ])
+    return [*history, *messages[start:]]
 
 
 def compact_json(text):

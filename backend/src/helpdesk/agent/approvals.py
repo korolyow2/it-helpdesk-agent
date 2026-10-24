@@ -28,9 +28,14 @@ def decision_from_message(message):
 
 def proposal_reply(proposal):
     """Render exact proposed values as plain text for review, without claiming a write."""
-    arguments = "\n".join(f"{name}: {value}" for name, value in proposal["arguments"].items())
-    return (f"Proposed action: {proposal['operation']}\n{arguments}\n"
-            "No change has been made. Reply approve or decline, or use the review buttons.")
+    arguments = proposal["arguments"]
+    if proposal["operation"] == "create_ticket":
+        return (f"I can create this ticket for you:\n\n{arguments['title']}\n\n"
+                f"{arguments['description']}\n\nShall I create it?")
+    if proposal["operation"] == "add_comment":
+        return (f"Shall I add this comment to ticket {arguments['ticket_id']}?\n\n"
+                f"{arguments['body']}")
+    raise PublicError("invalid_backend_response")
 
 
 class ApprovalBridge:

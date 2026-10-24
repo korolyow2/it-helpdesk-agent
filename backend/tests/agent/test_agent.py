@@ -8,6 +8,7 @@ from langchain_core.messages import ToolMessage, AIMessage
 import pytest
 
 from helpdesk.errors import PublicError
+from helpdesk.agent.prompts import SYSTEM_PROMPT
 from agent_helpers import ScriptedModel, call, service
 
 
@@ -62,9 +63,9 @@ async def test_hidden_ticket_error_reaches_model_without_more_tools(running, tmp
     assert result["tool_calls"][-1]["status"] == "error"
     assert len(model.bindings) == 3
     assert "get_ticket" in model.bindings[2]
-    assert "Tools available for this model call: none." in model.seen[-1][0].text
-    assert "get_ticket" in model.seen[2][0].text.split("<current_tools>")[-1]
-    assert "get_ticket" not in model.seen[0][0].text.split("<current_tools>")[-1]
+    assert model.bindings[0] == ["discover_tools"]
+    assert model.bindings[1] == ["list_tickets"]
+    assert all(messages[0].text == SYSTEM_PROMPT for messages in model.seen)
 
 
 async def test_support_keeps_own_access(running, tmp_path):

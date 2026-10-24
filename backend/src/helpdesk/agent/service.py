@@ -150,6 +150,8 @@ class AgentService:
                             if event["event"] == "text_delta" and first_answer:
                                 span.update(metadata={"first_answer_token_ms": (perf_counter() - started) * 1000})
                                 first_answer = False
+                            if event["event"] == "text_reset":
+                                first_answer = True
                             if event["event"] == "done":
                                 self.completed_tools[request_id] = (user_id, [
                                     {"name": call["name"], "status": call["status"]}
@@ -478,7 +480,9 @@ class AgentService:
         ]
         # Complete interrupted read calls before adding the new user message.
         result = None
-        text_chunks = {}
+        answer_id = None
+        answer_chunks = []
+        tool_message_ids = set()
         graph_input = Command(resume=resume) if resume else {"messages": [
                 *interrupted, {"role": "user", "content": message.strip()},
             ]}
@@ -492,10 +496,30 @@ class AgentService:
                     result = part["data"]
                 elif part["type"] == "messages":
                     chunk, _metadata = part["data"]
-                    if isinstance(chunk, AIMessageChunk) and chunk.text:
-                        text_chunks.setdefault(chunk.id, []).append(chunk.text)
+                    if not isinstance(chunk, AIMessageChunk):
+                        continue
+                    if chunk.tool_calls or chunk.tool_call_chunks:
+                        tool_message_ids.add(chunk.id)
+                        if answer_chunks and chunk.id == answer_id:
+                            # A provider may stream user-facing narration before
+                            # selecting a tool. Retract that draft, not the task.
+                            yield {"event": "text_reset", "data": {}}
+                            answer_chunks.clear()
+                            answer_id = None
+                        continue
+                    if not chunk.text or chunk.id in tool_message_ids:
+                        continue
+                    if answer_chunks and chunk.id != answer_id:
+                        yield {"event": "text_reset", "data": {}}
+                        answer_chunks.clear()
+
+                    answer_id = chunk.id
+                    answer_chunks.append(chunk.text)
+                    yield {"event": "text_delta", "data": {"message_id": answer_id, "text": chunk.text}}
         snapshot = await agent.aget_state(config)
         if snapshot.interrupts:
+            if answer_chunks:
+                raise PublicError("incomplete_model_output")
             proposal = snapshot.interrupts[0].value["proposal"]
             calls = self.turn_tool_calls(snapshot.values.get("messages", []))
             calls.append({"name": proposal["operation"], "arguments": proposal["arguments"],
@@ -509,13 +533,14 @@ class AgentService:
         last = messages[-1]
         if not isinstance(last, AIMessage) or last.tool_calls or not last.text:
             raise PublicError("internal_error", request_id=REQUEST_ID.get())
-        # A model can emit text before deciding to call a tool. Publish only
-        # the validated final message, never text from those intermediate steps.
-        chunks = text_chunks.get(last.id, [])
-        if "".join(chunks) != last.text:
-            chunks = [last.text]
-        for text in chunks:
-            yield {"event": "text_delta", "data": {"message_id": last.id, "text": text}}
+        # Confirm the current draft only; superseded narration is not the reply.
+        # Failed or truncated generations must never receive a success event.
+        if answer_chunks:
+            if answer_id != last.id or "".join(answer_chunks) != last.text:
+                raise PublicError("incomplete_model_output")
+        else:
+            # Application-owned approval receipts do not produce model chunks.
+            yield {"event": "text_delta", "data": {"message_id": last.id, "text": last.text}}
         calls = self.turn_tool_calls(messages)
         if resume:
             calls = [call for call in calls if call["name"] in {"create_ticket", "add_comment"}]

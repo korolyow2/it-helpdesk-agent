@@ -185,6 +185,8 @@ async def test_lost_write_responses_do_not_duplicate(server_options, client, dat
         human_decision(client, proposal)
         result = (await mcp.call_tool("create_ticket", {**body, "approval_id": proposal["approval_id"]})).data
         assert result["status"] == "completed"
+        assert result["ticket"]["id"] == "1"
+        assert (await mcp.call_tool("get_ticket", {"ticket_id": "1"})).data["id"] == "1"
     assert failed == {False, True}
     with closing(sqlite3.connect(database)) as connection:
         assert connection.execute("SELECT COUNT(*) FROM tickets").fetchone()[0] == 9

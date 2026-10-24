@@ -7,7 +7,7 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import ModelCallLimitMiddleware, ToolCallLimitMiddleware, wrap_model_call
 from langchain.agents.middleware.types import ModelResponse
 from langchain.chat_models import init_chat_model
-from langchain_core.messages import AIMessage, SystemMessage, ToolMessage
+from langchain_core.messages import AIMessage, ToolMessage
 
 from helpdesk.agent.approvals import WRITE_TOOLS
 from helpdesk.agent.context import prepare_context
@@ -58,21 +58,6 @@ async def stop_tools_after_error(request, handler):
             tool for tool in request.tools if tool.name in {"discover_tools", "list_tickets"}
         ])
 
-    # Discovery results remain in context after their one-step gate expires.
-    # Advertise the effective schemas so stale availability cannot imply denial.
-    names = ", ".join(tool.name for tool in request.tools) or "none"
-    context = (
-        "<current_tools>\n"
-        f"Tools available for this model call: {names}.\n"
-        "This current list supersedes earlier discovery availability. "
-        "Use an available detail tool to verify an explicitly identified ticket; "
-        "absence from the overview is not a failed lookup. "
-        "Do not claim to have attempted a tool unless its result is present.\n"
-        "</current_tools>"
-    )
-    request = request.override(system_message=SystemMessage(content=[
-        *request.system_message.content_blocks, {"type": "text", "text": context},
-    ]))
     response = await handler(request)
     if any(item.response_metadata.get("stop_reason") == "max_tokens" for item in response.result):
         raise PublicError("incomplete_model_output")
@@ -140,9 +125,9 @@ def model_from_env():
     name = os.environ.get("MODEL_NAME", "claude-sonnet-5-5").strip()
     if not name:
         raise ValueError("MODEL_NAME must not be empty.")
-    options = {"max_tokens": 1024, "timeout": 30, "max_retries": 2}
+    options = {"max_tokens": 1536, "timeout": 30, "max_retries": 2}
     if provider == "anthropic":
-        options.update(thinking={"type": "adaptive"}, output_config={"effort": "medium"})
+        options.update(thinking={"type": "adaptive"}, output_config={"effort": "high"})
         workspace = os.environ.get("ANTHROPIC_WORKSPACE_ID", "").strip()
         if workspace:
             options["default_headers"] = {"anthropic-workspace-id": workspace}

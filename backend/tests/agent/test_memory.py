@@ -42,9 +42,17 @@ async def test_fact_reaches_new_session_after_restart_but_not_other_user(running
     async with service(running, tmp_path, model) as agent:
         await agent.run("user-001", "second", "What operating system do I use?")
         await agent.run("user-002", "second", "What operating system do I use?")
-    assert "User-reported operating system: Windows" in model.seen[0][0].text
+        _, graph, config = agent.conversation("user-001", "second", "verify-memory-context")
+        saved = (await graph.aget_state(config)).values["messages"]
+    from helpdesk.agent.prompts import SYSTEM_PROMPT
+
+    assert all(messages[0].text == SYSTEM_PROMPT for messages in model.seen)
+    assert any("User-reported operating system: Windows" in item.text
+               for item in model.seen[0] if item.type == "human")
     assert "I use Windows 11." not in str(model.seen[0])
-    assert "<user_facts>" not in model.seen[1][0].text
+    assert all("<user_facts>" not in item.text for item in model.seen[1] if item.type != "system")
+    assert "<user_facts>" not in str(saved)
+    assert next(item.text for item in saved if item.type == "human") == "What operating system do I use?"
 
 
 async def test_authenticated_memory_api_cannot_read_or_delete_another_user(running, tmp_path):

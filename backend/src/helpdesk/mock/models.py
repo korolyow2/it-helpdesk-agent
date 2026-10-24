@@ -9,7 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 Title = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 Text = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10000)]
 TicketId = Annotated[str, StringConstraints(
-    strip_whitespace=True, to_upper=True, max_length=100, pattern=r"^[Tt][Kk][Tt]-[A-Za-z0-9]+$"
+    strip_whitespace=True, to_upper=True, max_length=100,
+    pattern=r"^(?:[1-9][0-9]*|[Tt][Kk][Tt]-[A-Za-z0-9]+)$"
 )]
 ApprovalId = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=100)]
 

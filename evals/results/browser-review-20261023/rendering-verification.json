@@ -1,0 +1,13 @@
+{
+  "recorded_at": "2026-10-23T11:15:58.462Z",
+  "partial": {
+    "partial": "Proposed action: create_ticket\ndescription: The user's laptop needs an o",
+    "status": "Writing the reply..."
+  },
+  "completed": {
+    "reply": "Proposed action: create_ticket\ndescription: The user's laptop needs an operating system update, but the user does not have the privileges required to install it. They need assistance getting the update installed.\ntitle: Laptop OS update cannot be installed due to insufficient privileges\nNo change has been made. Reply approve or decline, or use the review buttons.",
+    "script": "/assets/vendor/deep-chat-2.5.1.bundle.js",
+    "status": "Reply complete."
+  },
+  "progressive": true
+}

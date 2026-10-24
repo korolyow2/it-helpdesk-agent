@@ -233,6 +233,21 @@ def test_main_prompt_matches_the_screened_request_contract():
     assert "Acknowledge unrelated requests briefly" not in SYSTEM_PROMPT
 
 
+def test_system_prompt_is_a_static_string_literal():
+    """Reject interpolation or computed values in the system prompt definition."""
+    import ast
+    from pathlib import Path
+    from helpdesk.agent import prompts
+
+    tree = ast.parse(Path(prompts.__file__).read_text())
+    assignments = [node for node in tree.body if isinstance(node, ast.Assign)
+                   and any(isinstance(target, ast.Name) and target.id == "SYSTEM_PROMPT"
+                           for target in node.targets)]
+    assert len(assignments) == 1
+    assert isinstance(assignments[0].value, ast.Constant)
+    assert assignments[0].value.value == prompts.SYSTEM_PROMPT
+
+
 async def test_guardrail_interruption_is_logged_and_leaves_no_history(running, tmp_path, recorded_traces):
     """A deadline during screening must never invoke the agent or record input."""
     import asyncio

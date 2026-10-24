@@ -3,6 +3,7 @@
 from contextlib import closing
 import asyncio
 import json
+import re
 import sqlite3
 from types import SimpleNamespace
 
@@ -14,7 +15,7 @@ from mcp.types import REQUEST_TIMEOUT
 import pytest
 
 from agent_helpers import ScriptedModel, call, service
-from helpdesk.agent.approvals import ApprovalBridge, WriteReview
+from helpdesk.agent.approvals import ApprovalBridge, WriteReview, proposal_reply
 from helpdesk.errors import PublicError
 from helpdesk.mcp.mock_client import MockClient
 
@@ -44,6 +45,19 @@ def counts(database):
     with closing(sqlite3.connect(database)) as connection:
         return (connection.execute("SELECT COUNT(*) FROM tickets").fetchone()[0],
                 connection.execute("SELECT json_array_length(comments) FROM tickets WHERE id='TKT-001'").fetchone()[0])
+
+
+@pytest.mark.parametrize("operation,arguments,expected", [
+    ("create_ticket", {"title": "VPN account", "description": "Access to project Atlas."},
+     "I can create this ticket for you:\n\nVPN account\n\nAccess to project Atlas.\n\nShall I create it?"),
+    ("add_comment", {"ticket_id": "12", "body": "Restarting did not help.\nThe issue persists."},
+     "Shall I add this comment to ticket 12?\n\nRestarting did not help.\nThe issue persists."),
+])
+def test_confirmation_shows_exact_content_without_internal_fields(operation, arguments, expected):
+    """Keep review content complete and separate from machine approval metadata."""
+    reply = proposal_reply({"operation": operation, "arguments": arguments, "approval_id": "PRIVATE-APPROVAL-ID"})
+    assert reply == expected
+    assert all(value not in reply for value in [operation, "PRIVATE-APPROVAL-ID", "description:", "ticket_id:"])
 
 
 @pytest.mark.parametrize("operation", ["add_comment", "create_ticket"])
@@ -177,8 +191,16 @@ async def test_created_ticket_history_is_hidden_after_access_is_revoked(running,
         ]))
         agent.model = model
         await agent.run("user-001", "session", "Show the accessible tickets.")
-        assert all(identifier not in str(message.content) for message in model.seen[-1]
-                   if message.type != "human")
+        for message in model.seen[-1]:
+            if message.type == "human":
+                continue
+            content = str(message.content)
+            assert "Workstation display flickers" not in content
+            assert "My external display flickers after docking." not in content
+            # A short numeric ID can also occur in unrelated pagination fields.
+            assert not re.search(r'"(?:id|ticket_id)"\s*:\s*"' + re.escape(identifier) + r'"', content)
+            if isinstance(message, AIMessage):
+                assert all(tool["name"] != "create_ticket" for tool in message.tool_calls)
 
 
 @pytest.mark.parametrize("failure_window", ["before_binding", "after_binding"])
@@ -279,7 +301,7 @@ async def test_proposal_stream_discards_intermediate_model_text(running, tmp_pat
     async with service(running, tmp_path, model, approval_bridge=approval_bridge) as agent:
         events = [event async for event in agent.stream("user-001", "session", "Please create the described ticket.")]
     text = "".join(event["data"]["text"] for event in events if event["event"] == "text_delta")
-    assert text == events[-1]["data"]["reply"] and text.startswith("Proposed action:")
+    assert text == events[-1]["data"]["reply"] and text.startswith("I can create this ticket for you:")
     assert "PRIVATE" not in text
 
 

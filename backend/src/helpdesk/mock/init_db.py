@@ -9,6 +9,23 @@ import sqlite3
 from helpdesk.paths import DATA_DIR, DEFAULT_DATABASE
 
 
+def initialize_ticket_sequence(connection: sqlite3.Connection) -> None:
+    """Preserve the counter and advance it past existing numeric ticket IDs.
+
+    Parameters
+    ----------
+    connection : sqlite3.Connection
+        Active schema initialization or upgrade transaction.
+    """
+    connection.execute("""
+        INSERT INTO ticket_sequence (singleton, last_number)
+        SELECT 1, COALESCE(MAX(CAST(id AS INTEGER)), 0) FROM tickets
+        WHERE id != '' AND id NOT GLOB '*[^0-9]*'
+        ON CONFLICT(singleton) DO UPDATE
+        SET last_number = MAX(ticket_sequence.last_number, excluded.last_number)
+    """)
+
+
 def initialize_database(database: Path, seed: Path) -> tuple[int, int]:
     """Create the schema and load seed records in one transaction.
 
@@ -38,6 +55,7 @@ def initialize_database(database: Path, seed: Path) -> tuple[int, int]:
     fixture = json.loads(seed.read_text(encoding="utf-8"))
     schema = (DATA_DIR / "schema.sql").read_text(encoding="utf-8")
     schema += "\n" + (DATA_DIR / "approval_schema.sql").read_text(encoding="utf-8")
+    schema += "\n" + (DATA_DIR / "ticket_sequence_schema.sql").read_text(encoding="utf-8")
     tickets = [
         {**ticket, "comments": json.dumps(ticket.get("comments", []))}
         for ticket in fixture["tickets"]
@@ -64,12 +82,13 @@ def initialize_database(database: Path, seed: Path) -> tuple[int, int]:
                 )""",
                 tickets,
             )
+            initialize_ticket_sequence(connection)
 
     return len(fixture["users"]), len(tickets)
 
 
 def upgrade_database(database: Path) -> None:
-    """Add durable approval storage without replacing existing users or tickets.
+    """Upgrade approval and sequence storage without replacing existing data.
 
     Parameters
     ----------
@@ -77,10 +96,12 @@ def upgrade_database(database: Path) -> None:
         Existing initialized mock database.
     """
     schema = (DATA_DIR / "approval_schema.sql").read_text(encoding="utf-8")
+    schema += "\n" + (DATA_DIR / "ticket_sequence_schema.sql").read_text(encoding="utf-8")
     with closing(sqlite3.connect(f"{database.resolve().as_uri()}?mode=rw", uri=True)) as connection:
         connection.execute("PRAGMA foreign_keys = ON")
         with connection:
             connection.executescript("BEGIN IMMEDIATE;\n" + schema)
+            initialize_ticket_sequence(connection)
 
 
 def main() -> None:
@@ -88,12 +109,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--database", type=Path, default=DEFAULT_DATABASE)
     parser.add_argument("--seed", type=Path, default=DATA_DIR / "seed.json")
-    parser.add_argument("--upgrade", action="store_true", help="Add approval storage without reseeding.")
+    parser.add_argument("--upgrade", action="store_true", help="Upgrade storage without reseeding.")
     args = parser.parse_args()
     try:
         if args.upgrade:
             upgrade_database(args.database)
-            print(f"Updated approval schema in {args.database}.")
+            print(f"Updated mock schema in {args.database}.")
             return
         users, tickets = initialize_database(args.database, args.seed)
     except (OSError, ValueError, KeyError, TypeError, sqlite3.Error) as error:
